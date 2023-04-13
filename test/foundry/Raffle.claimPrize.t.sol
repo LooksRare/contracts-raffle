@@ -169,6 +169,19 @@ contract Raffle_ClaimPrize_Test is TestParameters, TestHelpers {
         }
     }
 
+    function test_claimPrize_RevertIf_InvalidIndex() public {
+        _transitionRaffleStatusToDrawing();
+
+        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
+
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        vm.prank(user2);
+        vm.expectRevert(IRaffle.InvalidIndex.selector);
+        looksRareRaffle.claimPrize(0, 11);
+    }
+
     function _transitionRaffleStatusToDrawing() private {
         for (uint256 i; i < 107; ) {
             address participant = address(uint160(i + 1));
