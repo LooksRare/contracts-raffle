@@ -102,5 +102,20 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
     }
 
-    function test_despositPrizes_RevertIf_PrizeAlreadyDeposited() public {}
+    function test_despositPrizes_RevertIf_PrizeAlreadyDeposited() public asPrankedUser(user1) {
+        uint256[] memory prizeIndices = new uint256[](1);
+        prizeIndices[0] = 6;
+        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+
+        assertEq(mockERC20.balanceOf(user1), 0);
+        assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
+
+        mockERC20.mint(user1, 100_000 ether);
+
+        vm.expectRevert(IRaffle.PrizeAlreadyDeposited.selector);
+        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+
+        assertEq(mockERC20.balanceOf(user1), 100_000 ether);
+        assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
+    }
 }
