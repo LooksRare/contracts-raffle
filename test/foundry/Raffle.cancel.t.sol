@@ -45,6 +45,25 @@ contract Raffle_Cancel_Test is TestParameters, TestHelpers {
     }
 
     function test_cancel() public {
+        _enterRaffles();
+        vm.warp(block.timestamp + 86_400 + 1);
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Cancelled);
+
+        looksRareRaffle.cancel(0);
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
+    }
+
+    function test_cancel_RevertIf_CutoffTimeNotReached() public {
+        _enterRaffles();
+        vm.warp(block.timestamp + 86_399);
+        vm.expectRevert(IRaffle.CutoffTimeNotReached.selector);
+        looksRareRaffle.cancel(0);
+    }
+
+    function _enterRaffles() private {
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
         for (uint256 i = 10; i < 109; ) {
             address participant = address(uint160(i + 1));
@@ -61,14 +80,5 @@ contract Raffle_Cancel_Test is TestParameters, TestHelpers {
                 ++i;
             }
         }
-
-        vm.warp(block.timestamp + 86_400 + 1);
-
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Cancelled);
-
-        looksRareRaffle.cancel(0);
-
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
     }
 }
