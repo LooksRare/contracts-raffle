@@ -78,7 +78,11 @@ contract Raffle_Cancel_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
     }
 
-    function test_cancel_RevertIf_InvalidStatus() public {}
+    function test_cancel_RevertIf_InvalidStatus() public {
+        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.cancel(0);
+    }
 
     function test_cancel_RevertIf_CutoffTimeNotReached() public {
         _enterRaffles();
