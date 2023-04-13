@@ -148,6 +148,33 @@ contract Raffle_ClaimPrize_Test is TestParameters, TestHelpers {
         looksRareRaffle.claimPrize(0, 0);
     }
 
+    function test_claimPrize_RevertIf_PrizeAlreadyClaimed() public {
+        _transitionRaffleStatusToDrawing();
+
+        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
+
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
+            28189936613108082032912937814055130193651564991612570029372040097433016992289,
+            randomWords
+        );
+
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+
+        for (uint256 i; i < 11; ) {
+            assertFalse(winners[i].claimed);
+
+            looksRareRaffle.claimPrize(0, i);
+
+            vm.expectRevert(IRaffle.PrizeAlreadyClaimed.selector);
+            looksRareRaffle.claimPrize(0, i);
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
     function _transitionRaffleStatusToDrawing() private {
         for (uint256 i; i < 107; ) {
             address participant = address(uint160(i + 1));
