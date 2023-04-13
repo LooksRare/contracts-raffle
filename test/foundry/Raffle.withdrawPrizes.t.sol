@@ -33,7 +33,7 @@ contract Raffle_WithdrawPrizes_Test is TestParameters, TestHelpers {
         vm.stopPrank();
     }
 
-    function test_prizesWithdrawn() public {
+    function test_withdrawPrizes() public {
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
         for (uint256 i = 10; i < 109; ) {
             address participant = address(uint160(i + 1));
@@ -67,5 +67,63 @@ contract Raffle_WithdrawPrizes_Test is TestParameters, TestHelpers {
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 0);
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.PrizesWithdrawn);
+    }
+
+    function test_withdrawPrizes_SomePrizesAreNotDeposited() public asPrankedUser(user1) {
+        // Only the first 2 NFTs are deposited
+        mockERC721.mint(user1, 6);
+        mockERC721.mint(user1, 7);
+
+        /**
+         * The tokens should have been deposited by other raffle owners,
+         * but we'll just mint them here for simplicity
+         * */
+        mockERC721.mint(address(looksRareRaffle), 8);
+        mockERC721.mint(address(looksRareRaffle), 9);
+        mockERC721.mint(address(looksRareRaffle), 10);
+        mockERC721.mint(address(looksRareRaffle), 11);
+        mockERC721.mint(address(looksRareRaffle), 12);
+        mockERC20.mint(address(looksRareRaffle), 100_000 ether);
+
+        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
+        for (uint256 i; i < 6; ) {
+            prizes[i].prizeType = IRaffle.TokenType.ERC721;
+            prizes[i].prizeAddress = address(mockERC721);
+            prizes[i].prizeId = i + 6;
+            prizes[i].prizeAmount = 1;
+            prizes[i].winnersCount = 1;
+
+            unchecked {
+                i++;
+            }
+        }
+        prizes[6].prizeType = IRaffle.TokenType.ERC20;
+        prizes[6].prizeAddress = address(mockERC20);
+        prizes[6].prizeAmount = 1_000e18;
+        prizes[6].winnersCount = 100;
+        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+
+        looksRareRaffle.createRaffle({
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            prizeValue: 1 ether,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricings: pricings
+        });
+
+        uint256[] memory prizeIndices = _generatePrizeIndices(2);
+        looksRareRaffle.depositPrizes({raffleId: 1, prizeIndices: prizeIndices});
+
+        looksRareRaffle.cancel(1);
+        looksRareRaffle.withdrawPrizes(1);
+
+        assertEq(mockERC721.balanceOf(user1), 2);
+        assertEq(mockERC721.ownerOf(6), user1);
+        assertEq(mockERC721.ownerOf(7), user1);
+        assertEq(mockERC20.balanceOf(user1), 0);
+
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.PrizesWithdrawn);
     }
 }

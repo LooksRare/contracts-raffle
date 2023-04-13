@@ -547,7 +547,9 @@ contract Raffle is
 
         for (uint256 i; i < prizesCount; ) {
             Prize storage prize = raffle.prizes[i];
-            _transferPrize({prize: prize, recipient: raffle.owner, multiplier: prize.winnersCount});
+            if (prize.deposited) {
+                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: prize.winnersCount});
+            }
 
             unchecked {
                 ++i;
