@@ -130,16 +130,10 @@ interface IRaffle {
         uint256[] randomWords;
     }
 
+    event CallbackGasLimitPerRandomWordUpdated(uint32 callbackGasLimit);
+    event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
+    event EntrySold(uint256 raffleId, address buyer, uint256 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
-
-    event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
-    event PrizeDeposited(
-        uint256 raffleId,
-        TokenType prizeType,
-        address prizeAddress,
-        uint256 prizeId,
-        uint256 prizeAmount
-    );
     event PrizeClaimed(
         uint256 raffleId,
         address winner,
@@ -148,17 +142,24 @@ interface IRaffle {
         uint256 prizeId,
         uint256 prizeAmount
     );
+    event PrizeDeposited(
+        uint256 raffleId,
+        TokenType prizeType,
+        address prizeAddress,
+        uint256 prizeId,
+        uint256 prizeAmount
+    );
     event PrizesWithdrawn(uint256 raffleId);
-    event EntrySold(uint256 raffleId, address buyer, uint256 entriesCount, uint256 price);
-    event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
-    event RandomnessRequested(uint256 raffleId);
     event ProtocolFeeBpUpdated(uint256 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
+    event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
+    event RandomnessRequested(uint256 raffleId);
 
     error AlreadyRefunded();
     error CutoffTimeNotReached();
     error CutoffTimeReached();
     error InsufficientNativeTokensSupplied();
+    error InvalidCallbackGasLimitPerRandomWord();
     error InvalidCutoffTime();
     error InvalidEntriesCount();
     error InvalidEntriesRange();

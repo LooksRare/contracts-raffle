@@ -211,6 +211,26 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         });
     }
 
+    function test_createRaffle_RevertIf_CumulativeWinnersCountGreaterThanMaximumNumberOfWinnersPerRaffle()
+        public
+        asPrankedUser(user1)
+    {
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        prizes[6].winnersCount = 105; // 1 + 5 + 105 = 111 > 110
+        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+
+        vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
+        looksRareRaffle.createRaffle({
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            prizeValue: 1 ether,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricings: pricings
+        });
+    }
+
     function test_createRaffle_RevertIf_PricingEntriesCountIsZero() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
 

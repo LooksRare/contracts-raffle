@@ -53,6 +53,11 @@ contract Raffle is
     mapping(uint256 => mapping(address => ParticipantStats)) public rafflesParticipantsStats;
 
     /**
+     * @notice According to Chainlink, realistically the maximum number of random words is 125.
+     */
+    uint256 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
+
+    /**
      * @notice The key hash of the Chainlink VRF.
      */
     bytes32 public immutable KEY_HASH;
@@ -72,6 +77,11 @@ contract Raffle is
      * @dev The key is the request ID returned by Chainlink.
      */
     mapping(uint256 => RandomnessRequest) public randomnessRequests;
+
+    /**
+     * @notice The callback gas limit per random word returned by Chainlink.
+     */
+    uint32 public callbackGasLimitPerRandomWord = 20_000;
 
     /**
      * @notice The maximum protocol fee in basis points, which is 25%.
@@ -164,6 +174,10 @@ contract Raffle is
             unchecked {
                 ++i;
             }
+        }
+
+        if (cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
+            revert InvalidWinnersCount();
         }
 
         _validatePricings(pricings);
@@ -324,12 +338,11 @@ contract Raffle is
         uint256 prizesCount = prizes.length;
         uint32 winnersCount = uint32(prizes[prizesCount - 1].cumulativeWinnersCount);
 
-        uint32 callbackGasLimit = 20_000 * winnersCount;
         uint256 requestId = VRF_COORDINATOR.requestRandomWords(
             KEY_HASH,
             SUBSCRIPTION_ID,
             requestConfirmations,
-            callbackGasLimit,
+            callbackGasLimitPerRandomWord * winnersCount,
             winnersCount
         );
 
@@ -559,6 +572,17 @@ contract Raffle is
         raffle.status = RaffleStatus.PrizesWithdrawn;
 
         emit PrizesWithdrawn(raffleId);
+    }
+
+    function setCallbackGasLimitPerRandomWord(uint32 _callbackGasLimitPerRandomWord) external onlyOwner {
+        if (
+            _callbackGasLimitPerRandomWord < 20_000 ||
+            _callbackGasLimitPerRandomWord * MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE > 2_500_000
+        ) {
+            revert InvalidCallbackGasLimitPerRandomWord();
+        }
+        callbackGasLimitPerRandomWord = _callbackGasLimitPerRandomWord;
+        emit CallbackGasLimitPerRandomWordUpdated(_callbackGasLimitPerRandomWord);
     }
 
     function setProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {
