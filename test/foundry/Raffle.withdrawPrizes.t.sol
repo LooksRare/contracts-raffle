@@ -33,22 +33,7 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
     }
 
     function test_withdrawPrizes() public {
-        // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 109; ) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
-        }
+        _enterRaffles();
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -124,5 +109,30 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
         assertEq(mockERC20.balanceOf(user1), 0);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.PrizesWithdrawn);
+    }
+
+    function test_withdrawPrizes_RevertIf_InvalidStatus() public {
+        _enterRaffles();
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.withdrawPrizes(0);
+    }
+
+    function _enterRaffles() private {
+        // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
+        for (uint256 i = 10; i < 116; ) {
+            address participant = address(uint160(i + 1));
+
+            vm.deal(participant, 0.025 ether);
+
+            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+
+            vm.prank(participant);
+            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 }
