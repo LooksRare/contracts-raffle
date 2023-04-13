@@ -12,12 +12,17 @@ import {MockERC721} from "./mock/MockERC721.sol";
 contract Raffle_ProtocolFees_Test is TestHelpers {
     Raffle public looksRareRaffle;
 
+    event ProtocolFeeBpUpdated(uint256 protocolFeeBp);
+    event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
+
     function setUp() public {
         looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
     }
 
     function test_setProtocolFeeRecipient() public asPrankedUser(owner) {
         address newRecipient = address(0x1);
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit ProtocolFeeRecipientUpdated(newRecipient);
         looksRareRaffle.setProtocolFeeRecipient(newRecipient);
         assertEq(looksRareRaffle.protocolFeeRecipient(), newRecipient);
     }
@@ -32,5 +37,25 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
         address newRecipient = address(0);
         vm.expectRevert(IRaffle.InvalidProtocolFeeRecipient.selector);
         looksRareRaffle.setProtocolFeeRecipient(newRecipient);
+    }
+
+    function test_setProtocolFeeBp() public asPrankedUser(owner) {
+        uint256 newProtocolFeeBp = 2_409;
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit ProtocolFeeBpUpdated(newProtocolFeeBp);
+        looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
+        assertEq(looksRareRaffle.protocolFeeBp(), newProtocolFeeBp);
+    }
+
+    function test_setProtocolFeeBp_RevertIf_NotOwner() public {
+        uint256 newProtocolFeeBp = 2_409;
+        vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
+        looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
+    }
+
+    function test_setProtocolFeeBp_RevertIf_InvalidProtocolFeeBp() public asPrankedUser(owner) {
+        uint256 newProtocolFeeBp = 2_501;
+        vm.expectRevert(IRaffle.InvalidProtocolFeeBp.selector);
+        looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
     }
 }
