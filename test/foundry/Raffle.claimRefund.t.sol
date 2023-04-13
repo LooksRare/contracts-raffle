@@ -32,32 +32,29 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         vm.stopPrank();
     }
 
-    function test_claimRefund() public {
+    function test_claimRefund_StatusIsCancelled() public {
         _enterRaffles();
 
         vm.warp(block.timestamp + 86_400 + 1);
 
         looksRareRaffle.cancel(0);
 
-        for (uint256 i = 10; i < 109; ) {
-            address participant = address(uint160(i + 1));
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
 
-            vm.prank(participant);
-            looksRareRaffle.claimRefund(0);
+        _validClaimRefunds();
+    }
 
-            assertEq(participant.balance, 0.025 ether);
+    function test_claimRefund_StatusIsPrizesWithdrawn() public {
+        _enterRaffles();
 
-            (uint256 amountPaid, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, participant);
+        vm.warp(block.timestamp + 86_400 + 1);
 
-            assertEq(amountPaid, 0.025 ether);
-            assertTrue(refunded);
+        looksRareRaffle.cancel(0);
+        looksRareRaffle.withdrawPrizes(0);
 
-            unchecked {
-                ++i;
-            }
-        }
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.PrizesWithdrawn);
 
-        assertEq(address(looksRareRaffle).balance, 0);
+        _validClaimRefunds();
     }
 
     function test_claimRefund_RevertIf_InvalidStatus() public {
@@ -93,5 +90,27 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
                 ++i;
             }
         }
+    }
+
+    function _validClaimRefunds() private {
+        for (uint256 i = 10; i < 109; ) {
+            address participant = address(uint160(i + 1));
+
+            vm.prank(participant);
+            looksRareRaffle.claimRefund(0);
+
+            assertEq(participant.balance, 0.025 ether);
+
+            (uint256 amountPaid, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, participant);
+
+            assertEq(amountPaid, 0.025 ether);
+            assertTrue(refunded);
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        assertEq(address(looksRareRaffle).balance, 0);
     }
 }
