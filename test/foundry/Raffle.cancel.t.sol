@@ -44,7 +44,30 @@ contract Raffle_Cancel_Test is TestParameters, TestHelpers {
         vm.stopPrank();
     }
 
-    function test_cancel() public {
+    // TODO: How do we prevent a user from creating a raffle with deposited NFTs from another raffle?
+    function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user1) {
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+
+        looksRareRaffle.createRaffle({
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            prizeValue: 1 ether,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricings: pricings
+        });
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Cancelled);
+
+        looksRareRaffle.cancel(1);
+
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
+    }
+
+    function test_cancel_RaffleStatusIsOpen() public {
         _enterRaffles();
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -65,7 +88,7 @@ contract Raffle_Cancel_Test is TestParameters, TestHelpers {
 
     function _enterRaffles() private {
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 109; ) {
+        for (uint256 i = 10; i < 116; ) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 0.025 ether);

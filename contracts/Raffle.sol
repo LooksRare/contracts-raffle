@@ -486,18 +486,16 @@ contract Raffle is
     function cancel(uint256 raffleId) external {
         Raffle storage raffle = raffles[raffleId];
 
-        // TODO: Should CREATED be valid?
-        if (raffle.status != RaffleStatus.Open) {
-            revert InvalidStatus();
+        if (raffle.status != RaffleStatus.Created) {
+            if (raffle.status != RaffleStatus.Open) {
+                revert InvalidStatus();
+            }
         }
 
-        if (raffle.cutoffTime > block.timestamp) {
-            revert CutoffTimeNotReached();
-        }
-
-        Entry storage lastEntry = raffle.entries[raffle.entries.length - 1];
-        if (lastEntry.currentEntryIndex >= raffle.minimumEntries) {
-            revert MinimumEntriesReached();
+        if (raffle.status == RaffleStatus.Open) {
+            if (raffle.cutoffTime > block.timestamp) {
+                revert CutoffTimeNotReached();
+            }
         }
 
         raffle.status = RaffleStatus.Cancelled;
