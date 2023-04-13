@@ -97,4 +97,16 @@ contract Raffle_DrawWinners_Test is TestParameters, TestHelpers {
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawing);
     }
+
+    function test_drawWinners_RevertIf_InvalidStatus() public asPrankedUser(user2) {
+        vm.deal(user2, 0.95 ether);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
+
+        looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
+
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.drawWinners(0);
+    }
 }
