@@ -63,6 +63,9 @@ contract Raffle_ClaimFees_Test is TestParameters, TestHelpers {
         assertEq(claimableFees, 2.675 ether);
         uint256 raffleOwnerBalance = user1.balance;
 
+        assertEq(PROTOCOL_FEE_RECIPIENT.balance, 0);
+        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0);
+
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Complete);
 
@@ -77,6 +80,14 @@ contract Raffle_ClaimFees_Test is TestParameters, TestHelpers {
         assertEq(user1.balance, raffleOwnerBalance + 2.54125 ether);
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0.13375 ether);
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Complete);
+
+        vm.prank(owner);
+        looksRareRaffle.claimProtocolFees(address(0));
+
+        // After the raffle fees are claimed, we can receive the protocol fees.
+        assertEq(PROTOCOL_FEE_RECIPIENT.balance, 0.13375 ether);
+        assertEq(address(looksRareRaffle).balance, 0);
+        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0);
     }
 
     function test_claimFees_RevertIf_InvalidStatus() public {
