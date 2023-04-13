@@ -309,8 +309,11 @@ contract Raffle is
             // maybe an additional check that the raffle status isn't ready to be drawn?
             /** TODO: validate amount purchased is >= prizeValue * 1.05 ? */
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
-                raffle.status = RaffleStatus.ReadyToBeDrawn;
-                emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
+                // TODO: Should the premium be configurable? ALSO TEST THIS
+                if (raffle.claimableFees > (raffle.prizeValue * 10_500) / 10_000) {
+                    raffle.status = RaffleStatus.ReadyToBeDrawn;
+                    emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
+                }
             }
 
             unchecked {
