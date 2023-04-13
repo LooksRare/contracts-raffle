@@ -51,26 +51,7 @@ contract Raffle_ClaimFees_Test is TestParameters, TestHelpers {
     }
 
     function test_claimFees() public {
-        for (uint256 i; i < 107; ) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
-        }
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
+        _transitionRaffleStatusToDrawing();
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
@@ -96,5 +77,35 @@ contract Raffle_ClaimFees_Test is TestParameters, TestHelpers {
         assertEq(user1.balance, raffleOwnerBalance + 2.54125 ether);
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0.13375 ether);
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Complete);
+    }
+
+    function test_claimFees_RevertIf_InvalidStatus() public {
+        _transitionRaffleStatusToDrawing();
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.claimFees(0);
+    }
+
+    // TODO: Move to TestHelpers.sol
+    function _transitionRaffleStatusToDrawing() private {
+        for (uint256 i; i < 107; ) {
+            address participant = address(uint160(i + 1));
+
+            vm.deal(participant, 0.025 ether);
+
+            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+
+            vm.prank(participant);
+            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        vm.startPrank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        looksRareRaffle.drawWinners(0);
+        vm.stopPrank();
     }
 }
