@@ -73,6 +73,28 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         }
     }
 
+    function test_claimRefund_RevertIf_AlreadyRefunded() public {
+        _enterRaffles();
+
+        vm.warp(block.timestamp + 86_400 + 1);
+
+        looksRareRaffle.cancel(0);
+
+        _validClaimRefunds();
+
+        for (uint256 i = 10; i < 109; ) {
+            address participant = address(uint160(i + 1));
+
+            vm.expectRevert(IRaffle.AlreadyRefunded.selector);
+            vm.prank(participant);
+            looksRareRaffle.claimRefund(0);
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
     function _enterRaffles() private {
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
         for (uint256 i = 10; i < 109; ) {
