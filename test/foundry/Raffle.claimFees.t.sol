@@ -17,15 +17,8 @@ contract Raffle_ClaimFees_Test is TestParameters, TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event RandomnessRequested(uint256 raffleId);
-    event PrizeClaimed(
-        uint256 raffleId,
-        address winner,
-        IRaffle.TokenType prizeType,
-        address prizeAddress,
-        uint256 prizeId,
-        uint256 prizeAmount
-    );
+    event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
+    event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
 
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
@@ -88,6 +81,12 @@ contract Raffle_ClaimFees_Test is TestParameters, TestHelpers {
         assertEq(address(looksRareRaffle).balance, 2.675 ether);
         assertEq(claimableFees, 2.675 ether);
         uint256 raffleOwnerBalance = user1.balance;
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Complete);
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit FeesClaimed(0, user1, 2.54125 ether);
 
         looksRareRaffle.claimFees(0);
 

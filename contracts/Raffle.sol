@@ -476,6 +476,7 @@ contract Raffle is
             protocolFeeRecipientClaimableFees[raffle.feeTokenAddress] += protocolFees;
         }
 
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Complete);
         emit FeesClaimed(raffleId, raffle.owner, claimableFees);
     }
 
