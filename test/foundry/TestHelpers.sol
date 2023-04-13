@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+
 import {AssertionHelpers} from "./AssertionHelpers.sol";
+import {TestParameters} from "./TestParameters.sol";
 
 import {Raffle} from "../../contracts/Raffle.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
@@ -9,7 +12,7 @@ import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-abstract contract TestHelpers is AssertionHelpers {
+abstract contract TestHelpers is AssertionHelpers, TestParameters {
     address public user1 = address(1);
     address public user2 = address(2);
     address public user3 = address(3);
@@ -113,5 +116,28 @@ abstract contract TestHelpers is AssertionHelpers {
                 ++i;
             }
         }
+    }
+
+    function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
+        for (uint256 i; i < 107; ) {
+            address participant = address(uint160(i + 1));
+
+            vm.deal(participant, 0.025 ether);
+
+            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+
+            vm.prank(participant);
+            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        vm.startPrank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        looksRareRaffle.drawWinners(0);
+        vm.stopPrank();
     }
 }

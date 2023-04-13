@@ -4,11 +4,10 @@ pragma solidity ^0.8.0;
 import {Raffle} from "../../contracts/Raffle.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 import {TestHelpers} from "./TestHelpers.sol";
-import {TestParameters} from "./TestParameters.sol";
 
 import {MockERC721} from "./mock/MockERC721.sol";
 
-contract Raffle_SetUpState_Test is TestParameters, TestHelpers {
+contract Raffle_SetUpState_Test is TestHelpers {
     Raffle public looksRareRaffle;
 
     function setUp() public {
