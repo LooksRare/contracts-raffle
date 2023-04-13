@@ -299,8 +299,8 @@ contract Raffle_FulfillRandomWords_Test is TestParameters, TestHelpers {
     function testFuzz_fulfillRandomWords(uint248 seed) public {
         IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
         uint256 userIndex;
-        uint256 cumulativeEntriesCount;
-        while (cumulativeEntriesCount < 107) {
+        uint256 currentEntryIndex;
+        while (currentEntryIndex < 107) {
             address participant = address(uint160(userIndex + 1));
             vm.deal(participant, 1 ether);
 
@@ -312,7 +312,7 @@ contract Raffle_FulfillRandomWords_Test is TestParameters, TestHelpers {
             looksRareRaffle.enterRaffles{value: pricings[pricingIndex].price}(entries);
 
             unchecked {
-                cumulativeEntriesCount += pricings[pricingIndex].entriesCount;
+                currentEntryIndex += pricings[pricingIndex].entriesCount;
                 ++userIndex;
             }
         }

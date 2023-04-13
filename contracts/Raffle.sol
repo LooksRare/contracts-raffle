@@ -271,18 +271,19 @@ contract Raffle is
                 _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), pricing.price);
             }
 
-            uint256 cumulativeEntriesCount;
+            uint256 currentEntryIndex;
             uint256 raffleEntriesCount = raffle.entries.length;
-            if (raffleEntriesCount != 0) {
-                cumulativeEntriesCount = raffle.entries[raffleEntriesCount - 1].cumulativeEntriesCount;
+            if (raffleEntriesCount == 0) {
+                currentEntryIndex = pricing.entriesCount - 1;
+            } else {
+                currentEntryIndex = raffle.entries[raffleEntriesCount - 1].currentEntryIndex + pricing.entriesCount;
             }
-            cumulativeEntriesCount += pricing.entriesCount;
 
-            if (cumulativeEntriesCount > raffle.maximumEntries) {
+            if (currentEntryIndex >= raffle.maximumEntries) {
                 revert MaximumEntriesReached();
             }
 
-            raffle.entries.push(Entry({cumulativeEntriesCount: cumulativeEntriesCount, participant: msg.sender}));
+            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
             // TODO: Optimize this somehow
             raffle.claimableFees += pricing.price;
 
@@ -293,7 +294,7 @@ contract Raffle is
             // TODO: What if the user enters the same raffle multiple times?
             // maybe an additional check that the raffle status isn't ready to be drawn?
             /** TODO: validate amount purchased is >= prizeValue * 1.05 ? */
-            if (cumulativeEntriesCount >= raffle.minimumEntries) {
+            if (currentEntryIndex >= raffle.minimumEntries - 1) {
                 raffle.status = RaffleStatus.ReadyToBeDrawn;
                 emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
             }
@@ -350,27 +351,27 @@ contract Raffle is
             Winner[] memory winners = new Winner[](winnersCount);
 
             uint256 entriesCount = raffle.entries.length;
-            uint256 cumulativeEntriesCount = raffle.entries[entriesCount - 1].cumulativeEntriesCount;
+            uint256 currentEntryIndex = raffle.entries[entriesCount - 1].currentEntryIndex;
 
-            uint256[] memory winningEntriesBitmap = new uint256[]((cumulativeEntriesCount >> 8) + 1);
+            uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
 
             for (uint256 i; i < winnersCount; ) {
                 uint256 randomWord = _randomWords[i];
-                uint256 winningEntry = (randomWord % cumulativeEntriesCount) + 1;
+                uint256 winningEntry = randomWord % (currentEntryIndex + 1);
                 (winningEntry, winningEntriesBitmap) = _incrementWinningEntryUntilThereIsNotADuplicate(
-                    cumulativeEntriesCount,
+                    currentEntryIndex,
                     winningEntry,
                     winningEntriesBitmap
                 );
 
-                uint256[] memory cumulativeEntriesCountArray = new uint256[](entriesCount);
+                uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
                 for (uint256 j; j < entriesCount; ) {
-                    cumulativeEntriesCountArray[j] = raffle.entries[j].cumulativeEntriesCount;
+                    currentEntryIndexArray[j] = raffle.entries[j].currentEntryIndex;
                     unchecked {
                         ++j;
                     }
                 }
-                uint256 winnerIndex = cumulativeEntriesCountArray.findUpperBound(winningEntry);
+                uint256 winnerIndex = currentEntryIndexArray.findUpperBound(winningEntry);
 
                 uint256 prizesCount = raffle.prizes.length;
                 uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
@@ -494,7 +495,7 @@ contract Raffle is
         }
 
         Entry storage lastEntry = raffle.entries[raffle.entries.length - 1];
-        if (lastEntry.cumulativeEntriesCount >= raffle.minimumEntries) {
+        if (lastEntry.currentEntryIndex >= raffle.minimumEntries) {
             revert MinimumEntriesReached();
         }
 
@@ -671,34 +672,30 @@ contract Raffle is
     }
 
     function _incrementWinningEntryUntilThereIsNotADuplicate(
-        uint256 cumulativeEntriesCount,
+        uint256 currentEntryIndex,
         uint256 winningEntry,
         uint256[] memory winningEntriesBitmap
     ) private pure returns (uint256, uint256[] memory) {
-        uint256 winningEntryBitmapSlot = winningEntry - 1;
-        uint256 bucket = winningEntryBitmapSlot >> 8;
-        uint256 mask = 1 << (winningEntryBitmapSlot & 0xff);
+        uint256 bucket = winningEntry >> 8;
+        uint256 mask = 1 << (winningEntry & 0xff);
         while (winningEntriesBitmap[bucket] & mask != 0) {
-            if (winningEntry == cumulativeEntriesCount) {
+            if (winningEntry == currentEntryIndex) {
                 bucket = 0;
-                winningEntry = 1;
-                winningEntryBitmapSlot = 0;
+                winningEntry = 0;
             } else {
                 winningEntry += 1;
-                winningEntryBitmapSlot += 1;
 
-                if (winningEntryBitmapSlot % 256 == 0) {
-                    winningEntryBitmapSlot = 0;
+                if (winningEntry % 256 == 0) {
                     if (bucket < winningEntriesBitmap.length - 1) {
                         bucket += 1;
                     } else {
                         bucket = 0;
-                        winningEntry = 1;
+                        winningEntry = 0;
                     }
                 }
             }
 
-            mask = 1 << (winningEntryBitmapSlot & 0xff);
+            mask = 1 << (winningEntry & 0xff);
         }
 
         winningEntriesBitmap[bucket] |= mask;
