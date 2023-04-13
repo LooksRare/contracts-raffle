@@ -12,4 +12,7 @@ abstract contract TestParameters {
 
     // TODO: Deploy ProtocolFeeRecipient locally and use that address
     address internal constant PROTOCOL_FEE_RECIPIENT = address(69_420);
+
+    uint256 internal constant FULFILL_RANDOM_WORDS_REQUEST_ID =
+        28189936613108082032912937814055130193651564991612570029372040097433016992289;
 }

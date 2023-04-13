@@ -88,9 +88,7 @@ contract Raffle_DrawWinners_Test is TestParameters, TestHelpers {
 
         vm.stopPrank();
 
-        (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(
-            28189936613108082032912937814055130193651564991612570029372040097433016992289
-        );
+        (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         assertTrue(exists);
         assertEq(raffleId, 0);

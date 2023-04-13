@@ -75,10 +75,7 @@ contract Raffle_FulfillRandomWords_Test is TestParameters, TestHelpers {
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
         vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
-            28189936613108082032912937814055130193651564991612570029372040097433016992289,
-            randomWords
-        );
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
         assertEq(winners.length, winnersCount);
@@ -159,10 +156,7 @@ contract Raffle_FulfillRandomWords_Test is TestParameters, TestHelpers {
         randomWords[9] = 21_405; // 21405 % 100 + 1 = 5 (becomes 10)
         randomWords[10] = 21_406; // 21406 % 100 + 1 = 6 (becomes 11)
         vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
-            28189936613108082032912937814055130193651564991612570029372040097433016992289,
-            randomWords
-        );
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
         assertEq(winners.length, winnersCount);
@@ -243,10 +237,7 @@ contract Raffle_FulfillRandomWords_Test is TestParameters, TestHelpers {
         randomWords[9] = 888; // 888 % 512 + 1 = 377 (bucket 1, index 121)
         randomWords[10] = 69_420; // 69420 % 512 + 1 = 301 (bucket 1, index 45)
         vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
-            28189936613108082032912937814055130193651564991612570029372040097433016992289,
-            randomWords
-        );
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
         assertEq(winners.length, winnersCount);
@@ -332,10 +323,7 @@ contract Raffle_FulfillRandomWords_Test is TestParameters, TestHelpers {
         }
 
         vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
-            28189936613108082032912937814055130193651564991612570029372040097433016992289,
-            randomWords
-        );
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
         assertEq(winners.length, winnersCount);
