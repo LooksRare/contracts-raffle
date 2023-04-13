@@ -58,26 +58,7 @@ contract Raffle_ClaimPrize_Test is TestParameters, TestHelpers {
     }
 
     function test_claimPrize() public {
-        for (uint256 i; i < 107; ) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
-        }
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
+        _transitionRaffleStatusToDrawing();
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
@@ -157,5 +138,36 @@ contract Raffle_ClaimPrize_Test is TestParameters, TestHelpers {
                 ++i;
             }
         }
+    }
+
+    function test_claimPrize_RevertIf_InvalidStatus() public {
+        _transitionRaffleStatusToDrawing();
+
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        vm.prank(user2);
+        looksRareRaffle.claimPrize(0, 0);
+    }
+
+    function _transitionRaffleStatusToDrawing() private {
+        for (uint256 i; i < 107; ) {
+            address participant = address(uint160(i + 1));
+
+            vm.deal(participant, 0.025 ether);
+
+            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+
+            vm.prank(participant);
+            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        vm.startPrank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        looksRareRaffle.drawWinners(0);
+        vm.stopPrank();
     }
 }
