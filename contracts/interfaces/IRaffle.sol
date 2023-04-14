@@ -25,7 +25,7 @@ interface IRaffle {
      * @param price The price of the entries.
      */
     struct PricingOption {
-        uint80 entriesCount;
+        uint256 entriesCount;
         uint256 price;
     }
 
@@ -34,7 +34,7 @@ interface IRaffle {
      * @param participant The address of the participant.
      */
     struct Entry {
-        uint80 currentEntryIndex;
+        uint256 currentEntryIndex;
         address participant;
     }
 
@@ -48,7 +48,7 @@ interface IRaffle {
         address participant;
         bool claimed;
         uint8 prizeIndex;
-        uint80 entryIndex;
+        uint256 entryIndex;
     }
 
     /**
@@ -108,7 +108,7 @@ interface IRaffle {
      */
     struct ParticipantStats {
         uint256 amountPaid;
-        uint80 entriesCount;
+        uint256 entriesCount;
         bool refunded;
     }
 
@@ -135,7 +135,7 @@ interface IRaffle {
 
     event CallbackGasLimitPerRandomWordUpdated(uint32 callbackGasLimit);
     event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
-    event EntrySold(uint256 raffleId, address buyer, uint80 entriesCount, uint256 price);
+    event EntrySold(uint256 raffleId, address buyer, uint256 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
     event PrizeClaimed(
         uint256 raffleId,
