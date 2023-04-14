@@ -236,12 +236,39 @@ contract Raffle is
             revert InvalidStatus();
         }
 
-        uint256 prizesCount = raffle.prizes.length;
+        Prize[] storage prizes = raffle.prizes;
+        uint256 prizesCount = prizes.length;
+        uint256 expectedEthValue;
         for (uint256 i; i < prizesCount; ) {
-            _depositPrize(raffle.prizes[i]);
+            Prize storage prize = prizes[i];
+            TokenType prizeType = prize.prizeType;
+            if (prizeType == TokenType.ERC721) {
+                _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
+            } else if (prizeType == TokenType.ERC1155) {
+                _executeERC1155SafeTransferFrom(
+                    prize.prizeAddress,
+                    msg.sender,
+                    address(this),
+                    prize.prizeId,
+                    prize.prizeAmount * prize.winnersCount
+                );
+            } else if (prizeType == TokenType.ETH) {
+                expectedEthValue += (prize.prizeAmount * prize.winnersCount);
+            } else if (prizeType == TokenType.ERC20) {
+                _executeERC20TransferFrom(
+                    prize.prizeAddress,
+                    msg.sender,
+                    address(this),
+                    prize.prizeAmount * prize.winnersCount
+                );
+            }
             unchecked {
                 ++i;
             }
+        }
+
+        if (expectedEthValue > msg.value) {
+            revert InsufficientNativeTokensSupplied();
         }
 
         raffle.status = RaffleStatus.Open;
@@ -659,32 +686,6 @@ contract Raffle is
             if (prize.winnersCount == 0) {
                 revert InvalidWinnersCount();
             }
-        }
-    }
-
-    function _depositPrize(Prize storage prize) private {
-        TokenType prizeType = prize.prizeType;
-        if (prizeType == TokenType.ERC721) {
-            _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
-        } else if (prizeType == TokenType.ERC1155) {
-            _executeERC1155SafeTransferFrom(
-                prize.prizeAddress,
-                msg.sender,
-                address(this),
-                prize.prizeId,
-                prize.prizeAmount * prize.winnersCount
-            );
-        } else if (prizeType == TokenType.ETH) {
-            if (msg.value != prize.prizeAmount * prize.winnersCount) {
-                revert InsufficientNativeTokensSupplied();
-            }
-        } else if (prizeType == TokenType.ERC20) {
-            _executeERC20TransferFrom(
-                prize.prizeAddress,
-                msg.sender,
-                address(this),
-                prize.prizeAmount * prize.winnersCount
-            );
         }
     }
 

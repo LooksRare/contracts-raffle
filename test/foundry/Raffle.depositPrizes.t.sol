@@ -56,4 +56,37 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         assertEq(mockERC20.balanceOf(user1), 100_000 ether);
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
     }
+
+    function test_depositPrizes_RevertIf_InsufficientNativeTokensSupplied() public asPrankedUser(user1) {
+        vm.deal(user1, 1.49 ether);
+
+        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](2);
+        prizes[0].prizeType = IRaffle.TokenType.ETH;
+        prizes[0].prizeAddress = address(0);
+        prizes[0].prizeId = 0;
+        prizes[0].prizeAmount = 1 ether;
+        prizes[0].winnersCount = 1;
+        prizes[1].prizeType = IRaffle.TokenType.ETH;
+        prizes[1].prizeAddress = address(0);
+        prizes[1].prizeId = 0;
+        prizes[1].prizeAmount = 0.5 ether;
+        prizes[1].winnersCount = 1;
+
+        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+
+        looksRareRaffle.createRaffle({
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 200,
+            prizeValue: 1 ether,
+            minimumProfitBp: 500,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricings: pricings
+        });
+
+        vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);
+        looksRareRaffle.depositPrizes{value: 1.49 ether}(1);
+    }
 }
