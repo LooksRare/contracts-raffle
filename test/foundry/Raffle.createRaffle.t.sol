@@ -36,7 +36,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             uint16 minimumProfitBp,
             uint256 prizesTotalValue,
             address feeTokenAddress,
-            uint176 claimableFees
+            uint256 claimableFees
         ) = looksRareRaffle.raffles(0);
         assertEq(owner, user1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Created));
