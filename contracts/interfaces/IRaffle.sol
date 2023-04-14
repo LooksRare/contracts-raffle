@@ -26,7 +26,7 @@ interface IRaffle {
      */
     struct PricingOption {
         uint80 entriesCount;
-        uint256 price;
+        uint176 price;
     }
 
     /**
@@ -92,9 +92,9 @@ interface IRaffle {
         uint80 maximumEntries;
         uint80 maximumEntriesPerParticipant;
         uint16 minimumProfitBp;
-        uint256 prizesTotalValue;
+        uint176 prizesTotalValue;
         address feeTokenAddress;
-        uint256 claimableFees;
+        uint176 claimableFees;
         PricingOption[5] pricingOptions;
         Prize[] prizes;
         Entry[] entries;
@@ -107,7 +107,7 @@ interface IRaffle {
      * @param refunded Whether the participant has been refunded.
      */
     struct ParticipantStats {
-        uint256 amountPaid;
+        uint176 amountPaid;
         uint80 entriesCount;
         bool refunded;
     }
@@ -192,7 +192,7 @@ interface IRaffle {
         uint80 minimumEntries,
         uint80 maximumEntries,
         uint80 maximumEntriesPerParticipant,
-        uint256 prizesTotalValue,
+        uint176 prizesTotalValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,

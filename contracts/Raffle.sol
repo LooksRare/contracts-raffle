@@ -107,7 +107,7 @@ contract Raffle is
      * @notice The claimable fees of the protocol fee recipient.
      * @dev The key is the currency address.
      */
-    mapping(address => uint256) public protocolFeeRecipientClaimableFees;
+    mapping(address => uint176) public protocolFeeRecipientClaimableFees;
 
     /**
      * @notice The number of pricing options per raffle.
@@ -146,7 +146,7 @@ contract Raffle is
         uint80 minimumEntries,
         uint80 maximumEntries,
         uint80 maximumEntriesPerParticipant,
-        uint256 prizesTotalValue,
+        uint176 prizesTotalValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
@@ -313,7 +313,7 @@ contract Raffle is
                 revert MaximumEntriesPerParticipantReached();
             }
 
-            uint256 price = pricingOption.price;
+            uint176 price = pricingOption.price;
 
             if (raffle.feeTokenAddress == address(0)) {
                 expectedEthValue += price;
@@ -523,7 +523,7 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function claimProtocolFees(address currency) external onlyOwner {
-        uint256 claimableFees = protocolFeeRecipientClaimableFees[currency];
+        uint176 claimableFees = protocolFeeRecipientClaimableFees[currency];
         protocolFeeRecipientClaimableFees[currency] = 0;
         _transferFungibleTokens(currency, protocolFeeRecipient, claimableFees);
     }
@@ -537,8 +537,8 @@ contract Raffle is
             revert InvalidStatus();
         }
 
-        uint256 claimableFees = raffle.claimableFees;
-        uint256 protocolFees = (claimableFees * protocolFeeBp) / ONE_HUNDRED_PERCENT_BP;
+        uint176 claimableFees = raffle.claimableFees;
+        uint176 protocolFees = uint176((claimableFees * protocolFeeBp) / ONE_HUNDRED_PERCENT_BP);
         claimableFees -= protocolFees;
 
         raffle.status = RaffleStatus.Complete;
