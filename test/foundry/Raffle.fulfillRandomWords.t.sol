@@ -16,8 +16,6 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event RandomnessRequested(uint256 raffleId);
-
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 

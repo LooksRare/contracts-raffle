@@ -384,8 +384,7 @@ contract Raffle is
         randomnessRequests[requestId].raffleId = raffleId;
 
         raffle.status = RaffleStatus.Drawing;
-
-        emit RandomnessRequested(raffleId);
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
     }
 
     function fulfillRandomWords(uint256 _requestId, uint256[] memory _randomWords) internal override {

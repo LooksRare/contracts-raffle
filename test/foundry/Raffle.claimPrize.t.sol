@@ -15,7 +15,6 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event RandomnessRequested(uint256 raffleId);
     event PrizeClaimed(
         uint256 raffleId,
         address winner,
