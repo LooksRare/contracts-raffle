@@ -36,6 +36,11 @@ contract Raffle is
     uint256 public constant MINIMUM_LIFESPAN = 86_400 seconds;
 
     /**
+     * @notice 100% in basis points.
+     */
+    uint256 public constant ONE_HUNDRED_PERCENT_BP = 10_000;
+
+    /**
      * @notice The number of raffles created.
      */
     uint256 public rafflesCount;
@@ -152,6 +157,10 @@ contract Raffle is
 
         if (block.timestamp + MINIMUM_LIFESPAN > cutoffTime) {
             revert InvalidCutoffTime();
+        }
+
+        if (minimumProfitBp > ONE_HUNDRED_PERCENT_BP) {
+            revert InvalidMinimumProfitBp();
         }
 
         if (feeTokenAddress != address(0)) {
@@ -310,7 +319,10 @@ contract Raffle is
             // TODO: What if the user enters the same raffle multiple times?
             // maybe an additional check that the raffle status isn't ready to be drawn?
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
-                if (raffle.claimableFees > (raffle.prizeValue * (10_000 + raffle.minimumProfitBp)) / 10_000) {
+                if (
+                    raffle.claimableFees >
+                    (raffle.prizeValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) / ONE_HUNDRED_PERCENT_BP
+                ) {
                     raffle.status = RaffleStatus.ReadyToBeDrawn;
                     emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
                 }
@@ -494,7 +506,7 @@ contract Raffle is
         }
 
         uint256 claimableFees = raffle.claimableFees;
-        uint256 protocolFees = (claimableFees * protocolFeeBp) / 10_000;
+        uint256 protocolFees = (claimableFees * protocolFeeBp) / ONE_HUNDRED_PERCENT_BP;
         claimableFees -= protocolFees;
 
         raffle.status = RaffleStatus.Complete;

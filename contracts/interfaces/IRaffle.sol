@@ -167,6 +167,7 @@ interface IRaffle {
     error InvalidEntriesRange();
     error InvalidFeeToken();
     error InvalidIndex();
+    error InvalidMinimumProfitBp();
     error InvalidPrice();
     error InvalidPrizeAmount();
     error InvalidProtocolFeeBp();
