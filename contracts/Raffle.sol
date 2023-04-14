@@ -307,9 +307,9 @@ contract Raffle is
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingIndex];
 
-            uint80 newEntriesCount = rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount +
+            uint80 newParticipantEntriesCount = rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount +
                 pricingOption.entriesCount;
-            if (newEntriesCount > raffle.maximumEntriesPerParticipant) {
+            if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
 
@@ -337,7 +337,7 @@ contract Raffle is
             raffle.claimableFees += pricingOption.price;
 
             rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += pricingOption.price;
-            rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount = newEntriesCount;
+            rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
             emit EntrySold(entry.raffleId, msg.sender, pricingOption.entriesCount, pricingOption.price);
 
