@@ -41,7 +41,7 @@ contract Deployment is Script {
             subscriptionId = 1_1238;
             vrfCoordinator = 0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
             owner = 0xF332533bF5d0aC462DC8511067A8122b4DcE2B57;
-            protocolFeeRecipient;
+            protocolFeeRecipient = 0xdbBE0859791E44B52B98FcCA341DFb7577C0B077;
             protocolFeeBp = 500;
         } else {
             revert ChainIdInvalid(chainId);
