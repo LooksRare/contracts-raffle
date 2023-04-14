@@ -44,8 +44,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             pricings: pricings
         });
 
-        uint256[] memory prizeIndices = _generatePrizeIndices(7);
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+        looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
     }
 

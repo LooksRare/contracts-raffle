@@ -27,8 +27,7 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
         vm.startPrank(user1);
         _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
 
-        uint256[] memory prizeIndices = _generatePrizeIndices(7);
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+        looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
     }
 
@@ -53,15 +52,13 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.PrizesWithdrawn);
     }
 
-    function test_withdrawPrizes_SomePrizesAreNotDeposited() public asPrankedUser(user1) {
-        // Only the first 2 NFTs are deposited
-        mockERC721.mint(user1, 6);
-        mockERC721.mint(user1, 7);
-
+    function test_withdrawPrizes_PrizesAreNotDeposited() public asPrankedUser(user1) {
         /**
          * The tokens should have been deposited by other raffle owners,
          * but we'll just mint them here for simplicity
          * */
+        mockERC721.mint(address(looksRareRaffle), 6);
+        mockERC721.mint(address(looksRareRaffle), 7);
         mockERC721.mint(address(looksRareRaffle), 8);
         mockERC721.mint(address(looksRareRaffle), 9);
         mockERC721.mint(address(looksRareRaffle), 10);
@@ -98,15 +95,10 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
             pricings: pricings
         });
 
-        uint256[] memory prizeIndices = _generatePrizeIndices(2);
-        looksRareRaffle.depositPrizes({raffleId: 1, prizeIndices: prizeIndices});
-
         looksRareRaffle.cancel(1);
         looksRareRaffle.withdrawPrizes(1);
 
-        assertEq(mockERC721.balanceOf(user1), 2);
-        assertEq(mockERC721.ownerOf(6), user1);
-        assertEq(mockERC721.ownerOf(7), user1);
+        assertEq(mockERC721.balanceOf(user1), 0);
         assertEq(mockERC20.balanceOf(user1), 0);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.PrizesWithdrawn);

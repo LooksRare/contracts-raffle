@@ -223,45 +223,23 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function depositPrizes(uint256 raffleId, uint256[] calldata prizeIndices) external payable {
+    function depositPrizes(uint256 raffleId) external payable {
         Raffle storage raffle = raffles[raffleId];
 
         if (raffle.status != RaffleStatus.Created) {
             revert InvalidStatus();
         }
 
-        uint256 prizeIndicesCount = prizeIndices.length;
-        for (uint256 i; i < prizeIndicesCount; ) {
-            _depositPrize(raffle, prizeIndices[i]);
-
+        uint256 prizesCount = raffle.prizes.length;
+        for (uint256 i; i < prizesCount; ) {
+            _depositPrize(raffle, raffle.prizes[i]);
             unchecked {
                 ++i;
             }
         }
 
-        uint256 prizesCount = raffle.prizes.length;
-        if (prizesCount == prizeIndicesCount) {
-            raffle.status = RaffleStatus.Open;
-            emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
-        } else {
-            // TODO: we should also be able to do this without looping through each prize and check deposited
-            bool allDeposited = true;
-            for (uint256 i; i < prizesCount; ) {
-                if (!raffle.prizes[i].deposited) {
-                    allDeposited = false;
-                    break;
-                }
-
-                unchecked {
-                    ++i;
-                }
-            }
-
-            if (allDeposited) {
-                raffle.status = RaffleStatus.Open;
-                emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
-            }
-        }
+        raffle.status = RaffleStatus.Open;
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
     }
 
     /**
@@ -686,15 +664,7 @@ contract Raffle is
         }
     }
 
-    function _depositPrize(Raffle storage raffle, uint256 prizeIndex) private {
-        Prize[] storage prizes = raffle.prizes;
-
-        if (prizeIndex >= prizes.length) {
-            revert InvalidIndex();
-        }
-
-        Prize storage prize = prizes[prizeIndex];
-
+    function _depositPrize(Raffle storage raffle, Prize storage prize) private {
         if (prize.deposited) {
             revert PrizeAlreadyDeposited();
         }

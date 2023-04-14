@@ -22,8 +22,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
     }
 
     function test_despositPrizes() public asPrankedUser(user1) {
-        uint256[] memory prizeIndices = _generatePrizeIndices(7);
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+        looksRareRaffle.depositPrizes(0);
 
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
         assertEq(mockERC721.balanceOf(address(looksRareRaffle)), 6);
@@ -37,49 +36,6 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Open);
 
         IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(0);
-        for (uint256 i; i < 7; ) {
-            assertTrue(prizes[i].deposited);
-            unchecked {
-                ++i;
-            }
-        }
-    }
-
-    function test_despositPrizes_Separately() public asPrankedUser(user1) {
-        uint256[] memory prizeIndices = _generatePrizeIndices(6);
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
-
-        assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 0);
-        assertEq(mockERC721.balanceOf(address(looksRareRaffle)), 6);
-        for (uint256 i; i < 6; ) {
-            assertEq(mockERC721.ownerOf(i), address(looksRareRaffle));
-            unchecked {
-                ++i;
-            }
-        }
-
-        // TODO: Validate prize deposited set to true
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Created);
-
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(0);
-        for (uint256 i; i < 6; ) {
-            assertTrue(prizes[i].deposited);
-            unchecked {
-                ++i;
-            }
-        }
-        assertFalse(prizes[6].deposited);
-
-        uint256[] memory secondPrizeIndices = new uint256[](1);
-        secondPrizeIndices[0] = 6;
-
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: secondPrizeIndices});
-
-        assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
-
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Open);
-
-        prizes = looksRareRaffle.getPrizes(0);
         for (uint256 i; i < 7; ) {
             assertTrue(prizes[i].deposited);
             unchecked {
@@ -90,30 +46,20 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
 
     // TODO: Use vm.store to mock different raffle statuses
     function test_despositPrizes_RevertIf_StatusIsNotCreated() public {
-        uint256[] memory prizeIndices = _generatePrizeIndices(7);
         vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.depositPrizes({raffleId: 1, prizeIndices: prizeIndices});
+        looksRareRaffle.depositPrizes(1);
     }
 
-    function test_despositPrizes_RevertIf_InvalidIndex() public {
-        uint256[] memory prizeIndices = _generatePrizeIndices(1);
-        prizeIndices[0] = 7;
-        vm.expectRevert(IRaffle.InvalidIndex.selector);
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
-    }
-
-    function test_despositPrizes_RevertIf_PrizeAlreadyDeposited() public asPrankedUser(user1) {
-        uint256[] memory prizeIndices = new uint256[](1);
-        prizeIndices[0] = 6;
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+    function test_despositPrizes_RevertIf_PrizesAlreadyDeposited() public asPrankedUser(user1) {
+        looksRareRaffle.depositPrizes(0);
 
         assertEq(mockERC20.balanceOf(user1), 0);
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
 
         mockERC20.mint(user1, 100_000 ether);
 
-        vm.expectRevert(IRaffle.PrizeAlreadyDeposited.selector);
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.depositPrizes(0);
 
         assertEq(mockERC20.balanceOf(user1), 100_000 ether);
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);

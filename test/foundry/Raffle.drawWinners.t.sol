@@ -29,8 +29,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         vm.startPrank(user1);
         _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
 
-        uint256[] memory prizeIndices = _generatePrizeIndices(7);
-        looksRareRaffle.depositPrizes({raffleId: 0, prizeIndices: prizeIndices});
+        looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
     }
 

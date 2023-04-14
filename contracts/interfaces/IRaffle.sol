@@ -206,9 +206,8 @@ interface IRaffle {
     /**
      * @notice Deposits prizes for a raffle.
      * @param raffleId The id of the raffle.
-     * @param prizeIndices The indices of the prizes to be deposited.
      */
-    function depositPrizes(uint256 raffleId, uint256[] calldata prizeIndices) external payable;
+    function depositPrizes(uint256 raffleId) external payable;
 
     /**
      * @notice Enters a raffle or multiple raffles.

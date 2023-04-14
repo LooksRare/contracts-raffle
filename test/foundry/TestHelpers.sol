@@ -109,16 +109,6 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         });
     }
 
-    function _generatePrizeIndices(uint256 length) internal pure returns (uint256[] memory prizeIndices) {
-        prizeIndices = new uint256[](length);
-        for (uint256 i; i < length; ) {
-            prizeIndices[i] = i;
-            unchecked {
-                ++i;
-            }
-        }
-    }
-
     function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
         for (uint256 i; i < 107; ) {
             address participant = address(uint160(i + 1));
