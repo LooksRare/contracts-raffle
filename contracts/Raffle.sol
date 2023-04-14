@@ -143,9 +143,9 @@ contract Raffle is
      */
     function createRaffle(
         uint40 cutoffTime,
-        uint64 minimumEntries,
-        uint64 maximumEntries,
-        uint64 maximumEntriesPerParticipant,
+        uint80 minimumEntries,
+        uint80 maximumEntries,
+        uint80 maximumEntriesPerParticipant,
         uint256 prizesTotalValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,

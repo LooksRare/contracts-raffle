@@ -88,9 +88,9 @@ interface IRaffle {
         address owner;
         RaffleStatus status;
         uint40 cutoffTime;
-        uint64 minimumEntries;
-        uint64 maximumEntries;
-        uint64 maximumEntriesPerParticipant;
+        uint80 minimumEntries;
+        uint80 maximumEntries;
+        uint80 maximumEntriesPerParticipant;
         uint16 minimumProfitBp;
         uint256 prizesTotalValue;
         address feeTokenAddress;
@@ -189,9 +189,9 @@ interface IRaffle {
      */
     function createRaffle(
         uint40 cutoffTime,
-        uint64 minimumEntries,
-        uint64 maximumEntries,
-        uint64 maximumEntriesPerParticipant,
+        uint80 minimumEntries,
+        uint80 maximumEntries,
+        uint80 maximumEntriesPerParticipant,
         uint256 prizesTotalValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,
