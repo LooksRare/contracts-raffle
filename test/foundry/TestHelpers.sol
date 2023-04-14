@@ -114,7 +114,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         });
     }
 
-    function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
+    function _enterRafflesWithSingleEntryUpToMinimumEntries(Raffle looksRareRaffle) internal {
         for (uint256 i; i < 107; ) {
             address participant = address(uint160(i + 1));
 
@@ -130,6 +130,10 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
                 ++i;
             }
         }
+    }
+
+    function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         vm.startPrank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));

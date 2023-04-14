@@ -50,7 +50,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     }
 
     function test_fulfillRandomWords() public {
-        _enterRaffles();
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         vm.startPrank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
@@ -111,7 +111,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     }
 
     function test_fulfillRandomWords_SomeParticipantsDrawnMoreThanOnce() public {
-        _enterRaffles();
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         vm.startPrank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
@@ -354,23 +354,5 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         }
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
-    }
-
-    function _enterRaffles() private {
-        for (uint256 i; i < 107; ) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
-        }
     }
 }
