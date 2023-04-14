@@ -6,6 +6,7 @@ import {LowLevelERC20Transfer} from "@looksrare/contracts-libs/contracts/lowLeve
 import {LowLevelERC721Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC721Transfer.sol";
 import {LowLevelERC1155Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC1155Transfer.sol";
 import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol";
+import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
@@ -26,7 +27,8 @@ contract Raffle is
     LowLevelERC721Transfer,
     LowLevelERC1155Transfer,
     VRFConsumerBaseV2,
-    OwnableTwoSteps
+    OwnableTwoSteps,
+    PackableReentrancyGuard
 {
     using Arrays for uint256[];
 
@@ -462,7 +464,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimPrize(uint256 raffleId, uint256 winnerIndex) external {
+    function claimPrize(uint256 raffleId, uint256 winnerIndex) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
         if (raffle.status != RaffleStatus.Drawn) {
             revert InvalidStatus();
@@ -532,7 +534,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimFees(uint256 raffleId) external {
+    function claimFees(uint256 raffleId) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
         if (raffle.status != RaffleStatus.Drawn) {
             revert InvalidStatus();
@@ -558,7 +560,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function cancel(uint256 raffleId) external {
+    function cancel(uint256 raffleId) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
 
         RaffleStatus status = raffle.status;
@@ -596,7 +598,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimRefund(uint256 raffleId) external {
+    function claimRefund(uint256 raffleId) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
 
         if (raffle.status != RaffleStatus.Cancelled) {
