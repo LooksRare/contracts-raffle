@@ -313,10 +313,12 @@ contract Raffle is
                 revert MaximumEntriesPerParticipantReached();
             }
 
+            uint256 price = pricingOption.price;
+
             if (raffle.feeTokenAddress == address(0)) {
-                expectedEthValue += pricingOption.price;
+                expectedEthValue += price;
             } else {
-                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), pricingOption.price);
+                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), price);
             }
 
             uint80 currentEntryIndex;
@@ -334,12 +336,12 @@ contract Raffle is
             }
 
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
-            raffle.claimableFees += pricingOption.price;
+            raffle.claimableFees += price;
 
-            rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += pricingOption.price;
+            rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += price;
             rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
-            emit EntrySold(entry.raffleId, msg.sender, pricingOption.entriesCount, pricingOption.price);
+            emit EntrySold(entry.raffleId, msg.sender, pricingOption.entriesCount, price);
 
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
                 if (
