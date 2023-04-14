@@ -427,7 +427,7 @@ contract Raffle is
                         ++j;
                     }
                 }
-                uint256 prizeIndex = cumulativeWinnersCountArray.findUpperBound(i + 1);
+                uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
 
                 winners[i].participant = raffle.entries[winnerIndex].participant;
                 winners[i].entryIndex = winningEntry;
@@ -467,10 +467,9 @@ contract Raffle is
         if (winner.claimed) {
             revert PrizeAlreadyClaimed();
         }
-        uint256 prizeIndex = winner.prizeIndex;
         address participant = winner.participant;
 
-        Prize storage prize = raffle.prizes[prizeIndex];
+        Prize storage prize = raffle.prizes[winner.prizeIndex];
         _transferPrize({prize: prize, recipient: participant, multiplier: 1});
 
         emit PrizeClaimed(raffleId, participant, prize.prizeType, prize.prizeAddress, prize.prizeId, prize.prizeAmount);
