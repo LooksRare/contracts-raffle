@@ -469,14 +469,14 @@ contract Raffle is
         if (winner.claimed) {
             revert PrizeAlreadyClaimed();
         }
+        winner.claimed = true;
+
         address participant = winner.participant;
 
         Prize storage prize = raffle.prizes[winner.prizeIndex];
         _transferPrize({prize: prize, recipient: participant, multiplier: 1});
 
         emit PrizeClaimed(raffleId, participant, prize.prizeType, prize.prizeAddress, prize.prizeId, prize.prizeAmount);
-
-        winner.claimed = true;
     }
 
     /**
