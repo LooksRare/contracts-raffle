@@ -238,7 +238,7 @@ contract Raffle is
 
         uint256 prizesCount = raffle.prizes.length;
         for (uint256 i; i < prizesCount; ) {
-            _depositPrize(raffle, raffle.prizes[i]);
+            _depositPrize(raffle.prizes[i]);
             unchecked {
                 ++i;
             }
@@ -678,7 +678,7 @@ contract Raffle is
         }
     }
 
-    function _depositPrize(Raffle storage raffle, Prize storage prize) private {
+    function _depositPrize(Prize storage prize) private {
         if (prize.deposited) {
             revert PrizeAlreadyDeposited();
         }
