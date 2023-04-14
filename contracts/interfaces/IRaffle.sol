@@ -92,7 +92,7 @@ interface IRaffle {
         uint256 maximumEntries;
         uint256 maximumEntriesPerParticipant;
         uint256 prizeValue;
-        uint256 minimumProfitBp;
+        uint16 minimumProfitBp;
         address feeTokenAddress;
         uint256 claimableFees;
         Pricing[5] pricings;
@@ -192,7 +192,7 @@ interface IRaffle {
         uint256 maximumEntries,
         uint256 maximumEntriesPerParticipant,
         uint256 prizeValue,
-        uint256 minimumProfitBp,
+        uint16 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
         Pricing[5] calldata pricings
