@@ -722,6 +722,7 @@ contract Raffle is
                     if (bucket < winningEntriesBitmap.length - 1) {
                         bucket += 1;
                     } else {
+                        // NOTE: I think winningEntry == currentEntryIndex already covers it
                         bucket = 0;
                         winningEntry = 0;
                     }
