@@ -563,6 +563,8 @@ contract Raffle is
             revert InvalidStatus();
         }
 
+        raffle.status = RaffleStatus.PrizesWithdrawn;
+
         uint256 prizesCount = raffle.prizes.length;
 
         for (uint256 i; i < prizesCount; ) {
@@ -575,8 +577,6 @@ contract Raffle is
                 ++i;
             }
         }
-
-        raffle.status = RaffleStatus.PrizesWithdrawn;
 
         emit PrizesWithdrawn(raffleId);
     }
