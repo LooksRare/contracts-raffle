@@ -18,6 +18,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove(mockERC20, mockERC721, address(looksRareRaffle));
+        vm.prank(user1);
         _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
     }
 
@@ -76,6 +77,11 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
     function test_depositPrizes_RevertIf_StatusIsNotCreated() public {
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.depositPrizes(1);
+    }
+
+    function test_depositPrizes_RevertIf_NotRaffleOwner() public asPrankedUser(user2) {
+        vm.expectRevert(IRaffle.NotRaffleOwner.selector);
+        looksRareRaffle.depositPrizes(0);
     }
 
     function test_depositPrizes_RevertIf_PrizesAlreadyDeposited() public asPrankedUser(user1) {

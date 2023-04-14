@@ -236,6 +236,10 @@ contract Raffle is
             revert InvalidStatus();
         }
 
+        if (msg.sender != raffle.owner) {
+            revert NotRaffleOwner();
+        }
+
         Prize[] storage prizes = raffle.prizes;
         uint256 prizesCount = prizes.length;
         uint256 expectedEthValue;
