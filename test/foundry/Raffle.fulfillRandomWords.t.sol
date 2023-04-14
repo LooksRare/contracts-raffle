@@ -207,18 +207,23 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
-        randomWords[0] = 766; // 766 % 512 = 254 (bucket 0, index 255)
-        randomWords[1] = 1_278; // 1278 % 512 = 254, duplicate so 256 (bucket 1, index 0)
-        randomWords[2] = 1_280; // 1280 % 512 = 256 (bucket 1, index 1)
-        randomWords[3] = 1_792; // 1792 % 512 = 256, duplicate so 258 (bucket 1, index 1)
-        randomWords[4] = 510; // 510 % 512 = 510 (bucket 1, index 255)
-        randomWords[5] = 511; // 511 % 512 = 511 (cycle back to bucket 0, index 0)
-        randomWords[6] = 333; // 333 % 512 = 333 (bucket 1, index 178)
-        randomWords[7] = 45; // 45 % 512 = 45 (bucket 0, index 46)
-        randomWords[8] = 512; // 512 % 512 = 0 (cycle back to bucket 0, index 1)
 
-        randomWords[9] = 888; // 888 % 512 = 376 (bucket 1, index 121)
-        randomWords[10] = 69_420; // 69420 % 512 = 300 (bucket 1, index 45)
+        // bucket 0 to bucket 1
+        randomWords[0] = 255; // 255 % 512 = 255 (bucket 0, index 255)
+        randomWords[1] = 767; // 767 % 512 = 255 (becomes 256, bucket 1, index 0)
+
+        // end of bucket 1 to beginning of bucket 0
+        randomWords[2] = 511; // 511 % 512 = 511 (bucket 1, index 255)
+        randomWords[3] = 1023; // 1023 % 512 = 511 (becomes 0, bucket 0, index 0)
+
+        randomWords[4] = 510; // 510 % 512 = 510 (bucket 1, index 254)
+        randomWords[5] = 888; // 888 % 512 = 376 (bucket 1, index 120)
+        randomWords[6] = 333; // 333 % 512 = 333 (bucket 1, index 77)
+        randomWords[7] = 45; // 45 % 512 = 45 (bucket 0, index 45)
+        randomWords[8] = 512; // 512 % 512 = 0 (bucket 0, index 0, becomes 1)
+
+        randomWords[9] = 77; // 77 % 512 = 77 (bucket 0, index 77)
+        randomWords[10] = 69_420; // 69420 % 512 = 300 (bucket 1, index 46)
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
@@ -229,28 +234,28 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
         assertEq(winners.length, winnersCount);
 
-        assertEq(winners[0].participant, address(255));
+        assertEq(winners[0].participant, address(256));
         assertEq(winners[0].prizeIndex, 0);
 
-        assertEq(winners[1].participant, address(256));
+        assertEq(winners[1].participant, address(257));
         assertEq(winners[1].prizeIndex, 1);
 
-        assertEq(winners[2].participant, address(257));
+        assertEq(winners[2].participant, address(512));
         assertEq(winners[2].prizeIndex, 2);
 
-        assertEq(winners[3].participant, address(258));
+        assertEq(winners[3].participant, address(1));
         assertEq(winners[3].prizeIndex, 3);
 
         assertEq(winners[4].participant, address(511));
         assertEq(winners[4].prizeIndex, 4);
 
-        assertEq(winners[5].participant, address(512));
+        assertEq(winners[5].participant, address(377));
         assertEq(winners[5].prizeIndex, 5);
 
         assertEq(winners[6].participant, address(334));
         assertEq(winners[7].participant, address(46));
-        assertEq(winners[8].participant, address(1));
-        assertEq(winners[9].participant, address(377));
+        assertEq(winners[8].participant, address(2));
+        assertEq(winners[9].participant, address(78));
         assertEq(winners[10].participant, address(301));
 
         for (uint256 i = 6; i < winnersCount; ) {

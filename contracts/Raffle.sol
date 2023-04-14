@@ -717,15 +717,8 @@ contract Raffle is
                 winningEntry = 0;
             } else {
                 winningEntry += 1;
-
                 if (winningEntry % 256 == 0) {
-                    if (bucket < winningEntriesBitmap.length - 1) {
-                        bucket += 1;
-                    } else {
-                        // NOTE: I think winningEntry == currentEntryIndex already covers it
-                        bucket = 0;
-                        winningEntry = 0;
-                    }
+                    bucket += 1;
                 }
             }
 
