@@ -651,15 +651,16 @@ contract Raffle is
     function _validatePricingOptions(PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions) private pure {
         for (uint256 i; i < PRICING_OPTIONS_PER_RAFFLE; ) {
             PricingOption memory pricingOption = pricingOptions[i];
-            if (pricingOption.entriesCount == 0) {
-                revert InvalidEntriesCount();
-            }
 
-            if (pricingOption.price == 0) {
-                revert InvalidPrice();
-            }
+            if (i == 0) {
+                if (pricingOption.entriesCount == 0) {
+                    revert InvalidEntriesCount();
+                }
 
-            if (i != 0) {
+                if (pricingOption.price == 0) {
+                    revert InvalidPrice();
+                }
+            } else {
                 PricingOption memory lastPricingOption = pricingOptions[i - 1];
                 if (pricingOption.entriesCount <= lastPricingOption.entriesCount) {
                     revert InvalidEntriesCount();
