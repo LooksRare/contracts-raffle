@@ -120,18 +120,18 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
-        randomWords[0] = 5_350; // 5350 % 107 + 1 = 1
-        randomWords[1] = 5_351; // 5351 % 107 + 1 = 2
-        randomWords[2] = 5_352; // 5352 % 107 + 1 = 3
-        randomWords[3] = 10_700; // 10700 % 107 + 1 = 1 (becomes 4)
-        randomWords[4] = 10_701; // 10701 % 107 + 1 = 2 (becomes 5)
-        randomWords[5] = 10_702; // 10702 % 107 + 1 = 3 (becomes 6)
-        randomWords[6] = 16_050; // 16050 % 107 + 1 = 1 (becomes 7)
-        randomWords[7] = 16_051; // 16051 % 107 + 1 = 2 (becomes 8)
-        randomWords[8] = 16_052; // 16052 % 107 + 1 = 3 (becomes 9)
+        randomWords[0] = 5_350; // 5350 % 107 = 0
+        randomWords[1] = 5_351; // 5351 % 107 = 1
+        randomWords[2] = 5_352; // 5352 % 107 = 2
+        randomWords[3] = 10_700; // 10700 % 107 = 0 (becomes 3)
+        randomWords[4] = 10_701; // 10701 % 107 = 1 (becomes 4)
+        randomWords[5] = 10_702; // 10702 % 107 = 2 (becomes 5)
+        randomWords[6] = 16_050; // 16050 % 107 = 0 (becomes 6)
+        randomWords[7] = 16_051; // 16051 % 107 = 1 (becomes 7)
+        randomWords[8] = 16_052; // 16052 % 107 = 2 (becomes 8)
 
-        randomWords[9] = 21_405; // 21405 % 100 + 1 = 5 (becomes 10)
-        randomWords[10] = 21_406; // 21406 % 100 + 1 = 6 (becomes 11)
+        randomWords[9] = 21_405; // 21405 % 100 = 5 (becomes 9)
+        randomWords[10] = 21_406; // 21406 % 100 = 6 (becomes 10)
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
@@ -207,18 +207,18 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
-        randomWords[0] = 766; // 766 % 512 + 1 = 255 (bucket 0, index 255)
-        randomWords[1] = 1_278; // 1278 % 512 + 1 = 255, duplicate so 256 (bucket 1, index 0)
-        randomWords[2] = 1_280; // 1280 % 512 + 1 = 257 (bucket 1, index 1)
-        randomWords[3] = 1_792; // 1792 % 512 + 1 = 257, duplicate so 258 (bucket 1, index 1)
-        randomWords[4] = 510; // 510 % 512 + 1 = 511 (bucket 1, index 255)
-        randomWords[5] = 511; // 511 % 512 + 1 = 512 (cycle back to bucket 0, index 0)
-        randomWords[6] = 333; // 333 % 512 + 1 = 334 (bucket 1, index 178)
-        randomWords[7] = 45; // 45 % 512 + 1 = 46 (bucket 0, index 46)
-        randomWords[8] = 512; // 512 % 512 + 1 = 1 (cycle back to bucket 0, index 1)
+        randomWords[0] = 766; // 766 % 512 = 254 (bucket 0, index 255)
+        randomWords[1] = 1_278; // 1278 % 512 = 254, duplicate so 256 (bucket 1, index 0)
+        randomWords[2] = 1_280; // 1280 % 512 = 256 (bucket 1, index 1)
+        randomWords[3] = 1_792; // 1792 % 512 = 256, duplicate so 258 (bucket 1, index 1)
+        randomWords[4] = 510; // 510 % 512 = 510 (bucket 1, index 255)
+        randomWords[5] = 511; // 511 % 512 = 511 (cycle back to bucket 0, index 0)
+        randomWords[6] = 333; // 333 % 512 = 333 (bucket 1, index 178)
+        randomWords[7] = 45; // 45 % 512 = 45 (bucket 0, index 46)
+        randomWords[8] = 512; // 512 % 512 = 0 (cycle back to bucket 0, index 1)
 
-        randomWords[9] = 888; // 888 % 512 + 1 = 377 (bucket 1, index 121)
-        randomWords[10] = 69_420; // 69420 % 512 + 1 = 301 (bucket 1, index 45)
+        randomWords[9] = 888; // 888 % 512 = 376 (bucket 1, index 121)
+        randomWords[10] = 69_420; // 69420 % 512 = 300 (bucket 1, index 45)
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
