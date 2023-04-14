@@ -146,7 +146,7 @@ contract Raffle is
         uint256 minimumEntries,
         uint256 maximumEntries,
         uint256 maximumEntriesPerParticipant,
-        uint256 prizeValue, /* TODO: kinda dumb, but 0 value check? */
+        uint256 prizeValue,
         uint256 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
@@ -327,7 +327,6 @@ contract Raffle is
             }
 
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
-            // TODO: Optimize this somehow
             raffle.claimableFees += pricing.price;
 
             rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += pricing.price;
