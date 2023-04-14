@@ -18,7 +18,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
 
     function setUp() public {
-        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+        looksRareRaffle = _deployRaffle();
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
 

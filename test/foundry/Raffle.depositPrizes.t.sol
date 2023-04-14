@@ -14,7 +14,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
     MockERC721 private mockERC721;
 
     function setUp() public {
-        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+        looksRareRaffle = _deployRaffle();
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove(mockERC20, mockERC721, address(looksRareRaffle));

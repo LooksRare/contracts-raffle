@@ -24,6 +24,10 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         vm.stopPrank();
     }
 
+    function _deployRaffle() internal returns (Raffle looksRareRaffle) {
+        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+    }
+
     function _generateStandardPricings() internal pure returns (IRaffle.PricingOption[5] memory pricingOptions) {
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});

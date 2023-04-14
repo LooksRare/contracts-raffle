@@ -27,7 +27,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 
-        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+        looksRareRaffle = _deployRaffle();
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
 

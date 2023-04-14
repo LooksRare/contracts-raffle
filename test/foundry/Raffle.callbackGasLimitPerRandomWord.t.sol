@@ -15,7 +15,7 @@ contract Raffle_CallbackGasLimitPerRandomWord_Test is TestHelpers {
     event CallbackGasLimitPerRandomWordUpdated(uint32 callbackGasLimitPerRandomWord);
 
     function setUp() public {
-        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+        looksRareRaffle = _deployRaffle();
     }
 
     function test_setCallbackGasLimitPerRandomWord() public asPrankedUser(owner) {

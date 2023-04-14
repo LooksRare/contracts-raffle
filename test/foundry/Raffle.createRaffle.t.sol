@@ -18,7 +18,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function setUp() public {
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
-        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+        looksRareRaffle = _deployRaffle();
     }
 
     function test_createRaffle() public asPrankedUser(user1) {

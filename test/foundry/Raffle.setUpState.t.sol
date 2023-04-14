@@ -11,7 +11,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
     Raffle public looksRareRaffle;
 
     function setUp() public {
-        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+        looksRareRaffle = _deployRaffle();
     }
 
     function test_setUpState() public {
