@@ -737,20 +737,20 @@ contract Raffle is
         address recipient,
         uint256 multiplier
     ) private {
-        if (prize.prizeType == TokenType.ERC721) {
-            _executeERC721TransferFrom(prize.prizeAddress, address(this), recipient, prize.prizeId);
-        } else if (prize.prizeType == TokenType.ERC1155) {
+        TokenType prizeType = prize.prizeType;
+        address prizeAddress = prize.prizeAddress;
+        if (prizeType == TokenType.ERC721) {
+            _executeERC721TransferFrom(prizeAddress, address(this), recipient, prize.prizeId);
+        } else if (prizeType == TokenType.ERC1155) {
             _executeERC1155SafeTransferFrom(
-                prize.prizeAddress,
+                prizeAddress,
                 address(this),
                 recipient,
                 prize.prizeId,
                 prize.prizeAmount * multiplier
             );
-        } else if (prize.prizeType == TokenType.ETH) {
-            _transferETH(recipient, prize.prizeAmount * multiplier);
-        } else if (prize.prizeType == TokenType.ERC20) {
-            _executeERC20DirectTransfer(prize.prizeAddress, recipient, prize.prizeAmount * multiplier);
+        } else {
+            _transferFungibleTokens(prizeAddress, recipient, prize.prizeAmount * multiplier);
         }
     }
 
