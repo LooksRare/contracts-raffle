@@ -10,7 +10,8 @@ import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSte
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
-import {Arrays} from "./libraries/Arrays.sol";
+import {Uint8Arrays} from "./libraries/Uint8Arrays.sol";
+import {Uint64Arrays} from "./libraries/Uint64Arrays.sol";
 
 import "./interfaces/IRaffle.sol";
 
@@ -28,7 +29,8 @@ contract Raffle is
     VRFConsumerBaseV2,
     OwnableTwoSteps
 {
-    using Arrays for uint256[];
+    using Uint8Arrays for uint8[];
+    using Uint64Arrays for uint64[];
 
     /**
      * @notice The minimum lifespan of a raffle.
@@ -60,7 +62,7 @@ contract Raffle is
     /**
      * @notice According to Chainlink, realistically the maximum number of random words is 125.
      */
-    uint256 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
+    uint8 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
 
     /**
      * @notice The key hash of the Chainlink VRF.
@@ -175,7 +177,7 @@ contract Raffle is
         }
 
         uint256 prizesCount = prizes.length;
-        uint256 cumulativeWinnersCount;
+        uint8 cumulativeWinnersCount;
         for (uint256 i; i < prizesCount; ) {
             Prize memory prize = prizes[i];
             _validatePrize(prize);
@@ -419,24 +421,24 @@ contract Raffle is
                     winningEntriesBitmap
                 );
 
-                uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
+                uint64[] memory currentEntryIndexArray = new uint64[](entriesCount);
                 for (uint256 j; j < entriesCount; ) {
                     currentEntryIndexArray[j] = raffle.entries[j].currentEntryIndex;
                     unchecked {
                         ++j;
                     }
                 }
-                uint256 winnerIndex = currentEntryIndexArray.findUpperBound(winningEntry);
+                uint256 winnerIndex = currentEntryIndexArray.findUpperBound(uint64(winningEntry));
 
                 uint256 prizesCount = raffle.prizes.length;
-                uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
+                uint8[] memory cumulativeWinnersCountArray = new uint8[](prizesCount);
                 for (uint256 j; j < prizesCount; ) {
                     cumulativeWinnersCountArray[j] = raffle.prizes[j].cumulativeWinnersCount;
                     unchecked {
                         ++j;
                     }
                 }
-                uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
+                uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(uint8(i + 1)));
 
                 winners[i].participant = raffle.entries[winnerIndex].participant;
                 winners[i].entryIndex = uint64(winningEntry);
@@ -448,7 +450,7 @@ contract Raffle is
             }
 
             raffle.status = RaffleStatus.Drawn;
-            for (uint256 i; i < winnersCount; ) {
+            for (uint8 i; i < winnersCount; ) {
                 raffle.winners.push(winners[i]);
                 unchecked {
                     ++i;
