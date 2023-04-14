@@ -482,7 +482,6 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function getWinners(uint256 raffleId) external view returns (Winner[] memory winners) {
-        // TODO: Revert if invalid status?
         winners = raffles[raffleId].winners;
     }
 
