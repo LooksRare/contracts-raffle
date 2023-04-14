@@ -41,14 +41,14 @@ interface IRaffle {
     /**
      * @param participant The address of the winner.
      * @param claimed Whether the winner has claimed the prize.
-     * @param prizeIndex The index of the prize that was won.
      * @param entryIndex The index of the entry that won.
+     * @param prizeIndex The index of the prize that was won.
      */
     struct Winner {
         address participant;
         bool claimed;
-        uint8 prizeIndex;
         uint256 entryIndex;
+        uint256 prizeIndex;
     }
 
     /**
