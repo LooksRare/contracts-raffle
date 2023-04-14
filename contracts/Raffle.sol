@@ -548,14 +548,16 @@ contract Raffle is
         raffle.status = RaffleStatus.Complete;
         raffle.claimableFees = 0;
 
-        _transferFungibleTokens(raffle.feeTokenAddress, raffle.owner, claimableFees);
+        address raffleOwner = raffle.owner;
+        address feeTokenAddress = raffle.feeTokenAddress;
+        _transferFungibleTokens(feeTokenAddress, raffleOwner, claimableFees);
 
         if (protocolFees != 0) {
-            protocolFeeRecipientClaimableFees[raffle.feeTokenAddress] += protocolFees;
+            protocolFeeRecipientClaimableFees[feeTokenAddress] += protocolFees;
         }
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Complete);
-        emit FeesClaimed(raffleId, raffle.owner, claimableFees);
+        emit FeesClaimed(raffleId, raffleOwner, claimableFees);
     }
 
     /**
