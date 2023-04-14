@@ -294,7 +294,8 @@ contract Raffle is
                 revert InvalidIndex();
             }
 
-            Raffle storage raffle = raffles[entry.raffleId];
+            uint256 raffleId = entry.raffleId;
+            Raffle storage raffle = raffles[raffleId];
             RaffleStatus status = raffle.status;
 
             if (status != RaffleStatus.Open) {
@@ -309,7 +310,7 @@ contract Raffle is
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingIndex];
 
-            uint256 newParticipantEntriesCount = rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount +
+            uint256 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
                 pricingOption.entriesCount;
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
@@ -340,10 +341,10 @@ contract Raffle is
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
             raffle.claimableFees += price;
 
-            rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += price;
-            rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
+            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
+            rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
-            emit EntrySold(entry.raffleId, msg.sender, pricingOption.entriesCount, price);
+            emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
 
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
                 if (
@@ -353,7 +354,7 @@ contract Raffle is
                 ) {
                     if (status == RaffleStatus.Open) {
                         raffle.status = RaffleStatus.ReadyToBeDrawn;
-                        emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
+                        emit RaffleStatusUpdated(raffleId, RaffleStatus.ReadyToBeDrawn);
                     }
                 }
             }
