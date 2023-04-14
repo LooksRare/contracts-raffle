@@ -157,4 +157,16 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);
         looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
     }
+
+    function test_enterRaffles_RevertIf_MaximumEntriesPerParticipantReached() public asPrankedUser(user2) {
+        vm.deal(user2, 1.91 ether);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](3);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
+        entries[2] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+
+        vm.expectRevert(IRaffle.MaximumEntriesPerParticipantReached.selector);
+        looksRareRaffle.enterRaffles{value: 1.91 ether}(entries);
+    }
 }
