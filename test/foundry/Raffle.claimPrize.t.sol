@@ -44,6 +44,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
             cutoffTime: block.timestamp + 86_400,
             minimumEntries: 107,
             maximumEntries: 200,
+            maximumEntriesPerParticipant: 100,
             prizeValue: 1 ether,
             minimumProfitBp: 500,
             feeTokenAddress: address(0),

@@ -122,9 +122,13 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
             assertEq(participant.balance, 0.025 ether);
 
-            (uint256 amountPaid, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, participant);
+            (uint256 amountPaid, uint256 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+                0,
+                participant
+            );
 
             assertEq(amountPaid, 0.025 ether);
+            assertEq(entriesCount, 1);
             assertTrue(refunded);
 
             unchecked {

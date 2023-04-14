@@ -145,12 +145,17 @@ contract Raffle is
         uint256 cutoffTime,
         uint256 minimumEntries,
         uint256 maximumEntries,
+        uint256 maximumEntriesPerParticipant,
         uint256 prizeValue, /* TODO: kinda dumb, but 0 value check? */
         uint256 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
         Pricing[PRICING_OPTIONS_PER_RAFFLE] calldata pricings
     ) external returns (uint256 raffleId) {
+        if (maximumEntriesPerParticipant > maximumEntries) {
+            revert InvalidMaximumEntriesPerParticipant();
+        }
+
         if (minimumEntries >= maximumEntries) {
             revert InvalidEntriesRange();
         }
@@ -199,6 +204,7 @@ contract Raffle is
         raffles[raffleId].cutoffTime = cutoffTime;
         raffles[raffleId].minimumEntries = minimumEntries;
         raffles[raffleId].maximumEntries = maximumEntries;
+        raffles[raffleId].maximumEntriesPerParticipant = maximumEntriesPerParticipant;
         raffles[raffleId].prizeValue = prizeValue;
         raffles[raffleId].minimumProfitBp = minimumProfitBp;
         raffles[raffleId].feeTokenAddress = feeTokenAddress;
@@ -268,6 +274,13 @@ contract Raffle is
             }
 
             Pricing memory pricing = raffle.pricings[entry.pricingIndex];
+
+            uint256 newEntriesCount = rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount +
+                pricing.entriesCount;
+            if (newEntriesCount > raffle.maximumEntriesPerParticipant) {
+                revert MaximumEntriesPerParticipantReached();
+            }
+
             if (raffle.feeTokenAddress == address(0)) {
                 expectedEthValue += pricing.price;
             } else {
@@ -291,6 +304,7 @@ contract Raffle is
             raffle.claimableFees += pricing.price;
 
             rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += pricing.price;
+            rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount = newEntriesCount;
 
             emit EntrySold(entry.raffleId, msg.sender, pricing.entriesCount, pricing.price);
 

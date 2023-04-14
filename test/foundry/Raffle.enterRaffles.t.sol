@@ -45,9 +45,10 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, 0.975 ether);
         assertEq(address(looksRareRaffle).balance, 0.025 ether);
 
-        (uint256 amountPaid, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
+        (uint256 amountPaid, uint256 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
 
         assertEq(amountPaid, 0.025 ether);
+        assertEq(entriesCount, 1);
         assertFalse(refunded);
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Open);
@@ -74,9 +75,10 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, 0);
         assertEq(address(looksRareRaffle).balance, 1.17 ether);
 
-        (uint256 amountPaid, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
+        (uint256 amountPaid, uint256 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
 
         assertEq(amountPaid, 1.17 ether);
+        assertEq(entriesCount, 110);
         assertFalse(refunded);
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.ReadyToBeDrawn);

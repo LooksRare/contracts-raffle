@@ -77,6 +77,7 @@ interface IRaffle {
      * @param cutoffTime The time after which the raffle cannot be entered.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed in the raffle.
+     * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param prizeValue The total value of the prizes.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
@@ -92,6 +93,7 @@ interface IRaffle {
         uint256 cutoffTime;
         uint256 minimumEntries;
         uint256 maximumEntries;
+        uint256 maximumEntriesPerParticipant;
         uint256 prizeValue;
         uint256 minimumProfitBp;
         address feeTokenAddress;
@@ -104,10 +106,12 @@ interface IRaffle {
 
     /**
      * @param amountPaid The amount paid by the participant.
+     * @param entriesCount The number of entries purchased by the participant.
      * @param refunded Whether the participant has been refunded.
      */
     struct ParticipantStats {
         uint256 amountPaid;
+        uint256 entriesCount;
         bool refunded;
     }
 
@@ -167,6 +171,7 @@ interface IRaffle {
     error InvalidEntriesRange();
     error InvalidFeeToken();
     error InvalidIndex();
+    error InvalidMaximumEntriesPerParticipant();
     error InvalidMinimumProfitBp();
     error InvalidPrice();
     error InvalidPrizeAmount();
@@ -175,6 +180,7 @@ interface IRaffle {
     error InvalidStatus();
     error InvalidWinnersCount();
     error MaximumEntriesReached();
+    error MaximumEntriesPerParticipantReached();
     error MinimumEntriesReached();
     error PrizeAlreadyClaimed();
     error PrizeAlreadyDeposited();
@@ -185,6 +191,7 @@ interface IRaffle {
      * @param cutoffTime The time at which the raffle will be closed.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed to enter the raffle.
+     * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param prizeValue The total value of the prizes.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
@@ -196,6 +203,7 @@ interface IRaffle {
         uint256 cutoffTime,
         uint256 minimumEntries,
         uint256 maximumEntries,
+        uint256 maximumEntriesPerParticipant,
         uint256 prizeValue,
         uint256 minimumProfitBp,
         address feeTokenAddress,

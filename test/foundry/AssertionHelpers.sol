@@ -15,7 +15,7 @@ abstract contract AssertionHelpers is Test {
         uint256 raffleId,
         IRaffle.RaffleStatus expectedStatus
     ) internal {
-        (, IRaffle.RaffleStatus status, , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
         assertEq(uint8(status), uint8(expectedStatus));
     }
 }

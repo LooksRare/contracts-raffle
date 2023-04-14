@@ -37,6 +37,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
             cutoffTime: block.timestamp + 86_400,
             minimumEntries: 107,
             maximumEntries: 200,
+            maximumEntriesPerParticipant: 100,
             prizeValue: 1 ether,
             minimumProfitBp: 500,
             feeTokenAddress: address(0),
@@ -56,7 +57,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
-        (, , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(0);
+        (, , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(0);
         assertEq(address(looksRareRaffle).balance, 2.675 ether);
         assertEq(claimableFees, 2.675 ether);
         uint256 raffleOwnerBalance = user1.balance;
@@ -72,7 +73,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         looksRareRaffle.claimFees(0);
 
-        (, , , , , , , , claimableFees) = looksRareRaffle.raffles(0);
+        (, , , , , , , , , claimableFees) = looksRareRaffle.raffles(0);
         assertEq(address(looksRareRaffle).balance, 0.13375 ether);
         assertEq(claimableFees, 0);
         assertEq(user1.balance, raffleOwnerBalance + 2.54125 ether);
