@@ -116,7 +116,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_RevertIf_CutoffTimeReached() public asPrankedUser(user2) {
-        vm.warp(uint40(block.timestamp + 86_400) + 1);
+        vm.warp(block.timestamp + 86_400 + 1);
         vm.deal(user2, 0.025 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);

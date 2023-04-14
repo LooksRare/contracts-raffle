@@ -55,10 +55,10 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(200),
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 200,
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -117,10 +117,10 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(200),
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 200,
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),

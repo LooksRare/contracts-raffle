@@ -40,10 +40,10 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),

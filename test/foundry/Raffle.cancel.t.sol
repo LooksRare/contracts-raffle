@@ -29,10 +29,10 @@ contract Raffle_Cancel_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -50,10 +50,10 @@ contract Raffle_Cancel_Test is TestHelpers {
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -77,7 +77,7 @@ contract Raffle_Cancel_Test is TestHelpers {
 
     function test_cancel_RaffleStatusIsOpen() public {
         _enterRaffles();
-        vm.warp(uint40(block.timestamp + 86_400) + 1);
+        vm.warp(block.timestamp + 86_400 + 1);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Cancelled);
@@ -104,7 +104,7 @@ contract Raffle_Cancel_Test is TestHelpers {
 
     function test_cancel_RevertIf_CutoffTimeNotReached() public {
         _enterRaffles();
-        vm.warp(uint40(block.timestamp + 86_399));
+        vm.warp(block.timestamp + 86_399);
         vm.expectRevert(IRaffle.CutoffTimeNotReached.selector);
         looksRareRaffle.cancel(0);
     }
