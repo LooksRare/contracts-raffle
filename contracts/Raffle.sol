@@ -460,11 +460,12 @@ contract Raffle is
             revert InvalidStatus();
         }
 
-        if (winnerIndex >= raffle.winners.length) {
+        Winner[] storage winners = raffle.winners;
+        if (winnerIndex >= winners.length) {
             revert InvalidIndex();
         }
 
-        Winner storage winner = raffle.winners[winnerIndex];
+        Winner storage winner = winners[winnerIndex];
         if (winner.claimed) {
             revert PrizeAlreadyClaimed();
         }
