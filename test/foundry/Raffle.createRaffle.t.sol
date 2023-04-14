@@ -59,7 +59,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(0);
         assertEq(prizes.length, 7);
         for (uint256 i; i < 6; ) {
-            assertFalse(prizes[i].deposited);
             assertEq(uint8(prizes[i].prizeType), uint8(IRaffle.TokenType.ERC721));
             assertEq(prizes[i].prizeAddress, address(mockERC721));
             assertEq(prizes[i].prizeId, i);
@@ -70,7 +69,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
                 ++i;
             }
         }
-        assertFalse(prizes[6].deposited);
         assertEq(uint8(prizes[6].prizeType), uint8(IRaffle.TokenType.ERC20));
         assertEq(prizes[6].prizeAddress, address(mockERC20));
         assertEq(prizes[6].prizeId, 0);

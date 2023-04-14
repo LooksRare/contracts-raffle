@@ -45,7 +45,7 @@ contract Raffle_Cancel_Test is TestHelpers {
     }
 
     // TODO: How do we prevent a user from creating a raffle with deposited NFTs from another raffle?
-    function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user1) {
+    function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user2) {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
 
@@ -67,6 +67,12 @@ contract Raffle_Cancel_Test is TestHelpers {
         looksRareRaffle.cancel(1);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
+
+        assertEq(mockERC721.balanceOf(user2), 0);
+        assertEq(mockERC20.balanceOf(user2), 0);
+
+        assertEq(mockERC721.balanceOf(address(looksRareRaffle)), 6);
+        assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
     }
 
     function test_cancel_RaffleStatusIsOpen() public {
@@ -79,6 +85,15 @@ contract Raffle_Cancel_Test is TestHelpers {
         looksRareRaffle.cancel(0);
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
+
+        assertEq(mockERC721.balanceOf(user1), 6);
+        for (uint256 i; i < 6; ) {
+            assertEq(mockERC721.ownerOf(i), user1);
+            unchecked {
+                ++i;
+            }
+        }
+        assertEq(mockERC20.balanceOf(user1), 100_000 ether);
     }
 
     function test_cancel_RevertIf_InvalidStatus() public {

@@ -10,8 +10,7 @@ interface IRaffle {
         Drawing,
         Drawn,
         Complete,
-        Cancelled,
-        PrizesWithdrawn
+        Cancelled
     }
 
     enum TokenType {
@@ -53,7 +52,6 @@ interface IRaffle {
     }
 
     /**
-     * @param deposited Whether the prize has been deposited.
      * @param prizeType The type of the prize.
      * @param prizeAddress The address of the prize.
      * @param prizeId The id of the prize.
@@ -62,7 +60,6 @@ interface IRaffle {
      * @param cumulativeWinnersCount The cumulative number of winners in the raffle.
      */
     struct Prize {
-        bool deposited;
         TokenType prizeType;
         address prizeAddress;
         uint256 prizeId;
@@ -148,14 +145,6 @@ interface IRaffle {
         uint256 prizeId,
         uint256 prizeAmount
     );
-    event PrizeDeposited(
-        uint256 raffleId,
-        TokenType prizeType,
-        address prizeAddress,
-        uint256 prizeId,
-        uint256 prizeAmount
-    );
-    event PrizesWithdrawn(uint256 raffleId);
     event ProtocolFeeBpUpdated(uint256 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
@@ -183,7 +172,6 @@ interface IRaffle {
     error MaximumEntriesPerParticipantReached();
     error MinimumEntriesReached();
     error PrizeAlreadyClaimed();
-    error PrizeAlreadyDeposited();
     error ProtocolFeeBpTooHigh();
 
     /**
@@ -275,12 +263,6 @@ interface IRaffle {
      * @param raffleId The id of the raffle.
      */
     function cancel(uint256 raffleId) external;
-
-    /**
-     * @notice Withdraws the prizes for a cancelled raffle.
-     * @param raffleId The id of the raffle.
-     */
-    function withdrawPrizes(uint256 raffleId) external;
 
     /**
      * @notice Claims the refund for a cancelled raffle.

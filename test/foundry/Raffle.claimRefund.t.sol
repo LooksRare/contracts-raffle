@@ -31,7 +31,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         vm.stopPrank();
     }
 
-    function test_claimRefund_StatusIsCancelled() public {
+    function test_claimRefund() public {
         _enterRaffles();
 
         vm.warp(block.timestamp + 86_400 + 1);
@@ -39,19 +39,6 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         looksRareRaffle.cancel(0);
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
-
-        _validClaimRefunds();
-    }
-
-    function test_claimRefund_StatusIsPrizesWithdrawn() public {
-        _enterRaffles();
-
-        vm.warp(block.timestamp + 86_400 + 1);
-
-        looksRareRaffle.cancel(0);
-        looksRareRaffle.withdrawPrizes(0);
-
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.PrizesWithdrawn);
 
         _validClaimRefunds();
     }

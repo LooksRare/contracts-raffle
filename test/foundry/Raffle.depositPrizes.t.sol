@@ -34,14 +34,6 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         }
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Open);
-
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(0);
-        for (uint256 i; i < 7; ) {
-            assertTrue(prizes[i].deposited);
-            unchecked {
-                ++i;
-            }
-        }
     }
 
     // TODO: Use vm.store to mock different raffle statuses

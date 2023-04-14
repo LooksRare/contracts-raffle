@@ -520,19 +520,34 @@ contract Raffle is
     function cancel(uint256 raffleId) external {
         Raffle storage raffle = raffles[raffleId];
 
-        if (raffle.status != RaffleStatus.Created) {
-            if (raffle.status != RaffleStatus.Open) {
+        RaffleStatus status = raffle.status;
+
+        if (status != RaffleStatus.Created) {
+            if (status != RaffleStatus.Open) {
                 revert InvalidStatus();
             }
         }
 
-        if (raffle.status == RaffleStatus.Open) {
+        if (status == RaffleStatus.Open) {
             if (raffle.cutoffTime > block.timestamp) {
                 revert CutoffTimeNotReached();
             }
         }
 
         raffle.status = RaffleStatus.Cancelled;
+
+        // Raffle status == Open means prizes have been deposited
+        if (status == RaffleStatus.Open) {
+            uint256 prizesCount = raffle.prizes.length;
+            for (uint256 i; i < prizesCount; ) {
+                Prize storage prize = raffle.prizes[i];
+                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: prize.winnersCount});
+
+                unchecked {
+                    ++i;
+                }
+            }
+        }
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
     }
@@ -543,11 +558,8 @@ contract Raffle is
     function claimRefund(uint256 raffleId) external {
         Raffle storage raffle = raffles[raffleId];
 
-        // TODO: Optimize
         if (raffle.status != RaffleStatus.Cancelled) {
-            if (raffle.status != RaffleStatus.PrizesWithdrawn) {
-                revert InvalidStatus();
-            }
+            revert InvalidStatus();
         }
 
         ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
@@ -565,34 +577,6 @@ contract Raffle is
         }
 
         emit EntryRefunded(raffleId, msg.sender, stats.amountPaid);
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function withdrawPrizes(uint256 raffleId) external {
-        Raffle storage raffle = raffles[raffleId];
-
-        if (raffle.status != RaffleStatus.Cancelled) {
-            revert InvalidStatus();
-        }
-
-        raffle.status = RaffleStatus.PrizesWithdrawn;
-
-        uint256 prizesCount = raffle.prizes.length;
-
-        for (uint256 i; i < prizesCount; ) {
-            Prize storage prize = raffle.prizes[i];
-            if (prize.deposited) {
-                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: prize.winnersCount});
-            }
-
-            unchecked {
-                ++i;
-            }
-        }
-
-        emit PrizesWithdrawn(raffleId);
     }
 
     function setCallbackGasLimitPerRandomWord(uint32 _callbackGasLimitPerRandomWord) external onlyOwner {
@@ -679,10 +663,6 @@ contract Raffle is
     }
 
     function _depositPrize(Prize storage prize) private {
-        if (prize.deposited) {
-            revert PrizeAlreadyDeposited();
-        }
-
         if (prize.prizeType == TokenType.ERC721) {
             _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
         } else if (prize.prizeType == TokenType.ERC1155) {
@@ -705,8 +685,6 @@ contract Raffle is
                 prize.prizeAmount * prize.winnersCount
             );
         }
-
-        prize.deposited = true;
     }
 
     function _incrementWinningEntryUntilThereIsNotADuplicate(
