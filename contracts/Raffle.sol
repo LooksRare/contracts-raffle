@@ -289,9 +289,10 @@ contract Raffle is
             }
 
             Raffle storage raffle = raffles[entry.raffleId];
+            RaffleStatus status = raffle.status;
 
-            if (raffle.status != RaffleStatus.Open) {
-                if (raffle.status != RaffleStatus.ReadyToBeDrawn) {
+            if (status != RaffleStatus.Open) {
+                if (status != RaffleStatus.ReadyToBeDrawn) {
                     revert InvalidStatus();
                 }
             }
@@ -334,15 +335,15 @@ contract Raffle is
 
             emit EntrySold(entry.raffleId, msg.sender, pricing.entriesCount, pricing.price);
 
-            // TODO: What if the user enters the same raffle multiple times?
-            // maybe an additional check that the raffle status isn't ready to be drawn?
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
                 if (
                     raffle.claimableFees >
                     (raffle.prizeValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) / ONE_HUNDRED_PERCENT_BP
                 ) {
-                    raffle.status = RaffleStatus.ReadyToBeDrawn;
-                    emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
+                    if (status == RaffleStatus.Open) {
+                        raffle.status = RaffleStatus.ReadyToBeDrawn;
+                        emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
+                    }
                 }
             }
 
