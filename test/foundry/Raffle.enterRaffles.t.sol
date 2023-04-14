@@ -13,7 +13,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event EntrySold(uint256 raffleId, address buyer, uint80 entriesCount, uint256 price);
+    event EntrySold(uint256 raffleId, address buyer, uint64 entriesCount, uint256 price);
 
     event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
 
@@ -45,7 +45,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, 0.975 ether);
         assertEq(address(looksRareRaffle).balance, 0.025 ether);
 
-        (uint256 amountPaid, uint80 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
+        (uint256 amountPaid, uint64 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
 
         assertEq(amountPaid, 0.025 ether);
         assertEq(entriesCount, 1);
@@ -75,7 +75,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, 0);
         assertEq(address(looksRareRaffle).balance, 1.17 ether);
 
-        (uint256 amountPaid, uint80 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
+        (uint256 amountPaid, uint64 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
 
         assertEq(amountPaid, 1.17 ether);
         assertEq(entriesCount, 110);

@@ -99,9 +99,9 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint80(107),
-            maximumEntries: uint80(200),
-            maximumEntriesPerParticipant: uint80(200),
+            minimumEntries: uint64(107),
+            maximumEntries: uint64(200),
+            maximumEntriesPerParticipant: uint64(200),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
