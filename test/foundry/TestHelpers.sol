@@ -98,10 +98,10 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
-            cutoffTime: block.timestamp + 86_400,
-            minimumEntries: 107,
-            maximumEntries: 200,
-            maximumEntriesPerParticipant: 200,
+            cutoffTime: uint40(block.timestamp + 86_400),
+            minimumEntries: uint64(107),
+            maximumEntries: uint64(200),
+            maximumEntriesPerParticipant: uint64(200),
             prizeValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),

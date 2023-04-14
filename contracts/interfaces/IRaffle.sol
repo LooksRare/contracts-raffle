@@ -75,8 +75,8 @@ interface IRaffle {
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed in the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
-     * @param prizeValue The total value of the prizes.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
+     * @param prizeValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param claimableFees The amount of fees collected from selling entries.
      * @param pricings The pricing options for the raffle.
@@ -87,12 +87,12 @@ interface IRaffle {
     struct Raffle {
         address owner;
         RaffleStatus status;
-        uint256 cutoffTime;
-        uint256 minimumEntries;
-        uint256 maximumEntries;
-        uint256 maximumEntriesPerParticipant;
-        uint256 prizeValue;
+        uint40 cutoffTime;
+        uint64 minimumEntries;
+        uint64 maximumEntries;
+        uint64 maximumEntriesPerParticipant;
         uint16 minimumProfitBp;
+        uint256 prizeValue;
         address feeTokenAddress;
         uint256 claimableFees;
         Pricing[5] pricings;
@@ -187,10 +187,10 @@ interface IRaffle {
      * @return raffleId The id of the newly created raffle.
      */
     function createRaffle(
-        uint256 cutoffTime,
-        uint256 minimumEntries,
-        uint256 maximumEntries,
-        uint256 maximumEntriesPerParticipant,
+        uint40 cutoffTime,
+        uint64 minimumEntries,
+        uint64 maximumEntries,
+        uint64 maximumEntriesPerParticipant,
         uint256 prizeValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,

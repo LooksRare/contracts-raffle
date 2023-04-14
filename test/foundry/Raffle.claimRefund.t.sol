@@ -34,7 +34,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     function test_claimRefund() public {
         _enterRaffles();
 
-        vm.warp(block.timestamp + 86_400 + 1);
+        vm.warp(uint40(block.timestamp + 86_400) + 1);
 
         looksRareRaffle.cancel(0);
 
@@ -62,7 +62,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     function test_claimRefund_RevertIf_AlreadyRefunded() public {
         _enterRaffles();
 
-        vm.warp(block.timestamp + 86_400 + 1);
+        vm.warp(uint40(block.timestamp + 86_400) + 1);
 
         looksRareRaffle.cancel(0);
 

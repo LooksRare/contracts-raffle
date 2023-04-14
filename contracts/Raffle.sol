@@ -142,10 +142,10 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function createRaffle(
-        uint256 cutoffTime,
-        uint256 minimumEntries,
-        uint256 maximumEntries,
-        uint256 maximumEntriesPerParticipant,
+        uint40 cutoffTime,
+        uint64 minimumEntries,
+        uint64 maximumEntries,
+        uint64 maximumEntriesPerParticipant,
         uint256 prizeValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,

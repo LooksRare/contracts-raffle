@@ -34,10 +34,10 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
-            cutoffTime: block.timestamp + 86_400,
-            minimumEntries: 107,
+            cutoffTime: uint40(block.timestamp + 86_400),
+            minimumEntries: uint64(107),
             maximumEntries: 512,
-            maximumEntriesPerParticipant: 100,
+            maximumEntriesPerParticipant: uint64(100),
             prizeValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
