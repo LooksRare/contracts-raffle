@@ -225,11 +225,25 @@ interface IRaffle {
     function getWinners(uint256 raffleId) external view returns (Winner[] memory);
 
     /**
+     * @notice Gets the pricing options for a raffle.
+     * @param raffleId The id of the raffle.
+     * @return pricings The pricing options for the raffle.
+     */
+    function getPricings(uint256 raffleId) external view returns (Pricing[5] memory);
+
+    /**
      * @notice Gets the prizes for a raffle.
      * @param raffleId The id of the raffle.
      * @return prizes The prizes to be distributed.
      */
     function getPrizes(uint256 raffleId) external view returns (Prize[] memory);
+
+    /**
+     * @notice Gets the entries for a raffle.
+     * @param raffleId The id of the raffle.
+     * @return entries The entries entered for the raffle.
+     */
+    function getEntries(uint256 raffleId) external view returns (Entry[] memory);
 
     /**
      * @notice Claims the prize for a winner.

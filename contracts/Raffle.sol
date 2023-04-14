@@ -464,6 +464,20 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
+    function getEntries(uint256 raffleId) external view returns (Entry[] memory entries) {
+        entries = raffles[raffleId].entries;
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function getPricings(uint256 raffleId) external view returns (Pricing[PRICING_OPTIONS_PER_RAFFLE] memory pricings) {
+        pricings = raffles[raffleId].pricings;
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
     function claimProtocolFees(address currency) external onlyOwner {
         uint256 claimableFees = protocolFeeRecipientClaimableFees[currency];
         protocolFeeRecipientClaimableFees[currency] = 0;
