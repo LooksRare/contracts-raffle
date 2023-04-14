@@ -56,9 +56,9 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
 
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(200),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(200),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -118,9 +118,9 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
 
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(200),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(200),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),

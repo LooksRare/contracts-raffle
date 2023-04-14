@@ -29,14 +29,14 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         (
             address owner,
             IRaffle.RaffleStatus status,
-            uint64 minimumEntries,
-            uint176 prizesTotalValue,
-            uint64 maximumEntries,
-            uint176 claimableFees,
-            uint64 maximumEntriesPerParticipant,
+            uint40 cutoffTime,
+            uint80 minimumEntries,
+            uint80 maximumEntries,
+            uint80 maximumEntriesPerParticipant,
             uint16 minimumProfitBp,
+            uint256 prizesTotalValue,
             address feeTokenAddress,
-            uint40 cutoffTime
+            uint176 claimableFees
         ) = looksRareRaffle.raffles(0);
         assertEq(owner, user1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Created));
@@ -99,9 +99,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             vm.expectRevert(IRaffle.InvalidEntriesRange.selector);
             looksRareRaffle.createRaffle({
                 cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: uint64(107),
-                maximumEntries: uint64(maximumEntries[i]),
-                maximumEntriesPerParticipant: uint64(100),
+                minimumEntries: uint80(107),
+                maximumEntries: uint80(maximumEntries[i]),
+                maximumEntriesPerParticipant: uint80(100),
                 prizesTotalValue: 1 ether,
                 minimumProfitBp: uint16(500),
                 feeTokenAddress: address(0),
@@ -123,9 +123,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidCutoffTime.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + lifespan),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -144,9 +144,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -165,9 +165,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -189,9 +189,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -209,9 +209,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -230,8 +230,8 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
             minimumEntries: 105,
-            maximumEntries: uint64(106),
-            maximumEntriesPerParticipant: uint64(100),
+            maximumEntries: uint80(106),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -251,9 +251,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -271,9 +271,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -291,9 +291,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidPrice.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -312,9 +312,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -333,9 +333,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidPrice.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
@@ -351,9 +351,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidFeeToken.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: uint64(107),
-            maximumEntries: uint64(200),
-            maximumEntriesPerParticipant: uint64(100),
+            minimumEntries: uint80(107),
+            maximumEntries: uint80(200),
+            maximumEntriesPerParticipant: uint80(100),
             prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0xA11ce),

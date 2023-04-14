@@ -25,7 +25,7 @@ interface IRaffle {
      * @param price The price of the entries.
      */
     struct PricingOption {
-        uint64 entriesCount;
+        uint80 entriesCount;
         uint176 price;
     }
 
@@ -34,7 +34,7 @@ interface IRaffle {
      * @param participant The address of the participant.
      */
     struct Entry {
-        uint64 currentEntryIndex;
+        uint80 currentEntryIndex;
         address participant;
     }
 
@@ -48,7 +48,7 @@ interface IRaffle {
         address participant;
         bool claimed;
         uint8 prizeIndex;
-        uint64 entryIndex;
+        uint80 entryIndex;
     }
 
     /**
@@ -71,30 +71,30 @@ interface IRaffle {
     /**
      * @param owner The address of the raffle owner.
      * @param status The status of the raffle.
+     * @param cutoffTime The time after which the raffle cannot be entered.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
-     * @param prizesTotalValue The total value of the prizes.
      * @param maximumEntries The maximum number of entries allowed in the raffle.
-     * @param claimableFees The amount of fees collected from selling entries.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
+     * @param prizesTotalValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
-     * @param cutoffTime The time after which the raffle cannot be entered.
+     * @param claimableFees The amount of fees collected from selling entries.
      * @param pricingOptions The pricing options for the raffle.
      * @param prizes The prizes to be distributed.
      * @param entries The entries that have been sold.
      * @param winners The winners of the raffle.
      */
     struct Raffle {
-        address owner; // slot 0
+        address owner;
         RaffleStatus status;
-        uint64 minimumEntries;
-        uint176 prizesTotalValue; // slot 1
-        uint64 maximumEntries;
-        uint176 claimableFees; // slot 2
-        uint64 maximumEntriesPerParticipant;
-        uint16 minimumProfitBp;
-        address feeTokenAddress; // slot 3
         uint40 cutoffTime;
+        uint80 minimumEntries;
+        uint80 maximumEntries;
+        uint80 maximumEntriesPerParticipant;
+        uint16 minimumProfitBp;
+        uint176 prizesTotalValue;
+        address feeTokenAddress;
+        uint176 claimableFees;
         PricingOption[5] pricingOptions;
         Prize[] prizes;
         Entry[] entries;
@@ -108,7 +108,7 @@ interface IRaffle {
      */
     struct ParticipantStats {
         uint176 amountPaid;
-        uint64 entriesCount;
+        uint80 entriesCount;
         bool refunded;
     }
 
@@ -135,7 +135,7 @@ interface IRaffle {
 
     event CallbackGasLimitPerRandomWordUpdated(uint32 callbackGasLimit);
     event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
-    event EntrySold(uint256 raffleId, address buyer, uint64 entriesCount, uint256 price);
+    event EntrySold(uint256 raffleId, address buyer, uint80 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
     event PrizeClaimed(
         uint256 raffleId,
@@ -189,9 +189,9 @@ interface IRaffle {
      */
     function createRaffle(
         uint40 cutoffTime,
-        uint64 minimumEntries,
-        uint64 maximumEntries,
-        uint64 maximumEntriesPerParticipant,
+        uint80 minimumEntries,
+        uint80 maximumEntries,
+        uint80 maximumEntriesPerParticipant,
         uint176 prizesTotalValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,
