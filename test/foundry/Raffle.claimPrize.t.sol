@@ -45,6 +45,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
             minimumEntries: 107,
             maximumEntries: 200,
             prizeValue: 1 ether,
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricings: pricings

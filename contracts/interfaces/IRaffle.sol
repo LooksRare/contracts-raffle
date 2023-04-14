@@ -78,6 +78,7 @@ interface IRaffle {
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed in the raffle.
      * @param prizeValue The total value of the prizes.
+     * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param claimableFees The amount of fees collected from selling entries.
      * @param pricings The pricing options for the raffle.
@@ -92,6 +93,7 @@ interface IRaffle {
         uint256 minimumEntries;
         uint256 maximumEntries;
         uint256 prizeValue;
+        uint256 minimumProfitBp;
         address feeTokenAddress;
         uint256 claimableFees;
         Pricing[5] pricings;
@@ -183,6 +185,7 @@ interface IRaffle {
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed to enter the raffle.
      * @param prizeValue The total value of the prizes.
+     * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param prizes The prizes to be distributed.
      * @param pricings The pricing options for the raffle.
@@ -193,6 +196,7 @@ interface IRaffle {
         uint256 minimumEntries,
         uint256 maximumEntries,
         uint256 prizeValue,
+        uint256 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
         Pricing[5] calldata pricings

@@ -141,6 +141,7 @@ contract Raffle is
         uint256 minimumEntries,
         uint256 maximumEntries,
         uint256 prizeValue, /* TODO: kinda dumb, but 0 value check? */
+        uint256 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
         Pricing[PRICING_OPTIONS_PER_RAFFLE] calldata pricings
@@ -190,6 +191,7 @@ contract Raffle is
         raffles[raffleId].minimumEntries = minimumEntries;
         raffles[raffleId].maximumEntries = maximumEntries;
         raffles[raffleId].prizeValue = prizeValue;
+        raffles[raffleId].minimumProfitBp = minimumProfitBp;
         raffles[raffleId].feeTokenAddress = feeTokenAddress;
         for (uint256 i; i < prizesCount; ) {
             raffles[raffleId].prizes.push(prizes[i]);
@@ -307,10 +309,8 @@ contract Raffle is
 
             // TODO: What if the user enters the same raffle multiple times?
             // maybe an additional check that the raffle status isn't ready to be drawn?
-            /** TODO: validate amount purchased is >= prizeValue * 1.05 ? */
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
-                // TODO: Should the premium be configurable? ALSO TEST THIS
-                if (raffle.claimableFees > (raffle.prizeValue * 10_500) / 10_000) {
+                if (raffle.claimableFees > (raffle.prizeValue * (10_000 + raffle.minimumProfitBp)) / 10_000) {
                     raffle.status = RaffleStatus.ReadyToBeDrawn;
                     emit RaffleStatusUpdated(entry.raffleId, RaffleStatus.ReadyToBeDrawn);
                 }

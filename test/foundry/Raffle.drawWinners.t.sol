@@ -36,7 +36,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
     function test_drawWinners() public {
         for (uint256 i; i < 10; ) {
-            (, IRaffle.RaffleStatus status, , , , , , ) = looksRareRaffle.raffles(0);
+            (, IRaffle.RaffleStatus status, , , , , , , ) = looksRareRaffle.raffles(0);
 
             if (status == IRaffle.RaffleStatus.ReadyToBeDrawn) {
                 break;

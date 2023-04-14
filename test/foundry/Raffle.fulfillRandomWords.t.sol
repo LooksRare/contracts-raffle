@@ -38,6 +38,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             minimumEntries: 107,
             maximumEntries: 512,
             prizeValue: 1 ether,
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricings: pricings
