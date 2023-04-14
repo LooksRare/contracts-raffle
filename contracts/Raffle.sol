@@ -279,7 +279,7 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function enterRaffles(EntryCalldata[] calldata entries) external payable {
-        uint256 entriesCount = entries.length;
+        uint80 entriesCount = uint80(entries.length);
         uint256 expectedEthValue;
         for (uint256 i; i < entriesCount; ) {
             EntryCalldata calldata entry = entries[i];
@@ -303,7 +303,7 @@ contract Raffle is
 
             Pricing memory pricing = raffle.pricings[entry.pricingIndex];
 
-            uint256 newEntriesCount = rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount +
+            uint80 newEntriesCount = rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount +
                 pricing.entriesCount;
             if (newEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
@@ -315,7 +315,7 @@ contract Raffle is
                 _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), pricing.price);
             }
 
-            uint256 currentEntryIndex;
+            uint80 currentEntryIndex;
             uint256 raffleEntriesCount = raffle.entries.length;
             if (raffleEntriesCount == 0) {
                 currentEntryIndex = pricing.entriesCount - 1;
@@ -397,8 +397,8 @@ contract Raffle is
             randomnessRequests[_requestId].randomWords = _randomWords;
             Winner[] memory winners = new Winner[](winnersCount);
 
-            uint256 entriesCount = raffle.entries.length;
-            uint256 currentEntryIndex = raffle.entries[entriesCount - 1].currentEntryIndex;
+            uint80 entriesCount = uint80(raffle.entries.length);
+            uint80 currentEntryIndex = raffle.entries[entriesCount - 1].currentEntryIndex;
 
             uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
 
@@ -431,7 +431,7 @@ contract Raffle is
                 uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
 
                 winners[i].participant = raffle.entries[winnerIndex].participant;
-                winners[i].entryIndex = winningEntry;
+                winners[i].entryIndex = uint80(winningEntry);
                 winners[i].prizeIndex = prizeIndex;
 
                 unchecked {
@@ -691,7 +691,7 @@ contract Raffle is
     }
 
     function _incrementWinningEntryUntilThereIsNotADuplicate(
-        uint256 currentEntryIndex,
+        uint80 currentEntryIndex,
         uint256 winningEntry,
         uint256[] memory winningEntriesBitmap
     ) private pure returns (uint256, uint256[] memory) {

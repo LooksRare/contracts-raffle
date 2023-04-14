@@ -307,7 +307,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     function testFuzz_fulfillRandomWords(uint248 seed) public {
         IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
         uint256 userIndex;
-        uint256 currentEntryIndex;
+        uint80 currentEntryIndex;
         while (currentEntryIndex < 107) {
             address participant = address(uint160(userIndex + 1));
             vm.deal(participant, 1 ether);
@@ -366,7 +366,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             assertFalse(winners[i].claimed);
             assertNotEq(winners[i].participant, address(0));
 
-            uint256 entryIndex = winners[i].entryIndex;
+            uint80 entryIndex = winners[i].entryIndex;
             assertFalse(winningEntries[entryIndex]);
             winningEntries[entryIndex] = true;
 
