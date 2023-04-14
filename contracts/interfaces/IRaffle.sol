@@ -277,6 +277,12 @@ interface IRaffle {
     function claimProtocolFees(address currency) external;
 
     /**
+     * @notice Sets the callback gas limit per random word.
+     * @param callbackGasLimit The callback gas limit per random word.
+     */
+    function setCallbackGasLimitPerRandomWord(uint32 callbackGasLimit) external;
+
+    /**
      * @notice Sets the protocol fee in basis points.
      * @param protocolFeeBp The protocol fee in basis points.
      */
