@@ -287,7 +287,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: block.timestamp + 86_400,
-            minimumEntries: 107,
+            minimumEntries: 111,
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
