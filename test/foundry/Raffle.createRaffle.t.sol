@@ -50,7 +50,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(claimableFees, 0);
 
         // TODO: verify
-        // Pricing[5] pricings;
         // Entry[] entries;
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
@@ -75,6 +74,20 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(prizes[6].prizeAmount, 1_000 ether);
         assertEq(prizes[6].winnersCount, 100);
         assertEq(prizes[6].cumulativeWinnersCount, 106);
+
+        IRaffle.Pricing[5] memory pricings = looksRareRaffle.getPricings(0);
+
+        assertEq(pricings[0].entriesCount, 1);
+        assertEq(pricings[1].entriesCount, 10);
+        assertEq(pricings[2].entriesCount, 25);
+        assertEq(pricings[3].entriesCount, 50);
+        assertEq(pricings[4].entriesCount, 100);
+
+        assertEq(pricings[0].price, 0.025 ether);
+        assertEq(pricings[1].price, 0.22 ether);
+        assertEq(pricings[2].price, 0.5 ether);
+        assertEq(pricings[3].price, 0.75 ether);
+        assertEq(pricings[4].price, 0.95 ether);
     }
 
     function test_createRaffle_RevertIf_InvalidEntriesRange() public {
