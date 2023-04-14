@@ -613,13 +613,10 @@ contract Raffle is
 
         stats.refunded = true;
 
-        if (raffle.feeTokenAddress == address(0)) {
-            _transferETH(msg.sender, stats.amountPaid);
-        } else {
-            _executeERC20DirectTransfer(raffle.feeTokenAddress, msg.sender, stats.amountPaid);
-        }
+        uint256 amountPaid = stats.amountPaid;
+        _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
 
-        emit EntryRefunded(raffleId, msg.sender, stats.amountPaid);
+        emit EntryRefunded(raffleId, msg.sender, amountPaid);
     }
 
     function setCallbackGasLimitPerRandomWord(uint32 _callbackGasLimitPerRandomWord) external onlyOwner {
