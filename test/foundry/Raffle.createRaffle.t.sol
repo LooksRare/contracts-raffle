@@ -90,6 +90,24 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(entries.length, 0);
     }
 
+    function test_createRaffle_RevertIf_InvalidMaximumEntriesPerParticipant() public {
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        vm.expectRevert(IRaffle.InvalidMaximumEntriesPerParticipant.selector);
+        looksRareRaffle.createRaffle({
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 201,
+            prizesTotalValue: 1 ether,
+            minimumProfitBp: 500,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricingOptions: pricingOptions
+        });
+    }
+
     function test_createRaffle_RevertIf_InvalidEntriesRange() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
