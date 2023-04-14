@@ -663,9 +663,10 @@ contract Raffle is
     }
 
     function _depositPrize(Prize storage prize) private {
-        if (prize.prizeType == TokenType.ERC721) {
+        TokenType prizeType = prize.prizeType;
+        if (prizeType == TokenType.ERC721) {
             _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
-        } else if (prize.prizeType == TokenType.ERC1155) {
+        } else if (prizeType == TokenType.ERC1155) {
             _executeERC1155SafeTransferFrom(
                 prize.prizeAddress,
                 msg.sender,
@@ -673,11 +674,11 @@ contract Raffle is
                 prize.prizeId,
                 prize.prizeAmount * prize.winnersCount
             );
-        } else if (prize.prizeType == TokenType.ETH) {
+        } else if (prizeType == TokenType.ETH) {
             if (msg.value != prize.prizeAmount * prize.winnersCount) {
                 revert InsufficientNativeTokensSupplied();
             }
-        } else if (prize.prizeType == TokenType.ERC20) {
+        } else if (prizeType == TokenType.ERC20) {
             _executeERC20TransferFrom(
                 prize.prizeAddress,
                 msg.sender,

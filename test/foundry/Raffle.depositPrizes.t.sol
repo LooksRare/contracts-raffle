@@ -21,7 +21,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
     }
 
-    function test_despositPrizes() public asPrankedUser(user1) {
+    function test_depositPrizes() public asPrankedUser(user1) {
         looksRareRaffle.depositPrizes(0);
 
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
@@ -37,12 +37,12 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
     }
 
     // TODO: Use vm.store to mock different raffle statuses
-    function test_despositPrizes_RevertIf_StatusIsNotCreated() public {
+    function test_depositPrizes_RevertIf_StatusIsNotCreated() public {
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.depositPrizes(1);
     }
 
-    function test_despositPrizes_RevertIf_PrizesAlreadyDeposited() public asPrankedUser(user1) {
+    function test_depositPrizes_RevertIf_PrizesAlreadyDeposited() public asPrankedUser(user1) {
         looksRareRaffle.depositPrizes(0);
 
         assertEq(mockERC20.balanceOf(user1), 0);
