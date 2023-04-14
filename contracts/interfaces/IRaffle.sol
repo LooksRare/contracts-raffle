@@ -76,7 +76,7 @@ interface IRaffle {
      * @param maximumEntries The maximum number of entries allowed in the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
-     * @param prizeValue The total value of the prizes.
+     * @param prizesTotalValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param claimableFees The amount of fees collected from selling entries.
      * @param pricingOptions The pricing options for the raffle.
@@ -92,7 +92,7 @@ interface IRaffle {
         uint64 maximumEntries;
         uint64 maximumEntriesPerParticipant;
         uint16 minimumProfitBp;
-        uint256 prizeValue;
+        uint256 prizesTotalValue;
         address feeTokenAddress;
         uint256 claimableFees;
         PricingOption[5] pricingOptions;
@@ -179,7 +179,7 @@ interface IRaffle {
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed to enter the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
-     * @param prizeValue The total value of the prizes.
+     * @param prizesTotalValue The total value of the prizes.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param prizes The prizes to be distributed.
@@ -191,7 +191,7 @@ interface IRaffle {
         uint64 minimumEntries,
         uint64 maximumEntries,
         uint64 maximumEntriesPerParticipant,
-        uint256 prizeValue,
+        uint256 prizesTotalValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,

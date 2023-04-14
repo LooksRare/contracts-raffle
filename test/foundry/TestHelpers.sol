@@ -102,7 +102,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             minimumEntries: uint64(107),
             maximumEntries: uint64(200),
             maximumEntriesPerParticipant: uint64(200),
-            prizeValue: 1 ether,
+            prizesTotalValue: 1 ether,
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,

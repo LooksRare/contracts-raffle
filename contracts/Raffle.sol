@@ -146,7 +146,7 @@ contract Raffle is
         uint64 minimumEntries,
         uint64 maximumEntries,
         uint64 maximumEntriesPerParticipant,
-        uint256 prizeValue,
+        uint256 prizesTotalValue,
         uint16 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
@@ -205,7 +205,7 @@ contract Raffle is
         raffles[raffleId].minimumEntries = minimumEntries;
         raffles[raffleId].maximumEntries = maximumEntries;
         raffles[raffleId].maximumEntriesPerParticipant = maximumEntriesPerParticipant;
-        raffles[raffleId].prizeValue = prizeValue;
+        raffles[raffleId].prizesTotalValue = prizesTotalValue;
         raffles[raffleId].minimumProfitBp = minimumProfitBp;
         raffles[raffleId].feeTokenAddress = feeTokenAddress;
         for (uint256 i; i < prizesCount; ) {
@@ -340,7 +340,7 @@ contract Raffle is
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
                 if (
                     raffle.claimableFees >
-                    (raffle.prizeValue * (ONE_HUNDRED_PERCENT_BP + uint256(raffle.minimumProfitBp))) /
+                    (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + uint256(raffle.minimumProfitBp))) /
                         ONE_HUNDRED_PERCENT_BP
                 ) {
                     if (status == RaffleStatus.Open) {
