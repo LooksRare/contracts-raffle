@@ -7,7 +7,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
  * @dev Collection of functions related to array types.
  *      Modified from https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Arrays.sol
  */
-library Uint8Arrays {
+library Arrays {
     /**
      * @dev Searches a sorted `array` and returns the first index that contains
      * a value greater or equal to `element`. If no such index exists (i.e. all
@@ -17,7 +17,7 @@ library Uint8Arrays {
      * `array` is expected to be sorted in ascending order, and to contain no
      * repeated elements.
      */
-    function findUpperBound(uint8[] memory array, uint8 element) internal pure returns (uint256) {
+    function findUpperBound(uint256[] memory array, uint256 element) internal pure returns (uint256) {
         if (array.length == 0) {
             return 0;
         }

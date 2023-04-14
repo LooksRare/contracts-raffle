@@ -54,18 +54,18 @@ interface IRaffle {
     /**
      * @param prizeType The type of the prize.
      * @param prizeAddress The address of the prize.
-     * @param winnersCount The number of winners.
-     * @param cumulativeWinnersCount The cumulative number of winners in the raffle.
      * @param prizeId The id of the prize.
      * @param prizeAmount The amount of the prize.
+     * @param winnersCount The number of winners.
+     * @param cumulativeWinnersCount The cumulative number of winners in the raffle.
      */
     struct Prize {
         TokenType prizeType;
         address prizeAddress;
-        uint8 winnersCount;
-        uint8 cumulativeWinnersCount;
         uint256 prizeId;
         uint256 prizeAmount;
+        uint256 winnersCount;
+        uint256 cumulativeWinnersCount;
     }
 
     /**

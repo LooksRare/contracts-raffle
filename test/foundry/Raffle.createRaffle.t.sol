@@ -155,7 +155,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         });
     }
 
-    function testFuzz_createRaffle_RevertIf_PrizeIsERC721_InvalidWinnersCount(uint8 winnersCount) public {
+    function testFuzz_createRaffle_RevertIf_PrizeIsERC721_InvalidWinnersCount(uint256 winnersCount) public {
         vm.assume(winnersCount != 1);
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         prizes[0].winnersCount = winnersCount;

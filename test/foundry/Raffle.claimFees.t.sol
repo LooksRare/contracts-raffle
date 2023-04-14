@@ -49,7 +49,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         vm.stopPrank();
     }
 
-    function test_claimFees() public {
+    function test_claimFees_X() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
