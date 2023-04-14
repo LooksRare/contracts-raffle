@@ -16,6 +16,8 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
+    event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
+
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 
@@ -72,6 +74,9 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         uint256 winnersCount = 11;
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
@@ -115,6 +120,8 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
                 ++i;
             }
         }
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
     }
 
     function test_fulfillRandomWords_SomeParticipantsDrawnMoreThanOnce() public {
@@ -153,6 +160,10 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         randomWords[9] = 21_405; // 21405 % 100 + 1 = 5 (becomes 10)
         randomWords[10] = 21_406; // 21406 % 100 + 1 = 6 (becomes 11)
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
@@ -196,6 +207,8 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
                 ++i;
             }
         }
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
     }
 
     function test_fulfillRandomWords_SomeParticipantsDrawnMoreThanOnce_MultipleBucketsWithOverflow() public {
@@ -234,6 +247,10 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         randomWords[9] = 888; // 888 % 512 + 1 = 377 (bucket 1, index 121)
         randomWords[10] = 69_420; // 69420 % 512 + 1 = 301 (bucket 1, index 45)
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
@@ -277,6 +294,8 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
                 ++i;
             }
         }
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
     }
 
     mapping(uint256 => bool) private winningEntries;
@@ -320,6 +339,9 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             }
         }
 
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
@@ -352,5 +374,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
                 ++i;
             }
         }
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
     }
 }

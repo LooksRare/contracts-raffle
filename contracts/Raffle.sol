@@ -445,6 +445,8 @@ contract Raffle is
                     ++i;
                 }
             }
+
+            emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawn);
         }
     }
 
