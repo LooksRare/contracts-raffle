@@ -49,10 +49,10 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             uint256 pricingIndex = i % 5;
             entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: pricingIndex});
 
-            IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+            IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: pricings[pricingIndex].price}(entries);
+            looksRareRaffle.enterRaffles{value: pricingOptions[pricingIndex].price}(entries);
 
             unchecked {
                 ++i;

@@ -72,19 +72,19 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(prizes[6].winnersCount, 100);
         assertEq(prizes[6].cumulativeWinnersCount, 106);
 
-        IRaffle.Pricing[5] memory pricings = looksRareRaffle.getPricings(0);
+        IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(0);
 
-        assertEq(pricings[0].entriesCount, 1);
-        assertEq(pricings[1].entriesCount, 10);
-        assertEq(pricings[2].entriesCount, 25);
-        assertEq(pricings[3].entriesCount, 50);
-        assertEq(pricings[4].entriesCount, 100);
+        assertEq(pricingOptions[0].entriesCount, 1);
+        assertEq(pricingOptions[1].entriesCount, 10);
+        assertEq(pricingOptions[2].entriesCount, 25);
+        assertEq(pricingOptions[3].entriesCount, 50);
+        assertEq(pricingOptions[4].entriesCount, 100);
 
-        assertEq(pricings[0].price, 0.025 ether);
-        assertEq(pricings[1].price, 0.22 ether);
-        assertEq(pricings[2].price, 0.5 ether);
-        assertEq(pricings[3].price, 0.75 ether);
-        assertEq(pricings[4].price, 0.95 ether);
+        assertEq(pricingOptions[0].price, 0.025 ether);
+        assertEq(pricingOptions[1].price, 0.22 ether);
+        assertEq(pricingOptions[2].price, 0.5 ether);
+        assertEq(pricingOptions[3].price, 0.75 ether);
+        assertEq(pricingOptions[4].price, 0.95 ether);
 
         IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(0);
         assertEq(entries.length, 0);
@@ -92,7 +92,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
     function test_createRaffle_RevertIf_InvalidEntriesRange() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         uint8[2] memory maximumEntries = [106, 107];
         for (uint256 i; i < 2; ) {
@@ -106,7 +106,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
                 minimumProfitBp: uint16(500),
                 feeTokenAddress: address(0),
                 prizes: prizes,
-                pricings: pricings
+                pricingOptions: pricingOptions
             });
 
             unchecked {
@@ -118,7 +118,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function testFuzz_createRaffle_RevertIf_InvalidCutoffTime(uint256 lifespan) public {
         vm.assume(lifespan < 86_400);
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidCutoffTime.selector);
         looksRareRaffle.createRaffle({
@@ -130,7 +130,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
@@ -139,7 +139,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         prizes[0].prizeAmount = prizeAmount;
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
         looksRareRaffle.createRaffle({
@@ -151,7 +151,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
@@ -160,7 +160,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         prizes[0].winnersCount = winnersCount;
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
@@ -172,7 +172,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
@@ -184,7 +184,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         prizes[6].prizeAmount = 0;
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
         looksRareRaffle.createRaffle({
@@ -196,7 +196,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
@@ -204,7 +204,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         prizes[6].winnersCount = 0;
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
@@ -216,7 +216,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
@@ -224,7 +224,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
     function test_createRaffle_RevertIf_PrizeIsETH_InvalidWinnersCount() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
@@ -236,7 +236,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
@@ -246,7 +246,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         prizes[6].winnersCount = 105; // 1 + 5 + 105 = 111 > 110
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle({
@@ -258,15 +258,15 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
     function test_createRaffle_RevertIf_PricingEntriesCountIsZero() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
-        pricings[0].entriesCount = 0;
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        pricingOptions[0].entriesCount = 0;
 
         vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
         looksRareRaffle.createRaffle({
@@ -278,15 +278,15 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
     function test_createRaffle_RevertIf_PricingPriceIsZero() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
-        pricings[0].price = 0;
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        pricingOptions[0].price = 0;
 
         vm.expectRevert(IRaffle.InvalidPrice.selector);
         looksRareRaffle.createRaffle({
@@ -298,16 +298,16 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
     function test_createRaffle_RevertIf_PricingEntriesCountIsNotGreaterThanLastPricing() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
-        // pricings[1].entriesCount == 10
-        pricings[2].entriesCount = 9;
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        // pricingOptions[1].entriesCount == 10
+        pricingOptions[2].entriesCount = 9;
 
         vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
         looksRareRaffle.createRaffle({
@@ -319,16 +319,16 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
     function test_createRaffle_RevertIf_PricingPriceIsNotGreaterThanLastPrice() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
-        // pricings[1].price == 0.22 ether
-        pricings[2].price = 0.219 ether;
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        // pricingOptions[1].price == 0.22 ether
+        pricingOptions[2].price = 0.219 ether;
 
         vm.expectRevert(IRaffle.InvalidPrice.selector);
         looksRareRaffle.createRaffle({
@@ -340,13 +340,13 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 
     function test_createRaffle_RevertIf_PricingInvalidERC20FeeToken() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.expectRevert(IRaffle.InvalidFeeToken.selector);
         looksRareRaffle.createRaffle({
@@ -358,7 +358,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0xA11ce),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 }

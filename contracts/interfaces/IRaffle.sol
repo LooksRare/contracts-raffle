@@ -24,7 +24,7 @@ interface IRaffle {
      * @param entriesCount The number of entries that can be purchased for the given price.
      * @param price The price of the entries.
      */
-    struct Pricing {
+    struct PricingOption {
         uint80 entriesCount;
         uint256 price;
     }
@@ -79,7 +79,7 @@ interface IRaffle {
      * @param prizeValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param claimableFees The amount of fees collected from selling entries.
-     * @param pricings The pricing options for the raffle.
+     * @param pricingOptions The pricing options for the raffle.
      * @param prizes The prizes to be distributed.
      * @param entries The entries that have been sold.
      * @param winners The winners of the raffle.
@@ -95,7 +95,7 @@ interface IRaffle {
         uint256 prizeValue;
         address feeTokenAddress;
         uint256 claimableFees;
-        Pricing[5] pricings;
+        PricingOption[5] pricingOptions;
         Prize[] prizes;
         Entry[] entries;
         Winner[] winners;
@@ -183,7 +183,7 @@ interface IRaffle {
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param prizes The prizes to be distributed.
-     * @param pricings The pricing options for the raffle.
+     * @param pricingOptions The pricing options for the raffle.
      * @return raffleId The id of the newly created raffle.
      */
     function createRaffle(
@@ -195,7 +195,7 @@ interface IRaffle {
         uint16 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
-        Pricing[5] calldata pricings
+        PricingOption[5] calldata pricingOptions
     ) external returns (uint256 raffleId);
 
     /**
@@ -226,9 +226,9 @@ interface IRaffle {
     /**
      * @notice Gets the pricing options for a raffle.
      * @param raffleId The id of the raffle.
-     * @return pricings The pricing options for the raffle.
+     * @return pricingOptions The pricing options for the raffle.
      */
-    function getPricings(uint256 raffleId) external view returns (Pricing[5] memory);
+    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[5] memory);
 
     /**
      * @notice Gets the prizes for a raffle.

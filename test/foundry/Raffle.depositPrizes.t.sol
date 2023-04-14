@@ -51,7 +51,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
@@ -62,7 +62,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
 
         looksRareRaffle.depositPrizes{value: 1.5 ether}(1);
@@ -108,7 +108,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
 
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
@@ -119,7 +119,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
 
         vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);

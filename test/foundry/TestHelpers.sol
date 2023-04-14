@@ -24,12 +24,12 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         vm.stopPrank();
     }
 
-    function _generateStandardPricings() internal pure returns (IRaffle.Pricing[5] memory pricings) {
-        pricings[0] = IRaffle.Pricing({entriesCount: 1, price: 0.025 ether});
-        pricings[1] = IRaffle.Pricing({entriesCount: 10, price: 0.22 ether});
-        pricings[2] = IRaffle.Pricing({entriesCount: 25, price: 0.5 ether});
-        pricings[3] = IRaffle.Pricing({entriesCount: 50, price: 0.75 ether});
-        pricings[4] = IRaffle.Pricing({entriesCount: 100, price: 0.95 ether});
+    function _generateStandardPricings() internal pure returns (IRaffle.PricingOption[5] memory pricingOptions) {
+        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
+        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});
+        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.5 ether});
+        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.75 ether});
+        pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.95 ether});
     }
 
     /**
@@ -95,7 +95,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         Raffle looksRareRaffle
     ) internal {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(mockERC20, mockERC721);
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
@@ -106,7 +106,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
     }
 

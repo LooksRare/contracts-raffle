@@ -36,7 +36,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         prizes[6].winnersCount = 5;
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
@@ -48,7 +48,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
 
         looksRareRaffle.depositPrizes(0);

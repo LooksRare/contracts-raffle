@@ -25,7 +25,7 @@ contract Raffle_Cancel_Test is TestHelpers {
         _mintStandardRafflePrizesToRaffleOwnerAndApprove(mockERC20, mockERC721, address(looksRareRaffle));
 
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
@@ -37,7 +37,7 @@ contract Raffle_Cancel_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
 
         looksRareRaffle.depositPrizes(0);
@@ -47,7 +47,7 @@ contract Raffle_Cancel_Test is TestHelpers {
     // TODO: How do we prevent a user from creating a raffle with deposited NFTs from another raffle?
     function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user2) {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
@@ -58,7 +58,7 @@ contract Raffle_Cancel_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});

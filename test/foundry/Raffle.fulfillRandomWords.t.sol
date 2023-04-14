@@ -30,7 +30,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         prizes[6].winnersCount = 5;
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
@@ -42,7 +42,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             minimumProfitBp: uint16(500),
             feeTokenAddress: address(0),
             prizes: prizes,
-            pricings: pricings
+            pricingOptions: pricingOptions
         });
 
         looksRareRaffle.depositPrizes(0);
@@ -305,7 +305,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
      *      when adding 1-10 to it
      */
     function testFuzz_fulfillRandomWords(uint248 seed) public {
-        IRaffle.Pricing[5] memory pricings = _generateStandardPricings();
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
         uint256 userIndex;
         uint80 currentEntryIndex;
         while (currentEntryIndex < 107) {
@@ -317,10 +317,10 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: pricingIndex});
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: pricings[pricingIndex].price}(entries);
+            looksRareRaffle.enterRaffles{value: pricingOptions[pricingIndex].price}(entries);
 
             unchecked {
-                currentEntryIndex += pricings[pricingIndex].entriesCount;
+                currentEntryIndex += pricingOptions[pricingIndex].entriesCount;
                 ++userIndex;
             }
         }

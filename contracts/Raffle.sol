@@ -150,7 +150,7 @@ contract Raffle is
         uint16 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
-        Pricing[PRICING_OPTIONS_PER_RAFFLE] calldata pricings
+        PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions
     ) external returns (uint256 raffleId) {
         if (maximumEntriesPerParticipant > maximumEntries) {
             revert InvalidMaximumEntriesPerParticipant();
@@ -195,7 +195,7 @@ contract Raffle is
             revert InvalidWinnersCount();
         }
 
-        _validatePricings(pricings);
+        _validatePricingOptions(pricingOptions);
 
         raffleId = rafflesCount;
 
@@ -215,7 +215,7 @@ contract Raffle is
             }
         }
         for (uint256 i; i < PRICING_OPTIONS_PER_RAFFLE; ) {
-            raffles[raffleId].pricings[i] = pricings[i];
+            raffles[raffleId].pricingOptions[i] = pricingOptions[i];
             unchecked {
                 ++i;
             }
@@ -301,26 +301,28 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
-            Pricing memory pricing = raffle.pricings[entry.pricingIndex];
+            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingIndex];
 
             uint80 newEntriesCount = rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount +
-                pricing.entriesCount;
+                pricingOption.entriesCount;
             if (newEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
 
             if (raffle.feeTokenAddress == address(0)) {
-                expectedEthValue += pricing.price;
+                expectedEthValue += pricingOption.price;
             } else {
-                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), pricing.price);
+                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), pricingOption.price);
             }
 
             uint80 currentEntryIndex;
             uint256 raffleEntriesCount = raffle.entries.length;
             if (raffleEntriesCount == 0) {
-                currentEntryIndex = pricing.entriesCount - 1;
+                currentEntryIndex = pricingOption.entriesCount - 1;
             } else {
-                currentEntryIndex = raffle.entries[raffleEntriesCount - 1].currentEntryIndex + pricing.entriesCount;
+                currentEntryIndex =
+                    raffle.entries[raffleEntriesCount - 1].currentEntryIndex +
+                    pricingOption.entriesCount;
             }
 
             if (currentEntryIndex >= raffle.maximumEntries) {
@@ -328,12 +330,12 @@ contract Raffle is
             }
 
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
-            raffle.claimableFees += pricing.price;
+            raffle.claimableFees += pricingOption.price;
 
-            rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += pricing.price;
+            rafflesParticipantsStats[entry.raffleId][msg.sender].amountPaid += pricingOption.price;
             rafflesParticipantsStats[entry.raffleId][msg.sender].entriesCount = newEntriesCount;
 
-            emit EntrySold(entry.raffleId, msg.sender, pricing.entriesCount, pricing.price);
+            emit EntrySold(entry.raffleId, msg.sender, pricingOption.entriesCount, pricingOption.price);
 
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
                 if (
@@ -503,8 +505,12 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function getPricings(uint256 raffleId) external view returns (Pricing[PRICING_OPTIONS_PER_RAFFLE] memory pricings) {
-        pricings = raffles[raffleId].pricings;
+    function getPricingOptions(uint256 raffleId)
+        external
+        view
+        returns (PricingOption[PRICING_OPTIONS_PER_RAFFLE] memory pricingOptions)
+    {
+        pricingOptions = raffles[raffleId].pricingOptions;
     }
 
     /**
@@ -642,24 +648,24 @@ contract Raffle is
         emit ProtocolFeeBpUpdated(_protocolFeeBp);
     }
 
-    function _validatePricings(Pricing[PRICING_OPTIONS_PER_RAFFLE] calldata pricings) private pure {
+    function _validatePricingOptions(PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions) private pure {
         for (uint256 i; i < PRICING_OPTIONS_PER_RAFFLE; ) {
-            Pricing memory pricing = pricings[i];
-            if (pricing.entriesCount == 0) {
+            PricingOption memory pricingOption = pricingOptions[i];
+            if (pricingOption.entriesCount == 0) {
                 revert InvalidEntriesCount();
             }
 
-            if (pricing.price == 0) {
+            if (pricingOption.price == 0) {
                 revert InvalidPrice();
             }
 
             if (i != 0) {
-                Pricing memory lastPricing = pricings[i - 1];
-                if (pricing.entriesCount <= lastPricing.entriesCount) {
+                PricingOption memory lastPricingOption = pricingOptions[i - 1];
+                if (pricingOption.entriesCount <= lastPricingOption.entriesCount) {
                     revert InvalidEntriesCount();
                 }
 
-                if (pricing.price <= lastPricing.price) {
+                if (pricingOption.price <= lastPricingOption.price) {
                     revert InvalidPrice();
                 }
             }
