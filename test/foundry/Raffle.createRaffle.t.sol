@@ -34,7 +34,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             uint256 maximumEntries,
             uint256 maximumEntriesPerParticipant,
             uint256 prizesTotalValue,
-            uint16 minimumProfitBp,
+            uint256 minimumProfitBp,
             address feeTokenAddress,
             uint256 claimableFees
         ) = looksRareRaffle.raffles(0);
@@ -103,7 +103,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
                 maximumEntries: uint256(maximumEntries[i]),
                 maximumEntriesPerParticipant: 100,
                 prizesTotalValue: 1 ether,
-                minimumProfitBp: uint16(500),
+                minimumProfitBp: 500,
                 feeTokenAddress: address(0),
                 prizes: prizes,
                 pricingOptions: pricingOptions
@@ -127,7 +127,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -148,7 +148,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -169,7 +169,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -193,7 +193,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -213,7 +213,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -233,7 +233,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 106,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -255,7 +255,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -275,7 +275,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -295,7 +295,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -316,7 +316,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -337,7 +337,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -355,7 +355,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0xA11ce),
             prizes: prizes,
             pricingOptions: pricingOptions

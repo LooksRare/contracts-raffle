@@ -147,7 +147,7 @@ contract Raffle is
         uint256 maximumEntries,
         uint256 maximumEntriesPerParticipant,
         uint256 prizesTotalValue,
-        uint16 minimumProfitBp,
+        uint256 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
         PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions
@@ -164,7 +164,7 @@ contract Raffle is
             revert InvalidCutoffTime();
         }
 
-        if (uint256(minimumProfitBp) > ONE_HUNDRED_PERCENT_BP) {
+        if (minimumProfitBp > ONE_HUNDRED_PERCENT_BP) {
             revert InvalidMinimumProfitBp();
         }
 
@@ -346,7 +346,7 @@ contract Raffle is
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
                 if (
                     raffle.claimableFees >
-                    (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + uint256(raffle.minimumProfitBp))) /
+                    (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) /
                         ONE_HUNDRED_PERCENT_BP
                 ) {
                     if (status == RaffleStatus.Open) {

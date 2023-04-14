@@ -60,7 +60,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 200,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
@@ -122,7 +122,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
             maximumEntries: 200,
             maximumEntriesPerParticipant: 200,
             prizesTotalValue: 1 ether,
-            minimumProfitBp: uint16(500),
+            minimumProfitBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,
             pricingOptions: pricingOptions
