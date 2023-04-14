@@ -183,6 +183,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
     }
 
+    // TODO: Also test total entries count that is not divisible by 256
     function test_fulfillRandomWords_SomeParticipantsDrawnMoreThanOnce_MultipleBucketsWithOverflow() public {
         for (uint256 i; i < 512; ) {
             address participant = address(uint160(i + 1));
