@@ -51,6 +51,10 @@ contract CreateRaffle is Script {
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
         for (uint256 i; i < 6; ) {
+            if (i != 0) {
+                prizes[i].prizeTier = 1;
+            }
+
             prizes[i].prizeType = IRaffle.TokenType.ERC721;
             prizes[i].prizeAddress = address(nft);
             prizes[i].prizeId = totalSupply + i;
@@ -61,6 +65,7 @@ contract CreateRaffle is Script {
                 i++;
             }
         }
+        prizes[6].prizeTier = 2;
         prizes[6].prizeType = IRaffle.TokenType.ERC20;
         prizes[6].prizeAddress = address(looks);
         prizes[6].prizeAmount = 1_000e18;
