@@ -151,6 +151,7 @@ interface IRaffle {
     event ProtocolFeeBpUpdated(uint256 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
+    event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
     error AlreadyRefunded();
     error CutoffTimeNotReached();

@@ -402,6 +402,7 @@ contract Raffle is
 
         raffle.status = RaffleStatus.Drawing;
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
+        emit RandomnessRequested(raffleId, requestId);
     }
 
     function fulfillRandomWords(uint256 _requestId, uint256[] memory _randomWords) internal override {

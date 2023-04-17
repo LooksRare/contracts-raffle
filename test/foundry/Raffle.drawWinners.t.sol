@@ -16,6 +16,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
     MockERC721 private mockERC721;
 
     event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
+    event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_915);
@@ -81,6 +82,9 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawing);
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RandomnessRequested(0, FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         looksRareRaffle.drawWinners(0);
 
