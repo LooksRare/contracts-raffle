@@ -49,13 +49,17 @@ contract Deployment is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IMMUTABLE_CREATE2_FACTORY.safeCreate2({
-            salt: vm.envBytes32("RAFFLE_SALT"),
-            initializationCode: abi.encodePacked(
-                type(Raffle).creationCode,
-                abi.encode(keyHash, subscriptionId, vrfCoordinator, owner, protocolFeeRecipient, protocolFeeBp)
-            )
-        });
+        if (chainId == 1) {
+            IMMUTABLE_CREATE2_FACTORY.safeCreate2({
+                salt: vm.envBytes32("RAFFLE_SALT"),
+                initializationCode: abi.encodePacked(
+                    type(Raffle).creationCode,
+                    abi.encode(keyHash, subscriptionId, vrfCoordinator, owner, protocolFeeRecipient, protocolFeeBp)
+                )
+            });
+        } else {
+            new Raffle(keyHash, subscriptionId, vrfCoordinator, owner, protocolFeeRecipient, protocolFeeBp);
+        }
 
         vm.stopBroadcast();
     }
