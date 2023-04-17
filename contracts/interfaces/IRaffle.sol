@@ -74,6 +74,7 @@ interface IRaffle {
      * @param owner The address of the raffle owner.
      * @param status The status of the raffle.
      * @param cutoffTime The time after which the raffle cannot be entered.
+     * @param drawnAt The time at which the raffle was drawn. It is still pending Chainlink to fulfill the randomness request.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed in the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
@@ -91,6 +92,7 @@ interface IRaffle {
         address owner;
         RaffleStatus status;
         uint256 cutoffTime;
+        uint256 drawnAt;
         uint256 minimumEntries;
         uint256 maximumEntries;
         uint256 maximumEntriesPerParticipant;
@@ -156,6 +158,7 @@ interface IRaffle {
     error AlreadyRefunded();
     error CutoffTimeNotReached();
     error CutoffTimeReached();
+    error DrawExpirationTimeNotReached();
     error InsufficientNativeTokensSupplied();
     error InvalidCallbackGasLimitPerRandomWord();
     error InvalidCutoffTime();
@@ -270,6 +273,14 @@ interface IRaffle {
     function cancel(uint256 raffleId) external;
 
     /**
+     * @notice Cancels a raffle after randomness request if the randomness request
+     *         does not arrive after a certain amount of time.
+     *         Only callable by contract owner.
+     * @param raffleId The id of the raffle.
+     */
+    function cancelAfterRandomnessRequest(uint256 raffleId) external;
+
+    /**
      * @notice Claims the refund for a cancelled raffle.
      * @param raffleId The id of the raffle.
      */
@@ -282,19 +293,19 @@ interface IRaffle {
     function claimProtocolFees(address currency) external;
 
     /**
-     * @notice Sets the callback gas limit per random word.
+     * @notice Sets the callback gas limit per random word. Only callable by contract owner.
      * @param callbackGasLimit The callback gas limit per random word.
      */
     function setCallbackGasLimitPerRandomWord(uint32 callbackGasLimit) external;
 
     /**
-     * @notice Sets the protocol fee in basis points.
+     * @notice Sets the protocol fee in basis points. Only callable by contract owner.
      * @param protocolFeeBp The protocol fee in basis points.
      */
     function setProtocolFeeBp(uint256 protocolFeeBp) external;
 
     /**
-     * @notice Sets the protocol fee recipient.
+     * @notice Sets the protocol fee recipient. Only callable by contract owner.
      * @param protocolFeeRecipient The protocol fee recipient.
      */
     function setProtocolFeeRecipient(address protocolFeeRecipient) external;

@@ -36,7 +36,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
     function test_drawWinners() public {
         for (uint256 i; i < 10; ) {
-            (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(0);
+            (, IRaffle.RaffleStatus status, , , , , , , , , ) = looksRareRaffle.raffles(0);
 
             if (status == IRaffle.RaffleStatus.ReadyToBeDrawn) {
                 break;
@@ -95,7 +95,9 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         assertTrue(exists);
         assertEq(raffleId, 0);
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawing);
+        (, IRaffle.RaffleStatus status, , uint256 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Drawing));
+        assertEq(drawnAt, block.timestamp);
     }
 
     function test_drawWinners_RevertIf_InvalidStatus() public asPrankedUser(user2) {

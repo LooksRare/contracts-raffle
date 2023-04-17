@@ -30,6 +30,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             address owner,
             IRaffle.RaffleStatus status,
             uint256 cutoffTime,
+            uint256 drawnAt,
             uint256 minimumEntries,
             uint256 maximumEntries,
             uint256 maximumEntriesPerParticipant,
@@ -41,6 +42,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(owner, user1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Created));
         assertEq(cutoffTime, block.timestamp + 86_400);
+        assertEq(drawnAt, 0);
         assertEq(minimumEntries, 107);
         assertEq(maximumEntries, 200);
         assertEq(maximumEntriesPerParticipant, 200);

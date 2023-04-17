@@ -32,10 +32,7 @@ contract Raffle is
 {
     using Arrays for uint256[];
 
-    /**
-     * @notice The minimum lifespan of a raffle.
-     */
-    uint256 public constant MINIMUM_LIFESPAN = 86_400 seconds;
+    uint256 public constant ONE_DAY = 86_400 seconds;
 
     /**
      * @notice 100% in basis points.
@@ -162,7 +159,7 @@ contract Raffle is
             revert InvalidEntriesRange();
         }
 
-        if (block.timestamp + MINIMUM_LIFESPAN > cutoffTime) {
+        if (block.timestamp + ONE_DAY > cutoffTime) {
             revert InvalidCutoffTime();
         }
 
@@ -402,6 +399,8 @@ contract Raffle is
         randomnessRequests[requestId].raffleId = raffleId;
 
         raffle.status = RaffleStatus.Drawing;
+        raffle.drawnAt = block.timestamp;
+
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
         emit RandomnessRequested(raffleId, requestId);
     }
@@ -574,35 +573,34 @@ contract Raffle is
         Raffle storage raffle = raffles[raffleId];
 
         RaffleStatus status = raffle.status;
+        bool isOpen = status == RaffleStatus.Open;
 
-        if (status != RaffleStatus.Created) {
-            if (status != RaffleStatus.Open) {
-                revert InvalidStatus();
-            }
-        }
-
-        if (status == RaffleStatus.Open) {
+        if (isOpen) {
             if (raffle.cutoffTime > block.timestamp) {
                 revert CutoffTimeNotReached();
             }
+        } else if (status != RaffleStatus.Created) {
+            revert InvalidStatus();
         }
 
-        raffle.status = RaffleStatus.Cancelled;
+        _cancel(raffleId, raffle, isOpen);
+    }
 
-        // Raffle status == Open means prizes have been deposited
-        if (status == RaffleStatus.Open) {
-            uint256 prizesCount = raffle.prizes.length;
-            for (uint256 i; i < prizesCount; ) {
-                Prize storage prize = raffle.prizes[i];
-                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: prize.winnersCount});
+    /**
+     * @inheritdoc IRaffle
+     */
+    function cancelAfterRandomnessRequest(uint256 raffleId) external onlyOwner nonReentrant {
+        Raffle storage raffle = raffles[raffleId];
 
-                unchecked {
-                    ++i;
-                }
-            }
+        if (raffle.status != RaffleStatus.Drawing) {
+            revert InvalidStatus();
         }
 
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
+        if (block.timestamp < raffle.drawnAt + ONE_DAY) {
+            revert DrawExpirationTimeNotReached();
+        }
+
+        _cancel(raffleId, raffle, true);
     }
 
     /**
@@ -771,5 +769,32 @@ contract Raffle is
         } else {
             _executeERC20DirectTransfer(currency, recipient, amount);
         }
+    }
+
+    /**
+     * @param raffleId The ID of the raffle to cancel.
+     * @param raffle The raffle to cancel.
+     * @param shouldWithdrawPrizes Whether to withdraw the prizes to the raffle owner.
+     */
+    function _cancel(
+        uint256 raffleId,
+        Raffle storage raffle,
+        bool shouldWithdrawPrizes
+    ) private {
+        raffle.status = RaffleStatus.Cancelled;
+
+        if (shouldWithdrawPrizes) {
+            uint256 prizesCount = raffle.prizes.length;
+            for (uint256 i; i < prizesCount; ) {
+                Prize storage prize = raffle.prizes[i];
+                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: prize.winnersCount});
+
+                unchecked {
+                    ++i;
+                }
+            }
+        }
+
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
     }
 }
