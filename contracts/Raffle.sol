@@ -187,15 +187,16 @@ contract Raffle is
             _validatePrize(prize);
 
             cumulativeWinnersCount += prize.winnersCount;
-            if (cumulativeWinnersCount > minimumEntries) {
-                revert InvalidWinnersCount();
-            }
             prize.cumulativeWinnersCount = cumulativeWinnersCount;
             currentPrizeTier = prize.prizeTier;
 
             unchecked {
                 ++i;
             }
+        }
+
+        if (cumulativeWinnersCount > minimumEntries) {
+            revert InvalidWinnersCount();
         }
 
         if (cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
