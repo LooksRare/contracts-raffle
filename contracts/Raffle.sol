@@ -178,8 +178,12 @@ contract Raffle is
 
         uint256 prizesCount = prizes.length;
         uint256 cumulativeWinnersCount;
+        uint8 currentPrizeTier;
         for (uint256 i; i < prizesCount; ) {
             Prize memory prize = prizes[i];
+            if (prize.prizeTier < currentPrizeTier) {
+                revert InvalidPrizeTier();
+            }
             _validatePrize(prize);
 
             cumulativeWinnersCount += prize.winnersCount;
@@ -187,6 +191,7 @@ contract Raffle is
                 revert InvalidWinnersCount();
             }
             prize.cumulativeWinnersCount = cumulativeWinnersCount;
+            currentPrizeTier = prize.prizeTier;
 
             unchecked {
                 ++i;

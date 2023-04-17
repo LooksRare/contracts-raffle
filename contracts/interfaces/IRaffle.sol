@@ -53,6 +53,7 @@ interface IRaffle {
 
     /**
      * @param prizeType The type of the prize.
+     * @param prizeTier The tier of the prize.
      * @param prizeAddress The address of the prize.
      * @param prizeId The id of the prize.
      * @param prizeAmount The amount of the prize.
@@ -61,6 +62,7 @@ interface IRaffle {
      */
     struct Prize {
         TokenType prizeType;
+        uint8 prizeTier;
         address prizeAddress;
         uint256 prizeId;
         uint256 prizeAmount;
@@ -164,6 +166,7 @@ interface IRaffle {
     error InvalidMinimumProfitBp();
     error InvalidPrice();
     error InvalidPrizeAmount();
+    error InvalidPrizeTier();
     error InvalidProtocolFeeBp();
     error InvalidProtocolFeeRecipient();
     error InvalidStatus();

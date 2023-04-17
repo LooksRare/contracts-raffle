@@ -54,11 +54,16 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
 
+            if (i != 0) {
+                prizes[i].prizeTier = 1;
+            }
+
             unchecked {
                 i++;
             }
         }
         prizes[6].prizeType = IRaffle.TokenType.ERC20;
+        prizes[6].prizeTier = 2;
         prizes[6].prizeAddress = mockERC20;
         prizes[6].prizeAmount = 1_000e18;
         prizes[6].winnersCount = 100;

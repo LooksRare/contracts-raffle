@@ -56,6 +56,11 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(prizes.length, 7);
         for (uint256 i; i < 6; ) {
             assertEq(uint8(prizes[i].prizeType), uint8(IRaffle.TokenType.ERC721));
+            if (i == 0) {
+                assertEq(prizes[i].prizeTier, 0);
+            } else {
+                assertEq(prizes[i].prizeTier, 1);
+            }
             assertEq(prizes[i].prizeAddress, address(mockERC721));
             assertEq(prizes[i].prizeId, i);
             assertEq(prizes[i].prizeAmount, 1);
@@ -66,6 +71,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             }
         }
         assertEq(uint8(prizes[6].prizeType), uint8(IRaffle.TokenType.ERC20));
+        assertEq(prizes[6].prizeTier, 2);
         assertEq(prizes[6].prizeAddress, address(mockERC20));
         assertEq(prizes[6].prizeId, 0);
         assertEq(prizes[6].prizeAmount, 1_000 ether);
@@ -100,6 +106,26 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             minimumEntries: 107,
             maximumEntries: 200,
             maximumEntriesPerParticipant: 201,
+            prizesTotalValue: 1 ether,
+            minimumProfitBp: 500,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricingOptions: pricingOptions
+        });
+    }
+
+    function test_createRaffle_RevertIf_InvalidPrizeTier() public {
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        prizes[2].prizeTier = 2;
+
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        vm.expectRevert(IRaffle.InvalidPrizeTier.selector);
+        looksRareRaffle.createRaffle({
+            cutoffTime: block.timestamp + 86_400,
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 200,
             prizesTotalValue: 1 ether,
             minimumProfitBp: 500,
             feeTokenAddress: address(0),
