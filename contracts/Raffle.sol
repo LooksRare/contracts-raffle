@@ -344,12 +344,12 @@ contract Raffle is
             emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
 
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
-                if (
-                    raffle.claimableFees >
-                    (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) /
-                        ONE_HUNDRED_PERCENT_BP
-                ) {
-                    if (status == RaffleStatus.Open) {
+                if (status == RaffleStatus.Open) {
+                    if (
+                        raffle.claimableFees >
+                        (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) /
+                            ONE_HUNDRED_PERCENT_BP
+                    ) {
                         raffle.status = RaffleStatus.ReadyToBeDrawn;
                         emit RaffleStatusUpdated(raffleId, RaffleStatus.ReadyToBeDrawn);
                     }
