@@ -62,6 +62,11 @@ contract Raffle is
     uint40 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
 
     /**
+     * @notice A Chainlink node should wait for 3 confirmations before responding.
+     */
+    uint16 public constant REQUEST_CONFIRMATIONS = 3;
+
+    /**
      * @notice The key hash of the Chainlink VRF.
      */
     bytes32 public immutable KEY_HASH;
@@ -382,7 +387,6 @@ contract Raffle is
             revert InvalidStatus();
         }
 
-        uint16 requestConfirmations = 3;
         Prize[] storage prizes = raffle.prizes;
         uint256 prizesCount = prizes.length;
         uint32 winnersCount = uint32(prizes[prizesCount - 1].cumulativeWinnersCount);
@@ -390,7 +394,7 @@ contract Raffle is
         uint256 requestId = VRF_COORDINATOR.requestRandomWords(
             KEY_HASH,
             SUBSCRIPTION_ID,
-            requestConfirmations,
+            REQUEST_CONFIRMATIONS,
             callbackGasLimitPerRandomWord * winnersCount,
             winnersCount
         );
