@@ -178,6 +178,8 @@ contract Raffle is
             }
         }
 
+        raffleId = rafflesCount;
+
         uint256 prizesCount = prizes.length;
         uint40 cumulativeWinnersCount;
         uint8 currentPrizeTier;
@@ -191,6 +193,7 @@ contract Raffle is
             cumulativeWinnersCount += prize.winnersCount;
             prize.cumulativeWinnersCount = cumulativeWinnersCount;
             currentPrizeTier = prize.prizeTier;
+            raffles[raffleId].prizes.push(prize);
 
             unchecked {
                 ++i;
@@ -205,9 +208,7 @@ contract Raffle is
             revert InvalidWinnersCount();
         }
 
-        _validatePricingOptions(pricingOptions);
-
-        raffleId = rafflesCount;
+        _validateAndSetPricingOptions(raffleId, pricingOptions);
 
         raffles[raffleId].owner = msg.sender;
         raffles[raffleId].status = RaffleStatus.Created;
@@ -218,18 +219,6 @@ contract Raffle is
         raffles[raffleId].minimumProfitBp = minimumProfitBp;
         raffles[raffleId].prizesTotalValue = prizesTotalValue;
         raffles[raffleId].feeTokenAddress = feeTokenAddress;
-        for (uint256 i; i < prizesCount; ) {
-            raffles[raffleId].prizes.push(prizes[i]);
-            unchecked {
-                ++i;
-            }
-        }
-        for (uint256 i; i < PRICING_OPTIONS_PER_RAFFLE; ) {
-            raffles[raffleId].pricingOptions[i] = pricingOptions[i];
-            unchecked {
-                ++i;
-            }
-        }
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
 
@@ -668,7 +657,10 @@ contract Raffle is
         emit ProtocolFeeBpUpdated(_protocolFeeBp);
     }
 
-    function _validatePricingOptions(PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions) private pure {
+    function _validateAndSetPricingOptions(
+        uint256 raffleId,
+        PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions
+    ) private {
         for (uint256 i; i < PRICING_OPTIONS_PER_RAFFLE; ) {
             PricingOption memory pricingOption = pricingOptions[i];
 
@@ -690,6 +682,8 @@ contract Raffle is
                     revert InvalidPrice();
                 }
             }
+
+            raffles[raffleId].pricingOptions[i] = pricingOption;
 
             unchecked {
                 ++i;
