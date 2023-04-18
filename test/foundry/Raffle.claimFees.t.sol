@@ -57,6 +57,8 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
         (, , , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(0);
         assertEq(address(looksRareRaffle).balance, 2.675 ether);
         assertEq(claimableFees, 2.675 ether);

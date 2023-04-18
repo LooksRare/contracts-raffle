@@ -88,9 +88,9 @@ contract Raffle is
     mapping(uint256 => RandomnessRequest) public randomnessRequests;
 
     /**
-     * @notice The callback gas limit per random word returned by Chainlink.
+     * @notice The callback gas limit for fulfillRandomWords.
      */
-    uint32 public callbackGasLimitPerRandomWord = 20_000;
+    uint32 public callbackGasLimit = 500_000;
 
     /**
      * @notice The maximum protocol fee in basis points, which is 25%.
@@ -381,7 +381,7 @@ contract Raffle is
             KEY_HASH,
             SUBSCRIPTION_ID,
             REQUEST_CONFIRMATIONS,
-            callbackGasLimitPerRandomWord * winnersCount,
+            callbackGasLimit,
             winnersCount
         );
 
@@ -397,65 +397,84 @@ contract Raffle is
 
     function fulfillRandomWords(uint256 _requestId, uint256[] memory _randomWords) internal override {
         if (randomnessRequests[_requestId].exists) {
-            uint256 winnersCount = _randomWords.length;
             uint256 raffleId = randomnessRequests[_requestId].raffleId;
             Raffle storage raffle = raffles[raffleId];
 
-            randomnessRequests[_requestId].randomWords = _randomWords;
-            Winner[] memory winners = new Winner[](winnersCount);
-
-            uint256 entriesCount = raffle.entries.length;
-            uint256 currentEntryIndex = uint256(raffle.entries[entriesCount - 1].currentEntryIndex);
-
-            uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
-
-            for (uint256 i; i < winnersCount; ) {
-                uint256 randomWord = _randomWords[i];
-                uint256 winningEntry = randomWord % (currentEntryIndex + 1);
-                (winningEntry, winningEntriesBitmap) = _incrementWinningEntryUntilThereIsNotADuplicate(
-                    currentEntryIndex,
-                    winningEntry,
-                    winningEntriesBitmap
-                );
-
-                uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
-                for (uint256 j; j < entriesCount; ) {
-                    currentEntryIndexArray[j] = raffle.entries[j].currentEntryIndex;
-                    unchecked {
-                        ++j;
-                    }
-                }
-                uint256 winnerIndex = currentEntryIndexArray.findUpperBound(winningEntry);
-
-                uint256 prizesCount = raffle.prizes.length;
-                uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
-                for (uint256 j; j < prizesCount; ) {
-                    cumulativeWinnersCountArray[j] = raffle.prizes[j].cumulativeWinnersCount;
-                    unchecked {
-                        ++j;
-                    }
-                }
-                uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
-
-                winners[i].participant = raffle.entries[winnerIndex].participant;
-                winners[i].entryIndex = uint40(winningEntry);
-                winners[i].prizeIndex = prizeIndex;
-
-                unchecked {
-                    ++i;
-                }
+            if (raffle.status == RaffleStatus.Drawing) {
+                randomnessRequests[_requestId].randomWords = _randomWords;
+                raffle.status = RaffleStatus.RandomnessFulfilled;
+                emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
             }
-
-            raffle.status = RaffleStatus.Drawn;
-            for (uint256 i; i < winnersCount; ) {
-                raffle.winners.push(winners[i]);
-                unchecked {
-                    ++i;
-                }
-            }
-
-            emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawn);
         }
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function selectWinners(uint256 requestId) external {
+        RandomnessRequest memory randomnessRequest = randomnessRequests[requestId];
+        uint256 raffleId = randomnessRequest.raffleId;
+        Raffle storage raffle = raffles[raffleId];
+        uint256[] memory randomWords = randomnessRequest.randomWords;
+        uint256 winnersCount = randomWords.length;
+
+        if (winnersCount == 0 || !randomnessRequest.exists || raffle.status != RaffleStatus.RandomnessFulfilled) {
+            revert InvalidStatus();
+        }
+
+        Winner[] memory winners = new Winner[](winnersCount);
+
+        uint256 entriesCount = raffle.entries.length;
+        uint256 currentEntryIndex = uint256(raffle.entries[entriesCount - 1].currentEntryIndex);
+
+        uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
+
+        for (uint256 i; i < winnersCount; ) {
+            uint256 randomWord = randomWords[i];
+            uint256 winningEntry = randomWord % (currentEntryIndex + 1);
+            (winningEntry, winningEntriesBitmap) = _incrementWinningEntryUntilThereIsNotADuplicate(
+                currentEntryIndex,
+                winningEntry,
+                winningEntriesBitmap
+            );
+
+            uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
+            for (uint256 j; j < entriesCount; ) {
+                currentEntryIndexArray[j] = raffle.entries[j].currentEntryIndex;
+                unchecked {
+                    ++j;
+                }
+            }
+            uint256 winnerIndex = currentEntryIndexArray.findUpperBound(winningEntry);
+
+            uint256 prizesCount = raffle.prizes.length;
+            uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
+            for (uint256 j; j < prizesCount; ) {
+                cumulativeWinnersCountArray[j] = raffle.prizes[j].cumulativeWinnersCount;
+                unchecked {
+                    ++j;
+                }
+            }
+            uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
+
+            winners[i].participant = raffle.entries[winnerIndex].participant;
+            winners[i].entryIndex = uint40(winningEntry);
+            winners[i].prizeIndex = prizeIndex;
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        raffle.status = RaffleStatus.Drawn;
+        for (uint256 i; i < winnersCount; ) {
+            raffle.winners.push(winners[i]);
+            unchecked {
+                ++i;
+            }
+        }
+
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawn);
     }
 
     /**
@@ -519,6 +538,13 @@ contract Raffle is
         returns (PricingOption[PRICING_OPTIONS_PER_RAFFLE] memory pricingOptions)
     {
         pricingOptions = raffles[raffleId].pricingOptions;
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function getRandomWords(uint256 requestId) external view returns (uint256[] memory randomWords) {
+        randomWords = randomnessRequests[requestId].randomWords;
     }
 
     /**
@@ -619,15 +645,12 @@ contract Raffle is
         emit EntryRefunded(raffleId, msg.sender, amountPaid);
     }
 
-    function setCallbackGasLimitPerRandomWord(uint32 _callbackGasLimitPerRandomWord) external onlyOwner {
-        if (
-            _callbackGasLimitPerRandomWord < 20_000 ||
-            _callbackGasLimitPerRandomWord * MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE > 2_500_000
-        ) {
-            revert InvalidCallbackGasLimitPerRandomWord();
+    function setCallbackGasLimit(uint32 _callbackGasLimit) external onlyOwner {
+        if (_callbackGasLimit > 2_500_000) {
+            revert InvalidCallbackGasLimit();
         }
-        callbackGasLimitPerRandomWord = _callbackGasLimitPerRandomWord;
-        emit CallbackGasLimitPerRandomWordUpdated(_callbackGasLimitPerRandomWord);
+        callbackGasLimit = _callbackGasLimit;
+        emit CallbackGasLimitUpdated(_callbackGasLimit);
     }
 
     function setProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {

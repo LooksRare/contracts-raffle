@@ -56,6 +56,8 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
         _assertPrizesClaimedEventsEmitted();
         _claimPrizes();
         _assertPrizesTransferred();
@@ -69,6 +71,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
         looksRareRaffle.claimFees(0);
 
         _assertPrizesClaimedEventsEmitted();
@@ -91,6 +94,8 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
 
@@ -115,6 +120,8 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         vm.prank(user2);
         vm.expectRevert(IRaffle.InvalidIndex.selector);

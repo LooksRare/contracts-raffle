@@ -8,6 +8,7 @@ interface IRaffle {
         Open,
         ReadyToBeDrawn,
         Drawing,
+        RandomnessFulfilled,
         Drawn,
         Complete,
         Cancelled
@@ -137,7 +138,7 @@ interface IRaffle {
         uint256[] randomWords;
     }
 
-    event CallbackGasLimitPerRandomWordUpdated(uint32 callbackGasLimit);
+    event CallbackGasLimitUpdated(uint32 callbackGasLimit);
     event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
@@ -152,7 +153,7 @@ interface IRaffle {
     error CutoffTimeReached();
     error DrawExpirationTimeNotReached();
     error InsufficientNativeTokensSupplied();
-    error InvalidCallbackGasLimitPerRandomWord();
+    error InvalidCallbackGasLimit();
     error InvalidCutoffTime();
     error InvalidEntriesCount();
     error InvalidEntriesRange();
@@ -218,6 +219,12 @@ interface IRaffle {
     function drawWinners(uint256 raffleId) external;
 
     /**
+     * @notice Select the winners for a raffle based on the random words returned by Chainlink.
+     * @param requestId The request id returned by Chainlink.
+     */
+    function selectWinners(uint256 requestId) external;
+
+    /**
      * @notice Gets the winners for a raffle.
      * @param raffleId The id of the raffle.
      * @return winners The winners of the raffle.
@@ -244,6 +251,12 @@ interface IRaffle {
      * @return entries The entries entered for the raffle.
      */
     function getEntries(uint256 raffleId) external view returns (Entry[] memory);
+
+    /**
+     * @notice Gets the random words returned by Chainlink for a randomness request.
+     * @param requestId The request id returned by Chainlink.
+     */
+    function getRandomWords(uint256 requestId) external view returns (uint256[] memory);
 
     /**
      * @notice Claims the prize for a winner.
@@ -285,10 +298,10 @@ interface IRaffle {
     function claimProtocolFees(address currency) external;
 
     /**
-     * @notice Sets the callback gas limit per random word. Only callable by contract owner.
-     * @param callbackGasLimit The callback gas limit per random word.
+     * @notice Sets the callback gas limit for Chainlink. Only callable by contract owner.
+     * @param callbackGasLimit The callback gas limit.
      */
-    function setCallbackGasLimitPerRandomWord(uint32 callbackGasLimit) external;
+    function setCallbackGasLimit(uint32 callbackGasLimit) external;
 
     /**
      * @notice Sets the protocol fee in basis points. Only callable by contract owner.

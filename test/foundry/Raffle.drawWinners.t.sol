@@ -70,7 +70,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
                     hex"474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c",
                     uint64(1_122),
                     uint16(3),
-                    20_000 * winnersCount,
+                    500_000,
                     winnersCount
                 )
             )
