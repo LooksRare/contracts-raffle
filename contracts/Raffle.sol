@@ -308,6 +308,8 @@ contract Raffle is
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
+            // TODO: Reentrancy test
+            rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
             uint256 price = pricingOption.price;
 
@@ -335,7 +337,6 @@ contract Raffle is
             raffle.claimableFees += price;
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
-            rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
             emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
 
