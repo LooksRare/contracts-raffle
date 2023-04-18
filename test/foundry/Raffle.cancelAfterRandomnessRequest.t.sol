@@ -31,7 +31,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
-            cutoffTime: block.timestamp + 86_400,
+            cutoffTime: uint40(block.timestamp + 86_400),
             minimumEntries: 107,
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
@@ -52,7 +52,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Cancelled);
 
-        (, , , uint256 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        (, , , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
         vm.warp(drawnAt + 86_400 + 1);
 
         vm.prank(owner);
@@ -73,7 +73,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest_RevertIf_NotOwner() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        (, , , uint256 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        (, , , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
         vm.warp(drawnAt + 86_400 + 1);
 
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
@@ -90,7 +90,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest_RevertIf_DrawExpirationTimeNotReached() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        (, , , uint256 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        (, , , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
         vm.warp(drawnAt + 86_399);
 
         vm.prank(owner);
@@ -106,7 +106,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
             vm.deal(participant, 0.025 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);

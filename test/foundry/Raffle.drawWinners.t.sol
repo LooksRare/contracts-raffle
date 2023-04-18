@@ -47,13 +47,13 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             vm.deal(participant, 1 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            uint256 pricingIndex = i % 5;
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: pricingIndex});
+            uint256 pricingOptionIndex = i % 5;
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: pricingOptionIndex});
 
             IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: pricingOptions[pricingIndex].price}(entries);
+            looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
 
             unchecked {
                 ++i;
@@ -95,7 +95,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         assertTrue(exists);
         assertEq(raffleId, 0);
 
-        (, IRaffle.RaffleStatus status, , uint256 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        (, IRaffle.RaffleStatus status, , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Drawing));
         assertEq(drawnAt, block.timestamp);
     }
@@ -104,7 +104,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         vm.deal(user2, 0.95 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
 
         looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
 

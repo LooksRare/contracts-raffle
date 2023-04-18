@@ -34,7 +34,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
-            cutoffTime: block.timestamp + 86_400,
+            cutoffTime: uint40(block.timestamp + 86_400),
             minimumEntries: 107,
             maximumEntries: 512,
             maximumEntriesPerParticipant: 100,
@@ -191,7 +191,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             vm.deal(participant, 0.025 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -290,15 +290,15 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             address participant = address(uint160(userIndex + 1));
             vm.deal(participant, 1 ether);
 
-            uint256 pricingIndex = userIndex % 5;
+            uint256 pricingOptionIndex = userIndex % 5;
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: pricingIndex});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: pricingOptionIndex});
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: pricingOptions[pricingIndex].price}(entries);
+            looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
 
             unchecked {
-                currentEntryIndex += pricingOptions[pricingIndex].entriesCount;
+                currentEntryIndex += pricingOptions[pricingOptionIndex].entriesCount;
                 ++userIndex;
             }
         }

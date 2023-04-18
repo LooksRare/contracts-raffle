@@ -15,7 +15,7 @@ contract EnterRafflesCalldata is Script {
 
     function run() external view {
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
         bytes memory data = abi.encodeCall(IRaffle.enterRaffles, entries);
         console2.logBytes(data);

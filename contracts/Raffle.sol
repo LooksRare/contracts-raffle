@@ -59,7 +59,7 @@ contract Raffle is
     /**
      * @notice According to Chainlink, realistically the maximum number of random words is 125.
      */
-    uint256 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
+    uint40 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
 
     /**
      * @notice The key hash of the Chainlink VRF.
@@ -141,12 +141,12 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function createRaffle(
-        uint256 cutoffTime,
-        uint256 minimumEntries,
-        uint256 maximumEntries,
-        uint256 maximumEntriesPerParticipant,
+        uint40 cutoffTime,
+        uint40 minimumEntries,
+        uint40 maximumEntries,
+        uint40 maximumEntriesPerParticipant,
+        uint16 minimumProfitBp,
         uint256 prizesTotalValue,
-        uint256 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
         PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions
@@ -174,7 +174,7 @@ contract Raffle is
         }
 
         uint256 prizesCount = prizes.length;
-        uint256 cumulativeWinnersCount;
+        uint40 cumulativeWinnersCount;
         uint8 currentPrizeTier;
         for (uint256 i; i < prizesCount; ) {
             Prize memory prize = prizes[i];
@@ -210,8 +210,8 @@ contract Raffle is
         raffles[raffleId].minimumEntries = minimumEntries;
         raffles[raffleId].maximumEntries = maximumEntries;
         raffles[raffleId].maximumEntriesPerParticipant = maximumEntriesPerParticipant;
-        raffles[raffleId].prizesTotalValue = prizesTotalValue;
         raffles[raffleId].minimumProfitBp = minimumProfitBp;
+        raffles[raffleId].prizesTotalValue = prizesTotalValue;
         raffles[raffleId].feeTokenAddress = feeTokenAddress;
         for (uint256 i; i < prizesCount; ) {
             raffles[raffleId].prizes.push(prizes[i]);
@@ -293,7 +293,7 @@ contract Raffle is
         for (uint256 i; i < entriesCount; ) {
             EntryCalldata calldata entry = entries[i];
 
-            if (entry.pricingIndex >= PRICING_OPTIONS_PER_RAFFLE) {
+            if (entry.pricingOptionIndex >= PRICING_OPTIONS_PER_RAFFLE) {
                 revert InvalidIndex();
             }
 
@@ -311,9 +311,9 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
-            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingIndex];
+            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
 
-            uint256 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
+            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
                 pricingOption.entriesCount;
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
@@ -327,7 +327,7 @@ contract Raffle is
                 _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), price);
             }
 
-            uint256 currentEntryIndex;
+            uint40 currentEntryIndex;
             uint256 raffleEntriesCount = raffle.entries.length;
             if (raffleEntriesCount == 0) {
                 currentEntryIndex = pricingOption.entriesCount - 1;
@@ -399,7 +399,7 @@ contract Raffle is
         randomnessRequests[requestId].raffleId = raffleId;
 
         raffle.status = RaffleStatus.Drawing;
-        raffle.drawnAt = block.timestamp;
+        raffle.drawnAt = uint40(block.timestamp);
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
         emit RandomnessRequested(raffleId, requestId);
@@ -415,7 +415,7 @@ contract Raffle is
             Winner[] memory winners = new Winner[](winnersCount);
 
             uint256 entriesCount = raffle.entries.length;
-            uint256 currentEntryIndex = raffle.entries[entriesCount - 1].currentEntryIndex;
+            uint256 currentEntryIndex = uint256(raffle.entries[entriesCount - 1].currentEntryIndex);
 
             uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
 
@@ -445,10 +445,10 @@ contract Raffle is
                         ++j;
                     }
                 }
-                uint256 prizeIndex = cumulativeWinnersCountArray.findUpperBound(i + 1);
+                uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
 
                 winners[i].participant = raffle.entries[winnerIndex].participant;
-                winners[i].entryIndex = winningEntry;
+                winners[i].entryIndex = uint40(winningEntry);
                 winners[i].prizeIndex = prizeIndex;
 
                 unchecked {
@@ -488,10 +488,9 @@ contract Raffle is
         }
         winner.claimed = true;
 
-        uint256 prizeIndex = winner.prizeIndex;
         address participant = winner.participant;
 
-        Prize storage prize = raffle.prizes[prizeIndex];
+        Prize storage prize = raffle.prizes[winner.prizeIndex];
         _transferPrize({prize: prize, recipient: participant, multiplier: 1});
 
         emit PrizeClaimed(raffleId, participant, prize.prizeType, prize.prizeAddress, prize.prizeId, prize.prizeAmount);
@@ -787,7 +786,7 @@ contract Raffle is
             uint256 prizesCount = raffle.prizes.length;
             for (uint256 i; i < prizesCount; ) {
                 Prize storage prize = raffle.prizes[i];
-                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: prize.winnersCount});
+                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: uint256(prize.winnersCount)});
 
                 unchecked {
                     ++i;

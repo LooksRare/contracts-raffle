@@ -13,7 +13,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event EntrySold(uint256 raffleId, address buyer, uint256 entriesCount, uint256 price);
+    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
 
     event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
 
@@ -35,7 +35,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.deal(user2, 1 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit EntrySold({raffleId: 0, buyer: user2, entriesCount: 1, price: 0.025 ether});
@@ -58,8 +58,8 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.deal(user2, 1.17 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 1});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit EntrySold({raffleId: 0, buyer: user2, entriesCount: 10, price: 0.22 ether});
@@ -88,7 +88,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.deal(user2, 0.025 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 5});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 5});
 
         vm.expectRevert(IRaffle.InvalidIndex.selector);
         looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -100,7 +100,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
 
         // Raffle does not exist
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingIndex: 0});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
         vm.prank(user2);
         vm.expectRevert(IRaffle.InvalidStatus.selector);
@@ -120,7 +120,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.deal(user2, 0.025 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
         vm.expectRevert(IRaffle.CutoffTimeReached.selector);
         looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -131,7 +131,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.deal(user3, 1 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
@@ -139,7 +139,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.startPrank(user3);
         looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
 
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
         vm.expectRevert(IRaffle.MaximumEntriesReached.selector);
         looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -151,8 +151,8 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.deal(user2, 0.95 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 1});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
 
         vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);
         looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
@@ -162,9 +162,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.deal(user2, 1.91 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](3);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 4});
-        entries[2] = IRaffle.EntryCalldata({raffleId: 0, pricingIndex: 0});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
+        entries[2] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
         vm.expectRevert(IRaffle.MaximumEntriesPerParticipantReached.selector);
         looksRareRaffle.enterRaffles{value: 1.91 ether}(entries);

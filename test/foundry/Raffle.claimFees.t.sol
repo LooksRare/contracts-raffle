@@ -34,7 +34,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle({
-            cutoffTime: block.timestamp + 86_400,
+            cutoffTime: uint40(block.timestamp + 86_400),
             minimumEntries: 107,
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,

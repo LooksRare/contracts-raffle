@@ -25,7 +25,7 @@ interface IRaffle {
      * @param price The price of the entries.
      */
     struct PricingOption {
-        uint256 entriesCount;
+        uint40 entriesCount;
         uint256 price;
     }
 
@@ -34,40 +34,40 @@ interface IRaffle {
      * @param participant The address of the participant.
      */
     struct Entry {
-        uint256 currentEntryIndex;
+        uint40 currentEntryIndex;
         address participant;
     }
 
     /**
      * @param participant The address of the winner.
      * @param claimed Whether the winner has claimed the prize.
-     * @param entryIndex The index of the entry that won.
      * @param prizeIndex The index of the prize that was won.
+     * @param entryIndex The index of the entry that won.
      */
     struct Winner {
         address participant;
         bool claimed;
-        uint256 entryIndex;
-        uint256 prizeIndex;
+        uint8 prizeIndex;
+        uint40 entryIndex;
     }
 
     /**
+     * @param winnersCount The number of winners.
+     * @param cumulativeWinnersCount The cumulative number of winners in the raffle.
      * @param prizeType The type of the prize.
      * @param prizeTier The tier of the prize.
      * @param prizeAddress The address of the prize.
      * @param prizeId The id of the prize.
      * @param prizeAmount The amount of the prize.
-     * @param winnersCount The number of winners.
-     * @param cumulativeWinnersCount The cumulative number of winners in the raffle.
      */
     struct Prize {
+        uint40 winnersCount;
+        uint40 cumulativeWinnersCount;
         TokenType prizeType;
         uint8 prizeTier;
         address prizeAddress;
         uint256 prizeId;
         uint256 prizeAmount;
-        uint256 winnersCount;
-        uint256 cumulativeWinnersCount;
     }
 
     /**
@@ -80,7 +80,6 @@ interface IRaffle {
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param prizesTotalValue The total value of the prizes.
-     * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param claimableFees The amount of fees collected from selling entries.
      * @param pricingOptions The pricing options for the raffle.
@@ -91,13 +90,13 @@ interface IRaffle {
     struct Raffle {
         address owner;
         RaffleStatus status;
-        uint256 cutoffTime;
-        uint256 drawnAt;
-        uint256 minimumEntries;
-        uint256 maximumEntries;
-        uint256 maximumEntriesPerParticipant;
+        uint40 cutoffTime;
+        uint40 drawnAt;
+        uint40 minimumEntries;
+        uint40 maximumEntries;
+        uint40 maximumEntriesPerParticipant;
+        uint16 minimumProfitBp;
         uint256 prizesTotalValue;
-        uint256 minimumProfitBp;
         address feeTokenAddress;
         uint256 claimableFees;
         PricingOption[5] pricingOptions;
@@ -113,17 +112,17 @@ interface IRaffle {
      */
     struct ParticipantStats {
         uint256 amountPaid;
-        uint256 entriesCount;
+        uint40 entriesCount;
         bool refunded;
     }
 
     /**
      * @param raffleId The id of the raffle.
-     * @param pricingIndex The index of the selected pricing option.
+     * @param pricingOptionIndex The index of the selected pricing option.
      */
     struct EntryCalldata {
         uint256 raffleId;
-        uint256 pricingIndex;
+        uint256 pricingOptionIndex;
     }
 
     /**
@@ -140,7 +139,7 @@ interface IRaffle {
 
     event CallbackGasLimitPerRandomWordUpdated(uint32 callbackGasLimit);
     event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
-    event EntrySold(uint256 raffleId, address buyer, uint256 entriesCount, uint256 price);
+    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
     event PrizeClaimed(
         uint256 raffleId,
@@ -188,20 +187,20 @@ interface IRaffle {
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntries The maximum number of entries allowed to enter the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
-     * @param prizesTotalValue The total value of the prizes.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
+     * @param prizesTotalValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param prizes The prizes to be distributed.
      * @param pricingOptions The pricing options for the raffle.
      * @return raffleId The id of the newly created raffle.
      */
     function createRaffle(
-        uint256 cutoffTime,
-        uint256 minimumEntries,
-        uint256 maximumEntries,
-        uint256 maximumEntriesPerParticipant,
+        uint40 cutoffTime,
+        uint40 minimumEntries,
+        uint40 maximumEntries,
+        uint40 maximumEntriesPerParticipant,
+        uint16 minimumProfitBp,
         uint256 prizesTotalValue,
-        uint256 minimumProfitBp,
         address feeTokenAddress,
         Prize[] memory prizes,
         PricingOption[5] calldata pricingOptions
