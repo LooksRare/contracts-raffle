@@ -15,14 +15,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event PrizeClaimed(
-        uint256 raffleId,
-        address winner,
-        IRaffle.TokenType prizeType,
-        address prizeAddress,
-        uint256 prizeId,
-        uint256 prizeAmount
-    );
+    event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
 
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
@@ -55,7 +48,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         vm.stopPrank();
     }
 
-    function test_claimPrize() public {
+    function test_claimPrize_StatusIsDrawn() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -63,76 +56,24 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        _assertPrizesClaimedEventsEmitted();
+        _claimPrizes();
+        _assertPrizesTransferred();
+    }
 
-        for (uint256 i; i < 6; ) {
-            vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-            emit PrizeClaimed({
-                raffleId: 0,
-                winner: winners[i].participant,
-                prizeType: IRaffle.TokenType.ERC721,
-                prizeAddress: address(mockERC721),
-                prizeId: i,
-                prizeAmount: 1
-            });
-            unchecked {
-                ++i;
-            }
-        }
-        for (uint256 i = 6; i < 11; ) {
-            vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-            emit PrizeClaimed({
-                raffleId: 0,
-                winner: winners[i].participant,
-                prizeType: IRaffle.TokenType.ERC20,
-                prizeAddress: address(mockERC20),
-                prizeId: 0,
-                prizeAmount: 1_000 ether
-            });
-            unchecked {
-                ++i;
-            }
-        }
-        for (uint256 i; i < 11; ) {
-            assertFalse(winners[i].claimed);
+    function test_claimPrize_StatusIsComplete() public {
+        _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-            looksRareRaffle.claimPrize(0, i);
-            unchecked {
-                ++i;
-            }
-        }
+        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
-        assertEq(mockERC721.balanceOf(address(79)), 1);
-        assertEq(mockERC721.ownerOf(0), address(79));
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
-        assertEq(mockERC721.balanceOf(address(95)), 1);
-        assertEq(mockERC721.ownerOf(1), address(95));
+        looksRareRaffle.claimFees(0);
 
-        assertEq(mockERC721.balanceOf(address(29)), 1);
-        assertEq(mockERC721.ownerOf(2), address(29));
-
-        assertEq(mockERC721.balanceOf(address(56)), 1);
-        assertEq(mockERC721.ownerOf(3), address(56));
-
-        assertEq(mockERC721.balanceOf(address(17)), 1);
-        assertEq(mockERC721.ownerOf(4), address(17));
-
-        assertEq(mockERC721.balanceOf(address(100)), 1);
-        assertEq(mockERC721.ownerOf(5), address(100));
-
-        assertEq(mockERC20.balanceOf(address(31)), 1_000 ether);
-        assertEq(mockERC20.balanceOf(address(33)), 1_000 ether);
-        assertEq(mockERC20.balanceOf(address(62)), 1_000 ether);
-        assertEq(mockERC20.balanceOf(address(70)), 1_000 ether);
-        assertEq(mockERC20.balanceOf(address(8)), 1_000 ether);
-
-        winners = looksRareRaffle.getWinners(0);
-        for (uint256 i; i < 11; ) {
-            assertTrue(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        _assertPrizesClaimedEventsEmitted();
+        _claimPrizes();
+        _assertPrizesTransferred();
     }
 
     function test_claimPrize_RevertIf_InvalidStatus() public {
@@ -178,5 +119,61 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         vm.prank(user2);
         vm.expectRevert(IRaffle.InvalidIndex.selector);
         looksRareRaffle.claimPrize(0, 11);
+    }
+
+    function _claimPrizes() private {
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        for (uint256 i; i < 11; ) {
+            assertFalse(winners[i].claimed);
+
+            looksRareRaffle.claimPrize(0, i);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function _assertPrizesClaimedEventsEmitted() private {
+        for (uint256 i; i < 11; ) {
+            vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+            emit PrizeClaimed({raffleId: 0, winnerIndex: i});
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function _assertPrizesTransferred() private {
+        assertEq(mockERC721.balanceOf(address(79)), 1);
+        assertEq(mockERC721.ownerOf(0), address(79));
+
+        assertEq(mockERC721.balanceOf(address(95)), 1);
+        assertEq(mockERC721.ownerOf(1), address(95));
+
+        assertEq(mockERC721.balanceOf(address(29)), 1);
+        assertEq(mockERC721.ownerOf(2), address(29));
+
+        assertEq(mockERC721.balanceOf(address(56)), 1);
+        assertEq(mockERC721.ownerOf(3), address(56));
+
+        assertEq(mockERC721.balanceOf(address(17)), 1);
+        assertEq(mockERC721.ownerOf(4), address(17));
+
+        assertEq(mockERC721.balanceOf(address(100)), 1);
+        assertEq(mockERC721.ownerOf(5), address(100));
+
+        assertEq(mockERC20.balanceOf(address(31)), 1_000 ether);
+        assertEq(mockERC20.balanceOf(address(33)), 1_000 ether);
+        assertEq(mockERC20.balanceOf(address(62)), 1_000 ether);
+        assertEq(mockERC20.balanceOf(address(70)), 1_000 ether);
+        assertEq(mockERC20.balanceOf(address(8)), 1_000 ether);
+
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        for (uint256 i; i < 11; ) {
+            assertTrue(winners[i].claimed);
+            unchecked {
+                ++i;
+            }
+        }
     }
 }

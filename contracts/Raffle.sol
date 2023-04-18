@@ -473,8 +473,11 @@ contract Raffle is
      */
     function claimPrize(uint256 raffleId, uint256 winnerIndex) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
-        if (raffle.status != RaffleStatus.Drawn) {
-            revert InvalidStatus();
+        RaffleStatus status = raffle.status;
+        if (status != RaffleStatus.Drawn) {
+            if (status != RaffleStatus.Complete) {
+                revert InvalidStatus();
+            }
         }
 
         Winner[] storage winners = raffle.winners;
@@ -493,7 +496,7 @@ contract Raffle is
         Prize storage prize = raffle.prizes[winner.prizeIndex];
         _transferPrize({prize: prize, recipient: participant, multiplier: 1});
 
-        emit PrizeClaimed(raffleId, participant, prize.prizeType, prize.prizeAddress, prize.prizeId, prize.prizeAmount);
+        emit PrizeClaimed(raffleId, winnerIndex);
     }
 
     /**

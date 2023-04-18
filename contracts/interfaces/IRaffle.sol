@@ -141,14 +141,7 @@ interface IRaffle {
     event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
-    event PrizeClaimed(
-        uint256 raffleId,
-        address winner,
-        TokenType prizeType,
-        address prizeAddress,
-        uint256 prizeId,
-        uint256 prizeAmount
-    );
+    event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
     event ProtocolFeeBpUpdated(uint256 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
