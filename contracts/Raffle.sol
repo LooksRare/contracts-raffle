@@ -200,11 +200,7 @@ contract Raffle is
             }
         }
 
-        if (cumulativeWinnersCount > minimumEntries) {
-            revert InvalidWinnersCount();
-        }
-
-        if (cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
+        if (cumulativeWinnersCount > minimumEntries || cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
             revert InvalidWinnersCount();
         }
 
