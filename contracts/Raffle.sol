@@ -218,7 +218,7 @@ contract Raffle is
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
 
-        rafflesCount = raffleId + 1;
+        rafflesCount = ++raffleId;
     }
 
     /**
