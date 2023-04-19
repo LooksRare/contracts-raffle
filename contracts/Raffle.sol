@@ -499,6 +499,9 @@ contract Raffle is
         if (winner.claimed) {
             revert PrizeAlreadyClaimed();
         }
+        if (winner.participant != msg.sender) {
+            revert NotWinner();
+        }
         winner.claimed = true;
 
         address participant = winner.participant;

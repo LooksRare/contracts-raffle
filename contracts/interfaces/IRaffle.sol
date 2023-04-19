@@ -172,6 +172,7 @@ interface IRaffle {
     error MaximumEntriesPerParticipantReached();
     error MinimumEntriesReached();
     error NotRaffleOwner();
+    error NotWinner();
     error PrizeAlreadyClaimed();
     error ProtocolFeeBpTooHigh();
 

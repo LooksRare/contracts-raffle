@@ -102,8 +102,10 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         for (uint256 i; i < 11; ) {
             assertFalse(winners[i].claimed);
 
+            vm.prank(winners[i].participant);
             looksRareRaffle.claimPrize(0, i);
 
+            vm.prank(winners[i].participant);
             vm.expectRevert(IRaffle.PrizeAlreadyClaimed.selector);
             looksRareRaffle.claimPrize(0, i);
 
@@ -123,9 +125,32 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        vm.prank(user2);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+
+        vm.prank(winners[10].participant);
         vm.expectRevert(IRaffle.InvalidIndex.selector);
         looksRareRaffle.claimPrize(0, 11);
+    }
+
+    function test_claimPrize_RevertIf_NotWinner() public {
+        _transitionRaffleStatusToDrawing(looksRareRaffle);
+
+        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
+
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        for (uint256 i; i < 11; ) {
+            vm.prank(address(42));
+            vm.expectRevert(IRaffle.NotWinner.selector);
+            looksRareRaffle.claimPrize(0, i);
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     function _claimPrizes() private {
@@ -133,6 +158,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         for (uint256 i; i < 11; ) {
             assertFalse(winners[i].claimed);
 
+            vm.prank(winners[i].participant);
             looksRareRaffle.claimPrize(0, i);
             unchecked {
                 ++i;
