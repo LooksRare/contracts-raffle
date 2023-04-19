@@ -186,6 +186,10 @@ contract Raffle is
         raffleId = rafflesCount;
 
         uint256 prizesCount = prizes.length;
+        if (prizesCount == 0) {
+            revert InvalidPrizeAmount();
+        }
+
         uint40 cumulativeWinnersCount;
         uint8 currentPrizeTier;
         for (uint256 i; i < prizesCount; ) {
