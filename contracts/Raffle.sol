@@ -243,21 +243,21 @@ contract Raffle is
             TokenType prizeType = prize.prizeType;
             if (prizeType == TokenType.ERC721) {
                 _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
-            } else if (prizeType == TokenType.ERC1155) {
-                _executeERC1155SafeTransferFrom(
-                    prize.prizeAddress,
-                    msg.sender,
-                    address(this),
-                    prize.prizeId,
-                    prize.prizeAmount * prize.winnersCount
-                );
-            } else if (prizeType == TokenType.ETH) {
-                expectedEthValue += (prize.prizeAmount * prize.winnersCount);
             } else if (prizeType == TokenType.ERC20) {
                 _executeERC20TransferFrom(
                     prize.prizeAddress,
                     msg.sender,
                     address(this),
+                    prize.prizeAmount * prize.winnersCount
+                );
+            } else if (prizeType == TokenType.ETH) {
+                expectedEthValue += (prize.prizeAmount * prize.winnersCount);
+            } else {
+                _executeERC1155SafeTransferFrom(
+                    prize.prizeAddress,
+                    msg.sender,
+                    address(this),
+                    prize.prizeId,
                     prize.prizeAmount * prize.winnersCount
                 );
             }
