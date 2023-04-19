@@ -472,13 +472,8 @@ contract Raffle is
             winners[i].entryIndex = uint40(winningEntry);
             winners[i].prizeIndex = prizeIndex;
 
-            unchecked {
-                ++i;
-            }
-        }
-
-        for (uint256 i; i < winnersCount; ) {
             raffle.winners.push(winners[i]);
+
             unchecked {
                 ++i;
             }
