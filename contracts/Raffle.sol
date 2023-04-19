@@ -35,6 +35,7 @@ contract Raffle is
     address public immutable WETH;
 
     uint256 public constant ONE_DAY = 86_400 seconds;
+    uint256 public constant ONE_WEEK = 604_800 seconds;
 
     /**
      * @notice 100% in basis points.
@@ -169,7 +170,7 @@ contract Raffle is
             revert InvalidEntriesRange();
         }
 
-        if (block.timestamp + ONE_DAY > cutoffTime) {
+        if (block.timestamp + ONE_DAY > cutoffTime || cutoffTime > block.timestamp + ONE_WEEK) {
             revert InvalidCutoffTime();
         }
 

@@ -179,7 +179,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         }
     }
 
-    function testFuzz_createRaffle_RevertIf_InvalidCutoffTime(uint256 lifespan) public {
+    function testFuzz_createRaffle_RevertIf_InvalidCutoffTime_TooShort(uint256 lifespan) public {
         vm.assume(lifespan < 86_400);
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
@@ -205,6 +205,25 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
         looksRareRaffle.createRaffle({
             cutoffTime: uint40(block.timestamp + 86_400),
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 100,
+            prizesTotalValue: 1 ether,
+            minimumProfitBp: 500,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricingOptions: pricingOptions
+        });
+    }
+
+    function testFuzz_createRaffle_RevertIf_InvalidCutoffTime_TooLong(uint256 lifespan) public {
+        vm.assume(lifespan > 86_400 * 7);
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        vm.expectRevert(IRaffle.InvalidCutoffTime.selector);
+        looksRareRaffle.createRaffle({
+            cutoffTime: uint40(block.timestamp + lifespan),
             minimumEntries: 107,
             maximumEntries: 200,
             maximumEntriesPerParticipant: 100,
