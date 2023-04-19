@@ -105,132 +105,56 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.maximumEntriesPerParticipant = params.maximumEntries + 1;
+
         vm.expectRevert(IRaffle.InvalidMaximumEntriesPerParticipant.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 201,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_InvalidPrizesCount_TooManyPrizes() public {
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](21);
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes = new IRaffle.Prize[](21);
 
         vm.expectRevert(IRaffle.InvalidPrizesCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_InvalidPrizeTier() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        prizes[2].prizeTier = 2;
-
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes[2].prizeTier = 2;
 
         vm.expectRevert(IRaffle.InvalidPrizeTier.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_InvalidMinimumProfitBp() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.minimumProfitBp = 10_001;
 
         vm.expectRevert(IRaffle.InvalidMinimumProfitBp.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 10_001,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_InvalidProtocolFeeBp(uint16 protocolFeeBp) public {
         vm.assume(protocolFeeBp != 500);
 
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.protocolFeeBp = protocolFeeBp;
 
         vm.expectRevert(IRaffle.InvalidProtocolFeeBp.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: protocolFeeBp,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_InvalidEntriesRange() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
 
         uint8[2] memory maximumEntries = [106, 107];
         for (uint256 i; i < 2; ) {
+            params.maximumEntries = maximumEntries[i];
+            params.maximumEntriesPerParticipant = maximumEntries[i];
             vm.expectRevert(IRaffle.InvalidEntriesRange.selector);
-            looksRareRaffle.createRaffle(
-                IRaffle.CreateRaffleCalldata({
-                    cutoffTime: uint40(block.timestamp + 86_400),
-                    minimumEntries: 107,
-                    maximumEntries: maximumEntries[i],
-                    maximumEntriesPerParticipant: 100,
-                    prizesTotalValue: 1 ether,
-                    minimumProfitBp: 500,
-                    protocolFeeBp: 500,
-                    feeTokenAddress: address(0),
-                    prizes: prizes,
-                    pricingOptions: pricingOptions
-                })
-            );
+            looksRareRaffle.createRaffle(params);
 
             unchecked {
                 ++i;
@@ -240,115 +164,50 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
     function testFuzz_createRaffle_RevertIf_InvalidCutoffTime_TooShort(uint256 lifespan) public {
         vm.assume(lifespan < 86_400);
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.cutoffTime = uint40(block.timestamp + lifespan);
 
         vm.expectRevert(IRaffle.InvalidCutoffTime.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + lifespan),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_InvalidPrizesCount_ZeroPrizes() public {
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](0);
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes = new IRaffle.Prize[](0);
 
         vm.expectRevert(IRaffle.InvalidPrizesCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_InvalidCutoffTime_TooLong(uint256 lifespan) public {
         vm.assume(lifespan > 86_400 * 7);
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.cutoffTime = uint40(block.timestamp + lifespan);
 
         vm.expectRevert(IRaffle.InvalidCutoffTime.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + lifespan),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_PrizeIsERC721_InvalidPrizeAmount(uint256 prizeAmount) public {
         vm.assume(prizeAmount != 1);
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        prizes[0].prizeAmount = prizeAmount;
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes[0].prizeAmount = prizeAmount;
 
         vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_PrizeIsERC721_InvalidWinnersCount(uint40 winnersCount) public {
         vm.assume(winnersCount != 1);
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        prizes[0].winnersCount = winnersCount;
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes[0].winnersCount = winnersCount;
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PrizeIsERC1155_InvalidPrizeAmount() public {}
@@ -356,229 +215,89 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function test_createRaffle_RevertIf_PrizeIsERC1155_InvalidWinnersCount() public {}
 
     function test_createRaffle_RevertIf_PrizeIsERC20_InvalidPrizeAmount() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        prizes[6].prizeAmount = 0;
-
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes[6].prizeAmount = 0;
 
         vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PrizeIsERC20_InvalidWinnersCount() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        prizes[6].winnersCount = 0;
-
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes[6].winnersCount = 0;
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PrizeIsETH_InvalidPrizeAmount() public {}
 
     function test_createRaffle_RevertIf_PrizeIsETH_InvalidWinnersCount() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.minimumEntries = 105;
+        params.maximumEntries = 106;
+        params.maximumEntriesPerParticipant = 100;
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 105,
-                maximumEntries: 106,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_CumulativeWinnersCountGreaterThanMaximumNumberOfWinnersPerRaffle()
         public
         asPrankedUser(user1)
     {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        prizes[6].winnersCount = 105; // 1 + 5 + 105 = 111 > 110
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes[6].winnersCount = 105; // 1 + 5 + 105 = 111 > 110
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 111,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PricingEntriesCountIsZero() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
-        pricingOptions[0].entriesCount = 0;
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions[0].entriesCount = 0;
 
         vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PricingPriceIsZero() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
-        pricingOptions[0].price = 0;
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions[0].price = 0;
 
         vm.expectRevert(IRaffle.InvalidPrice.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PricingEntriesCountIsNotGreaterThanLastPricing() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
-        // pricingOptions[1].entriesCount == 10
-        pricingOptions[2].entriesCount = 9;
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        // params.pricingOptions[1].entriesCount == 10
+        params.pricingOptions[2].entriesCount = 9;
 
         vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PricingPriceIsNotGreaterThanLastPrice() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
-        // pricingOptions[1].price == 0.22 ether
-        pricingOptions[2].price = 0.219 ether;
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        // params.pricingOptions[1].price == 0.22 ether
+        params.pricingOptions[2].price = 0.219 ether;
 
         vm.expectRevert(IRaffle.InvalidPrice.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PricingInvalidERC20FeeToken() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.feeTokenAddress = address(0xA11ce);
 
         vm.expectRevert(IRaffle.InvalidFeeToken.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0xA11ce),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
 
         Null nonERC20Contract = new Null();
+        params.feeTokenAddress = address(nonERC20Contract);
 
         vm.expectRevert(IRaffle.InvalidFeeToken.selector);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(nonERC20Contract),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
     }
 }

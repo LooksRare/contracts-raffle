@@ -38,6 +38,28 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         );
     }
 
+    function _baseCreateRaffleParams(address mockERC20, address mockERC721)
+        internal
+        view
+        returns (IRaffle.CreateRaffleCalldata memory params)
+    {
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(mockERC20, mockERC721);
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        params = IRaffle.CreateRaffleCalldata({
+            cutoffTime: uint40(block.timestamp + 86_400),
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 200,
+            prizesTotalValue: 1 ether,
+            minimumProfitBp: 500,
+            protocolFeeBp: 500,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricingOptions: pricingOptions
+        });
+    }
+
     function _generateStandardPricings() internal pure returns (IRaffle.PricingOption[5] memory pricingOptions) {
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});
@@ -113,23 +135,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         address mockERC721,
         Raffle looksRareRaffle
     ) internal {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(mockERC20, mockERC721);
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
-
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(_baseCreateRaffleParams(mockERC20, mockERC721));
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntries(Raffle looksRareRaffle) internal {

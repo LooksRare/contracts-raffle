@@ -52,22 +52,10 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes = prizes;
 
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
 
         looksRareRaffle.depositPrizes{value: 1.5 ether}(1);
 
@@ -93,22 +81,10 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes = prizes;
 
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
 
         looksRareRaffle.depositPrizes{value: prizesValue + extra}(1);
 
@@ -158,22 +134,10 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes = prizes;
 
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 200,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
 
         vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);
         looksRareRaffle.depositPrizes{value: 1.49 ether}(1);

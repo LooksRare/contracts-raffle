@@ -27,26 +27,12 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove(mockERC20, mockERC721, address(looksRareRaffle));
 
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
-        prizes[6].winnersCount = 5;
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        params.prizes[6].winnersCount = 5;
 
         vm.startPrank(user1);
-        looksRareRaffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 86_400),
-                minimumEntries: 107,
-                maximumEntries: 200,
-                maximumEntriesPerParticipant: 100,
-                prizesTotalValue: 1 ether,
-                minimumProfitBp: 500,
-                protocolFeeBp: 500,
-                feeTokenAddress: address(0),
-                prizes: prizes,
-                pricingOptions: pricingOptions
-            })
-        );
+        looksRareRaffle.createRaffle(params);
 
         looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
