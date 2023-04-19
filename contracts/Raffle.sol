@@ -373,6 +373,9 @@ contract Raffle is
             revert InvalidStatus();
         }
 
+        raffle.status = RaffleStatus.Drawing;
+        raffle.drawnAt = uint40(block.timestamp);
+
         Prize[] storage prizes = raffle.prizes;
         uint256 prizesCount = prizes.length;
         uint32 winnersCount = uint32(prizes[prizesCount - 1].cumulativeWinnersCount);
@@ -388,9 +391,6 @@ contract Raffle is
         randomnessRequests[requestId].exists = true;
         randomnessRequests[requestId].raffleId = raffleId;
 
-        raffle.status = RaffleStatus.Drawing;
-        raffle.drawnAt = uint40(block.timestamp);
-
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
         emit RandomnessRequested(raffleId, requestId);
     }
@@ -401,8 +401,8 @@ contract Raffle is
             Raffle storage raffle = raffles[raffleId];
 
             if (raffle.status == RaffleStatus.Drawing) {
-                randomnessRequests[_requestId].randomWords = _randomWords;
                 raffle.status = RaffleStatus.RandomnessFulfilled;
+                randomnessRequests[_requestId].randomWords = _randomWords;
                 emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
             }
         }
@@ -421,6 +421,8 @@ contract Raffle is
         if (winnersCount == 0 || !randomnessRequest.exists || raffle.status != RaffleStatus.RandomnessFulfilled) {
             revert InvalidStatus();
         }
+
+        raffle.status = RaffleStatus.Drawn;
 
         Winner[] memory winners = new Winner[](winnersCount);
 
@@ -466,7 +468,6 @@ contract Raffle is
             }
         }
 
-        raffle.status = RaffleStatus.Drawn;
         for (uint256 i; i < winnersCount; ) {
             raffle.winners.push(winners[i]);
             unchecked {
