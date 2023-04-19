@@ -634,25 +634,34 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimRefund(uint256 raffleId) external nonReentrant {
-        Raffle storage raffle = raffles[raffleId];
+    function claimRefund(uint256[] calldata raffleIds) external nonReentrant {
+        uint256 count = raffleIds.length;
 
-        if (raffle.status != RaffleStatus.Cancelled) {
-            revert InvalidStatus();
+        for (uint256 i; i < count; ) {
+            uint256 raffleId = raffleIds[i];
+            Raffle storage raffle = raffles[raffleId];
+
+            if (raffle.status != RaffleStatus.Cancelled) {
+                revert InvalidStatus();
+            }
+
+            ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
+
+            if (stats.refunded) {
+                revert AlreadyRefunded();
+            }
+
+            stats.refunded = true;
+
+            uint256 amountPaid = stats.amountPaid;
+            _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
+
+            emit EntryRefunded(raffleId, msg.sender, amountPaid);
+
+            unchecked {
+                ++i;
+            }
         }
-
-        ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
-
-        if (stats.refunded) {
-            revert AlreadyRefunded();
-        }
-
-        stats.refunded = true;
-
-        uint256 amountPaid = stats.amountPaid;
-        _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
-
-        emit EntryRefunded(raffleId, msg.sender, amountPaid);
     }
 
     function setCallbackGasLimit(uint32 _callbackGasLimit) external onlyOwner {

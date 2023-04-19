@@ -8,6 +8,7 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
+// TODO: test claimRefund with multiple raffles
 contract Raffle_ClaimRefund_Test is TestHelpers {
     Raffle private looksRareRaffle;
     MockERC20 private mockERC20;
@@ -51,7 +52,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
             vm.expectRevert(IRaffle.InvalidStatus.selector);
             vm.prank(participant);
-            looksRareRaffle.claimRefund(0);
+            looksRareRaffle.claimRefund(new uint256[](1));
 
             unchecked {
                 ++i;
@@ -73,7 +74,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
             vm.expectRevert(IRaffle.AlreadyRefunded.selector);
             vm.prank(participant);
-            looksRareRaffle.claimRefund(0);
+            looksRareRaffle.claimRefund(new uint256[](1));
 
             unchecked {
                 ++i;
@@ -105,7 +106,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             address participant = address(uint160(i + 1));
 
             vm.prank(participant);
-            looksRareRaffle.claimRefund(0);
+            looksRareRaffle.claimRefund(new uint256[](1));
 
             assertEq(participant.balance, 0.025 ether);
 

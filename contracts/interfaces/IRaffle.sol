@@ -304,9 +304,9 @@ interface IRaffle {
 
     /**
      * @notice Claims the refund for a cancelled raffle.
-     * @param raffleId The id of the raffle.
+     * @param raffleIds The ids of the raffles.
      */
-    function claimRefund(uint256 raffleId) external;
+    function claimRefund(uint256[] calldata raffleIds) external;
 
     /**
      * @notice Claims the protocol fees collected for a raffle.
