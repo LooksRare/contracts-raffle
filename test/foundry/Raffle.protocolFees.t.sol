@@ -12,7 +12,7 @@ import {MockERC721} from "./mock/MockERC721.sol";
 contract Raffle_ProtocolFees_Test is TestHelpers {
     Raffle public looksRareRaffle;
 
-    event ProtocolFeeBpUpdated(uint256 protocolFeeBp);
+    event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
 
     function setUp() public {
@@ -40,7 +40,7 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
     }
 
     function test_setProtocolFeeBp() public asPrankedUser(owner) {
-        uint256 newProtocolFeeBp = 2_409;
+        uint16 newProtocolFeeBp = 2_409;
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit ProtocolFeeBpUpdated(newProtocolFeeBp);
         looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
@@ -48,13 +48,13 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
     }
 
     function test_setProtocolFeeBp_RevertIf_NotOwner() public {
-        uint256 newProtocolFeeBp = 2_409;
+        uint16 newProtocolFeeBp = 2_409;
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
         looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
     }
 
     function test_setProtocolFeeBp_RevertIf_InvalidProtocolFeeBp() public asPrankedUser(owner) {
-        uint256 newProtocolFeeBp = 2_501;
+        uint16 newProtocolFeeBp = 2_501;
         vm.expectRevert(IRaffle.InvalidProtocolFeeBp.selector);
         looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
     }

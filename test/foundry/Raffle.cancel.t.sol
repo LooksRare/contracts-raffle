@@ -28,17 +28,20 @@ contract Raffle_Cancel_Test is TestHelpers {
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.startPrank(user1);
-        looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: 107,
-            maximumEntries: 200,
-            maximumEntriesPerParticipant: 100,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
-            feeTokenAddress: address(0),
-            prizes: prizes,
-            pricingOptions: pricingOptions
-        });
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 200,
+                maximumEntriesPerParticipant: 100,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
 
         looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
@@ -49,17 +52,20 @@ contract Raffle_Cancel_Test is TestHelpers {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
-        looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: 107,
-            maximumEntries: 200,
-            maximumEntriesPerParticipant: 100,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
-            feeTokenAddress: address(0),
-            prizes: prizes,
-            pricingOptions: pricingOptions
-        });
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 200,
+                maximumEntriesPerParticipant: 100,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Cancelled);

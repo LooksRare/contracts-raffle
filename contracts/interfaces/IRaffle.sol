@@ -80,6 +80,7 @@ interface IRaffle {
      * @param maximumEntries The maximum number of entries allowed in the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
+     * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
      * @param prizesTotalValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param claimableFees The amount of fees collected from selling entries.
@@ -97,6 +98,7 @@ interface IRaffle {
         uint40 maximumEntries;
         uint40 maximumEntriesPerParticipant;
         uint16 minimumProfitBp;
+        uint16 protocolFeeBp;
         uint256 prizesTotalValue;
         address feeTokenAddress;
         uint256 claimableFees;
@@ -127,6 +129,31 @@ interface IRaffle {
     }
 
     /**
+     * @param cutoffTime The time at which the raffle will be closed.
+     * @param minimumEntries The minimum number of entries required to draw the raffle.
+     * @param maximumEntries The maximum number of entries allowed to enter the raffle.
+     * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
+     * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
+     * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
+     * @param prizesTotalValue The total value of the prizes.
+     * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
+     * @param prizes The prizes to be distributed.
+     * @param pricingOptions The pricing options for the raffle.
+     */
+    struct CreateRaffleCalldata {
+        uint40 cutoffTime;
+        uint40 minimumEntries;
+        uint40 maximumEntries;
+        uint40 maximumEntriesPerParticipant;
+        uint16 minimumProfitBp;
+        uint16 protocolFeeBp;
+        uint256 prizesTotalValue;
+        address feeTokenAddress;
+        Prize[] prizes;
+        PricingOption[5] pricingOptions;
+    }
+
+    /**
      * @param exists Whether the request exists.
      * @param raffleId The id of the raffle.
      * @param randomWords The random words returned by Chainlink VRF.
@@ -143,7 +170,7 @@ interface IRaffle {
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
     event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
-    event ProtocolFeeBpUpdated(uint256 protocolFeeBp);
+    event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
     event RandomnessRequested(uint256 raffleId, uint256 requestId);
@@ -179,28 +206,10 @@ interface IRaffle {
 
     /**
      * @notice Creates a new raffle.
-     * @param cutoffTime The time at which the raffle will be closed.
-     * @param minimumEntries The minimum number of entries required to draw the raffle.
-     * @param maximumEntries The maximum number of entries allowed to enter the raffle.
-     * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
-     * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
-     * @param prizesTotalValue The total value of the prizes.
-     * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
-     * @param prizes The prizes to be distributed.
-     * @param pricingOptions The pricing options for the raffle.
+     * @param params The parameters of the raffle.
      * @return raffleId The id of the newly created raffle.
      */
-    function createRaffle(
-        uint40 cutoffTime,
-        uint40 minimumEntries,
-        uint40 maximumEntries,
-        uint40 maximumEntriesPerParticipant,
-        uint16 minimumProfitBp,
-        uint256 prizesTotalValue,
-        address feeTokenAddress,
-        Prize[] memory prizes,
-        PricingOption[5] calldata pricingOptions
-    ) external returns (uint256 raffleId);
+    function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId);
 
     /**
      * @notice Deposits prizes for a raffle.
@@ -309,7 +318,7 @@ interface IRaffle {
      * @notice Sets the protocol fee in basis points. Only callable by contract owner.
      * @param protocolFeeBp The protocol fee in basis points.
      */
-    function setProtocolFeeBp(uint256 protocolFeeBp) external;
+    function setProtocolFeeBp(uint16 protocolFeeBp) external;
 
     /**
      * @notice Sets the protocol fee recipient. Only callable by contract owner.

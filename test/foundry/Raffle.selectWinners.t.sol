@@ -33,17 +33,20 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.startPrank(user1);
-        looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: 107,
-            maximumEntries: 512,
-            maximumEntriesPerParticipant: 100,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
-            feeTokenAddress: address(0),
-            prizes: prizes,
-            pricingOptions: pricingOptions
-        });
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 512,
+                maximumEntriesPerParticipant: 100,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
 
         looksRareRaffle.depositPrizes(0);
         vm.stopPrank();

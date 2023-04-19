@@ -71,17 +71,20 @@ contract CreateRaffle is Script {
         prizes[6].prizeAmount = 1_000e18;
         prizes[6].winnersCount = 10;
 
-        uint256 raffleId = raffle.createRaffle({
-            cutoffTime: block.timestamp + 5 days,
-            minimumEntries: 100,
-            maximumEntries: 101,
-            maximumEntriesPerParticipant: 20,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
-            feeTokenAddress: address(0),
-            prizes: prizes,
-            pricingOptions: pricingOptions
-        });
+        uint256 raffleId = raffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: block.timestamp + 5 days,
+                minimumEntries: 100,
+                maximumEntries: 101,
+                maximumEntriesPerParticipant: 20,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
 
         raffle.depositPrizes(raffleId);
 

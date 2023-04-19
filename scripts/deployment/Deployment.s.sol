@@ -26,7 +26,7 @@ contract Deployment is Script {
         address vrfCoordinator;
         address owner;
         address protocolFeeRecipient;
-        uint256 protocolFeeBp;
+        uint16 protocolFeeBp;
 
         if (chainId == 1) {
             weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;

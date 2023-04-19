@@ -30,17 +30,20 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.startPrank(user1);
-        looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: 107,
-            maximumEntries: 200,
-            maximumEntriesPerParticipant: 100,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
-            feeTokenAddress: address(0),
-            prizes: prizes,
-            pricingOptions: pricingOptions
-        });
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 200,
+                maximumEntriesPerParticipant: 100,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
 
         looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
@@ -52,7 +55,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Cancelled);
 
-        (, , , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        (, , , uint40 drawnAt, , , , , , , , ) = looksRareRaffle.raffles(0);
         vm.warp(drawnAt + 86_400 + 1);
 
         vm.prank(owner);
@@ -73,7 +76,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest_RevertIf_NotOwner() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        (, , , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        (, , , uint40 drawnAt, , , , , , , , ) = looksRareRaffle.raffles(0);
         vm.warp(drawnAt + 86_400 + 1);
 
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
@@ -90,7 +93,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest_RevertIf_DrawExpirationTimeNotReached() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        (, , , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(0);
+        (, , , uint40 drawnAt, , , , , , , , ) = looksRareRaffle.raffles(0);
         vm.warp(drawnAt + 86_399);
 
         vm.prank(owner);

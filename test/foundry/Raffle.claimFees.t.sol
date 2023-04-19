@@ -33,17 +33,20 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         vm.startPrank(user1);
-        looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: 107,
-            maximumEntries: 200,
-            maximumEntriesPerParticipant: 100,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
-            feeTokenAddress: address(0),
-            prizes: prizes,
-            pricingOptions: pricingOptions
-        });
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 200,
+                maximumEntriesPerParticipant: 100,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
 
         looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
@@ -59,7 +62,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        (, , , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(0);
+        (, , , , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(0);
         assertEq(address(looksRareRaffle).balance, 2.675 ether);
         assertEq(claimableFees, 2.675 ether);
         uint256 raffleOwnerBalance = user1.balance;
@@ -75,7 +78,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         looksRareRaffle.claimFees(0);
 
-        (, , , , , , , , , , claimableFees) = looksRareRaffle.raffles(0);
+        (, , , , , , , , , , , claimableFees) = looksRareRaffle.raffles(0);
         assertEq(address(looksRareRaffle).balance, 0.13375 ether);
         assertEq(claimableFees, 0);
         assertEq(user1.balance, raffleOwnerBalance + 2.54125 ether);

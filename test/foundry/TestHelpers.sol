@@ -116,17 +116,20 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(mockERC20, mockERC721);
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
-        looksRareRaffle.createRaffle({
-            cutoffTime: uint40(block.timestamp + 86_400),
-            minimumEntries: 107,
-            maximumEntries: 200,
-            maximumEntriesPerParticipant: 200,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
-            feeTokenAddress: address(0),
-            prizes: prizes,
-            pricingOptions: pricingOptions
-        });
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 200,
+                maximumEntriesPerParticipant: 200,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntries(Raffle looksRareRaffle) internal {

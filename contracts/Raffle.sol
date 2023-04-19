@@ -108,7 +108,7 @@ contract Raffle is
     /**
      * @notice The protocol fee in basis points.
      */
-    uint256 public protocolFeeBp;
+    uint16 public protocolFeeBp;
 
     /**
      * @notice The claimable fees of the protocol fee recipient.
@@ -137,7 +137,7 @@ contract Raffle is
         address _vrfCoordinator,
         address _owner,
         address _protocolFeeRecipient,
-        uint256 _protocolFeeBp
+        uint16 _protocolFeeBp
     ) VRFConsumerBaseV2(_vrfCoordinator) OwnableTwoSteps(_owner) {
         _setProtocolFeeBp(_protocolFeeBp);
         _setProtocolFeeRecipient(_protocolFeeRecipient);
@@ -151,42 +151,36 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function createRaffle(
-        uint40 cutoffTime,
-        uint40 minimumEntries,
-        uint40 maximumEntries,
-        uint40 maximumEntriesPerParticipant,
-        uint16 minimumProfitBp,
-        uint256 prizesTotalValue,
-        address feeTokenAddress,
-        Prize[] memory prizes,
-        PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions
-    ) external returns (uint256 raffleId) {
-        if (maximumEntriesPerParticipant > maximumEntries) {
+    function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId) {
+        if (params.maximumEntriesPerParticipant > params.maximumEntries) {
             revert InvalidMaximumEntriesPerParticipant();
         }
 
-        if (minimumEntries >= maximumEntries) {
+        if (params.minimumEntries >= params.maximumEntries) {
             revert InvalidEntriesRange();
         }
 
-        if (block.timestamp + ONE_DAY > cutoffTime || cutoffTime > block.timestamp + ONE_WEEK) {
+        if (block.timestamp + ONE_DAY > params.cutoffTime || params.cutoffTime > block.timestamp + ONE_WEEK) {
             revert InvalidCutoffTime();
         }
 
-        if (minimumProfitBp > ONE_HUNDRED_PERCENT_BP) {
+        if (params.minimumProfitBp > ONE_HUNDRED_PERCENT_BP) {
             revert InvalidMinimumProfitBp();
         }
 
-        if (feeTokenAddress != address(0)) {
-            if (feeTokenAddress.code.length == 0) {
+        if (params.protocolFeeBp != protocolFeeBp) {
+            revert InvalidProtocolFeeBp();
+        }
+
+        if (params.feeTokenAddress != address(0)) {
+            if (params.feeTokenAddress.code.length == 0) {
                 revert InvalidFeeToken();
             }
         }
 
         raffleId = rafflesCount;
 
-        uint256 prizesCount = prizes.length;
+        uint256 prizesCount = params.prizes.length;
         if (prizesCount == 0) {
             revert InvalidPrizeAmount();
         }
@@ -194,7 +188,7 @@ contract Raffle is
         uint40 cumulativeWinnersCount;
         uint8 currentPrizeTier;
         for (uint256 i; i < prizesCount; ) {
-            Prize memory prize = prizes[i];
+            Prize memory prize = params.prizes[i];
             if (prize.prizeTier < currentPrizeTier) {
                 revert InvalidPrizeTier();
             }
@@ -210,21 +204,25 @@ contract Raffle is
             }
         }
 
-        if (cumulativeWinnersCount > minimumEntries || cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
+        if (
+            cumulativeWinnersCount > params.minimumEntries ||
+            cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE
+        ) {
             revert InvalidWinnersCount();
         }
 
-        _validateAndSetPricingOptions(raffleId, pricingOptions);
+        _validateAndSetPricingOptions(raffleId, params.pricingOptions);
 
         raffles[raffleId].owner = msg.sender;
         raffles[raffleId].status = RaffleStatus.Created;
-        raffles[raffleId].cutoffTime = cutoffTime;
-        raffles[raffleId].minimumEntries = minimumEntries;
-        raffles[raffleId].maximumEntries = maximumEntries;
-        raffles[raffleId].maximumEntriesPerParticipant = maximumEntriesPerParticipant;
-        raffles[raffleId].minimumProfitBp = minimumProfitBp;
-        raffles[raffleId].prizesTotalValue = prizesTotalValue;
-        raffles[raffleId].feeTokenAddress = feeTokenAddress;
+        raffles[raffleId].cutoffTime = params.cutoffTime;
+        raffles[raffleId].minimumEntries = params.minimumEntries;
+        raffles[raffleId].maximumEntries = params.maximumEntries;
+        raffles[raffleId].maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        raffles[raffleId].minimumProfitBp = params.minimumProfitBp;
+        raffles[raffleId].protocolFeeBp = params.protocolFeeBp;
+        raffles[raffleId].prizesTotalValue = params.prizesTotalValue;
+        raffles[raffleId].feeTokenAddress = params.feeTokenAddress;
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
 
@@ -583,7 +581,7 @@ contract Raffle is
         }
 
         uint256 claimableFees = raffle.claimableFees;
-        uint256 protocolFees = (claimableFees * protocolFeeBp) / ONE_HUNDRED_PERCENT_BP;
+        uint256 protocolFees = (claimableFees * uint256(raffle.protocolFeeBp)) / ONE_HUNDRED_PERCENT_BP;
         claimableFees -= protocolFees;
 
         raffle.status = RaffleStatus.Complete;
@@ -674,7 +672,7 @@ contract Raffle is
         _setProtocolFeeRecipient(_protocolFeeRecipient);
     }
 
-    function setProtocolFeeBp(uint256 _protocolFeeBp) external onlyOwner {
+    function setProtocolFeeBp(uint16 _protocolFeeBp) external onlyOwner {
         _setProtocolFeeBp(_protocolFeeBp);
     }
 
@@ -686,7 +684,7 @@ contract Raffle is
         emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
     }
 
-    function _setProtocolFeeBp(uint256 _protocolFeeBp) private {
+    function _setProtocolFeeBp(uint16 _protocolFeeBp) private {
         if (_protocolFeeBp > MAXIMUM_PROTOCOL_FEE_BP) {
             revert InvalidProtocolFeeBp();
         }
