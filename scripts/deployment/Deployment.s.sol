@@ -20,6 +20,7 @@ contract Deployment is Script {
         uint256 chainId = block.chainid;
         uint256 deployerPrivateKey;
 
+        addresss weth;
         bytes32 keyHash;
         uint64 subscriptionId;
         address vrfCoordinator;
@@ -28,6 +29,7 @@ contract Deployment is Script {
         uint256 protocolFeeBp;
 
         if (chainId == 1) {
+            weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
             deployerPrivateKey = vm.envUint("MAINNET_KEY");
             keyHash = hex"8af398995b04c28e9951adb9721ef74c74f93e6a478f39e7e0777be13527e7ef";
             subscriptionId = 0;
@@ -36,6 +38,7 @@ contract Deployment is Script {
             protocolFeeRecipient = 0x1838De7d4e4e42c8eB7b204A91e28E9fad14F536;
             protocolFeeBp = 500;
         } else if (chainId == 5) {
+            weth = 0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6;
             deployerPrivateKey = vm.envUint("GOERLI_KEY");
             keyHash = hex"79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15";
             subscriptionId = 1_1238;
@@ -54,11 +57,19 @@ contract Deployment is Script {
                 salt: vm.envBytes32("RAFFLE_SALT"),
                 initializationCode: abi.encodePacked(
                     type(Raffle).creationCode,
-                    abi.encode(keyHash, subscriptionId, vrfCoordinator, owner, protocolFeeRecipient, protocolFeeBp)
+                    abi.encode(
+                        weth,
+                        keyHash,
+                        subscriptionId,
+                        vrfCoordinator,
+                        owner,
+                        protocolFeeRecipient,
+                        protocolFeeBp
+                    )
                 )
             });
         } else {
-            new Raffle(keyHash, subscriptionId, vrfCoordinator, owner, protocolFeeRecipient, protocolFeeBp);
+            new Raffle(weth, keyHash, subscriptionId, vrfCoordinator, owner, protocolFeeRecipient, protocolFeeBp);
         }
 
         vm.stopBroadcast();

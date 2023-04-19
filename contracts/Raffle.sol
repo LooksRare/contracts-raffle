@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {LowLevelETHTransfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelETHTransfer.sol";
+import {LowLevelWETH} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelWETH.sol";
 import {LowLevelERC20Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC20Transfer.sol";
 import {LowLevelERC721Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC721Transfer.sol";
 import {LowLevelERC1155Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC1155Transfer.sol";
@@ -22,7 +22,7 @@ import "./interfaces/IRaffle.sol";
  */
 contract Raffle is
     IRaffle,
-    LowLevelETHTransfer,
+    LowLevelWETH,
     LowLevelERC20Transfer,
     LowLevelERC721Transfer,
     LowLevelERC1155Transfer,
@@ -31,6 +31,8 @@ contract Raffle is
     PackableReentrancyGuard
 {
     using Arrays for uint256[];
+
+    address public immutable WETH;
 
     uint256 public constant ONE_DAY = 86_400 seconds;
 
@@ -119,6 +121,7 @@ contract Raffle is
     uint256 public constant PRICING_OPTIONS_PER_RAFFLE = 5;
 
     /**
+     * @param _weth The WETH address
      * @param _keyHash Chainlink VRF key hash
      * @param _subscriptionId Chainlink VRF subscription ID
      * @param _vrfCoordinator Chainlink VRF coordinator address
@@ -127,6 +130,7 @@ contract Raffle is
      * @param _protocolFeeBp The protocol fee in basis points
      */
     constructor(
+        address _weth,
         bytes32 _keyHash,
         uint64 _subscriptionId,
         address _vrfCoordinator,
@@ -137,6 +141,7 @@ contract Raffle is
         _setProtocolFeeBp(_protocolFeeBp);
         _setProtocolFeeRecipient(_protocolFeeRecipient);
 
+        WETH = _weth;
         KEY_HASH = _keyHash;
         VRF_COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
         SUBSCRIPTION_ID = _subscriptionId;
@@ -789,7 +794,7 @@ contract Raffle is
         uint256 amount
     ) private {
         if (currency == address(0)) {
-            _transferETH(recipient, amount);
+            _transferETHAndWrapIfFailWithGasLimit(WETH, recipient, amount, gasleft());
         } else {
             _executeERC20DirectTransfer(currency, recipient, amount);
         }

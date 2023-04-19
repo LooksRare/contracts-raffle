@@ -11,6 +11,7 @@ import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
+import {MockWETH} from "./mock/MockWETH.sol";
 
 abstract contract TestHelpers is AssertionHelpers, TestParameters {
     address public user1 = address(1);
@@ -25,7 +26,16 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _deployRaffle() internal returns (Raffle looksRareRaffle) {
-        looksRareRaffle = new Raffle(KEY_HASH, SUBSCRIPTION_ID, VRF_COORDINATOR, owner, PROTOCOL_FEE_RECIPIENT, 500);
+        MockWETH weth = new MockWETH();
+        looksRareRaffle = new Raffle(
+            address(weth),
+            KEY_HASH,
+            SUBSCRIPTION_ID,
+            VRF_COORDINATOR,
+            owner,
+            PROTOCOL_FEE_RECIPIENT,
+            500
+        );
     }
 
     function _generateStandardPricings() internal pure returns (IRaffle.PricingOption[5] memory pricingOptions) {
