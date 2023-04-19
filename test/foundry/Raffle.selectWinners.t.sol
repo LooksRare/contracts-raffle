@@ -366,4 +366,25 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
     }
+
+    function test_selectWinners_RevertIf_InvalidStatus() public {
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
+
+        vm.startPrank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        looksRareRaffle.drawWinners(0);
+        vm.stopPrank();
+
+        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
+
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
+
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+    }
 }

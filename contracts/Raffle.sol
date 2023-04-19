@@ -430,9 +430,11 @@ contract Raffle is
             Raffle storage raffle = raffles[raffleId];
 
             if (raffle.status == RaffleStatus.Drawing) {
-                raffle.status = RaffleStatus.RandomnessFulfilled;
-                randomnessRequests[_requestId].randomWords = _randomWords;
-                emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
+                if (_randomWords.length == raffle.prizes[raffle.prizes.length - 1].cumulativeWinnersCount) {
+                    raffle.status = RaffleStatus.RandomnessFulfilled;
+                    randomnessRequests[_requestId].randomWords = _randomWords;
+                    emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
+                }
             }
         }
     }
@@ -444,14 +446,14 @@ contract Raffle is
         RandomnessRequest memory randomnessRequest = randomnessRequests[requestId];
         uint256 raffleId = randomnessRequest.raffleId;
         Raffle storage raffle = raffles[raffleId];
-        uint256[] memory randomWords = randomnessRequest.randomWords;
-        uint256 winnersCount = randomWords.length;
-
-        if (winnersCount == 0 || !randomnessRequest.exists || raffle.status != RaffleStatus.RandomnessFulfilled) {
+        if (raffle.status != RaffleStatus.RandomnessFulfilled) {
             revert InvalidStatus();
         }
 
         raffle.status = RaffleStatus.Drawn;
+
+        uint256[] memory randomWords = randomnessRequest.randomWords;
+        uint256 winnersCount = randomWords.length;
 
         Winner[] memory winners = new Winner[](winnersCount);
 
@@ -478,10 +480,11 @@ contract Raffle is
             }
             uint256 winnerIndex = currentEntryIndexArray.findUpperBound(winningEntry);
 
-            uint256 prizesCount = raffle.prizes.length;
+            Prize[] storage prizes = raffle.prizes;
+            uint256 prizesCount = prizes.length;
             uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
             for (uint256 j; j < prizesCount; ) {
-                cumulativeWinnersCountArray[j] = raffle.prizes[j].cumulativeWinnersCount;
+                cumulativeWinnersCountArray[j] = prizes[j].cumulativeWinnersCount;
                 unchecked {
                     ++j;
                 }

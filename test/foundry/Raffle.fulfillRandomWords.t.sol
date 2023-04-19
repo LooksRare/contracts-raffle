@@ -97,6 +97,24 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawing);
     }
 
+    function test_fulfillRandomWords_RandomWordsLengthIsNotEqualToCumulativeWinnersCount() public {
+        uint256[] memory _randomWords = new uint256[](10);
+
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
+            FULFILL_RANDOM_WORDS_REQUEST_ID,
+            _randomWords
+        );
+
+        (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        uint256[] memory randomWords = looksRareRaffle.getRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        assertTrue(exists);
+        assertEq(raffleId, 0);
+        assertEq(randomWords, new uint256[](0));
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawing);
+    }
+
     function test_fulfillRandomWords_RaffleStatusIsNotDrawing() public {
         uint256[] memory _randomWords = _generateRandomWordsForRaffleWith11Winners();
 
