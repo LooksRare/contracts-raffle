@@ -7,6 +7,7 @@ import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
+import {Null} from "./mock/Null.sol";
 
 contract Raffle_CreateRaffle_Test is TestHelpers {
     Raffle public looksRareRaffle;
@@ -557,6 +558,24 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
                 minimumProfitBp: 500,
                 protocolFeeBp: 500,
                 feeTokenAddress: address(0xA11ce),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
+
+        Null nonERC20Contract = new Null();
+
+        vm.expectRevert(IRaffle.InvalidFeeToken.selector);
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 200,
+                maximumEntriesPerParticipant: 100,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(nonERC20Contract),
                 prizes: prizes,
                 pricingOptions: pricingOptions
             })

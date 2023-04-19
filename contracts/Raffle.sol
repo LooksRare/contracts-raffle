@@ -7,6 +7,7 @@ import {LowLevelERC721Transfer} from "@looksrare/contracts-libs/contracts/lowLev
 import {LowLevelERC1155Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC1155Transfer.sol";
 import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol";
 import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
+import {IERC20} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC20.sol";
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
@@ -180,7 +181,12 @@ contract Raffle is
         }
 
         if (params.feeTokenAddress != address(0)) {
-            if (params.feeTokenAddress.code.length == 0) {
+            // A sanity check to ensure that the fee token address is a valid ERC20 token address.
+            (bool success, bytes memory data) = params.feeTokenAddress.staticcall(
+                abi.encodeCall(IERC20.balanceOf, (address(this)))
+            );
+
+            if (!success || data.length != 32) {
                 revert InvalidFeeToken();
             }
         }
