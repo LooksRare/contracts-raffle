@@ -102,9 +102,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     }
 
     function test_createRaffle_RevertIf_InvalidMaximumEntriesPerParticipant() public {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
-
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.maximumEntriesPerParticipant = params.maximumEntries + 1;
 
