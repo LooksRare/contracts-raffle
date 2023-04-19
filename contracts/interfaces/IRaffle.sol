@@ -153,6 +153,11 @@ interface IRaffle {
         PricingOption[5] pricingOptions;
     }
 
+    struct ClaimPrizesCalldata {
+        uint256 raffleId;
+        uint256[] winnerIndices;
+    }
+
     /**
      * @param exists Whether the request exists.
      * @param raffleId The id of the raffle.
@@ -169,7 +174,7 @@ interface IRaffle {
     event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
-    event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
+    event PrizesClaimed(uint256 raffleId, uint256[] winnerIndex);
     event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
@@ -271,11 +276,11 @@ interface IRaffle {
     function getRandomWords(uint256 requestId) external view returns (uint256[] memory);
 
     /**
-     * @notice Claims the prize for a winner.
-     * @param raffleId The id of the raffle.
-     * @param winnerIndex The index of the winner.
+     * @notice Claims the prizes for a winner. A winner can claim multiple prizes
+     *         from multiple raffles in a single transaction.
+     * @param claimPrizesCalldata The calldata for claiming prizes.
      */
-    function claimPrize(uint256 raffleId, uint256 winnerIndex) external;
+    function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external;
 
     /**
      * @notice Claims the fees collected for a raffle.

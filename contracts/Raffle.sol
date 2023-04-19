@@ -508,35 +508,14 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimPrize(uint256 raffleId, uint256 winnerIndex) external nonReentrant {
-        Raffle storage raffle = raffles[raffleId];
-        RaffleStatus status = raffle.status;
-        if (status != RaffleStatus.Drawn) {
-            if (status != RaffleStatus.Complete) {
-                revert InvalidStatus();
+    function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant {
+        uint256 claimsCount = claimPrizesCalldata.length;
+        for (uint256 i; i < claimsCount; ) {
+            _claimPrizesPerRaffle(claimPrizesCalldata[i]);
+            unchecked {
+                ++i;
             }
         }
-
-        Winner[] storage winners = raffle.winners;
-        if (winnerIndex >= winners.length) {
-            revert InvalidIndex();
-        }
-
-        Winner storage winner = winners[winnerIndex];
-        if (winner.claimed) {
-            revert PrizeAlreadyClaimed();
-        }
-        if (winner.participant != msg.sender) {
-            revert NotWinner();
-        }
-        winner.claimed = true;
-
-        address participant = winner.participant;
-
-        Prize storage prize = raffle.prizes[winner.prizeIndex];
-        _transferPrize({prize: prize, recipient: participant, multiplier: 1});
-
-        emit PrizeClaimed(raffleId, winnerIndex);
     }
 
     /**
@@ -847,5 +826,46 @@ contract Raffle is
         }
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
+    }
+
+    function _claimPrizesPerRaffle(ClaimPrizesCalldata calldata claimPrizesCalldata) private {
+        uint256 raffleId = claimPrizesCalldata.raffleId;
+        Raffle storage raffle = raffles[raffleId];
+        RaffleStatus status = raffle.status;
+        if (status != RaffleStatus.Drawn) {
+            if (status != RaffleStatus.Complete) {
+                revert InvalidStatus();
+            }
+        }
+
+        Winner[] storage winners = raffle.winners;
+        uint256[] calldata winnerIndices = claimPrizesCalldata.winnerIndices;
+        uint256 winnersCount = winners.length;
+        uint256 claimsCount = winnerIndices.length;
+        for (uint256 i; i < claimsCount; ) {
+            uint256 winnerIndex = winnerIndices[i];
+
+            if (winnerIndex >= winnersCount) {
+                revert InvalidIndex();
+            }
+
+            Winner storage winner = winners[winnerIndex];
+            if (winner.claimed) {
+                revert PrizeAlreadyClaimed();
+            }
+            if (winner.participant != msg.sender) {
+                revert NotWinner();
+            }
+            winner.claimed = true;
+
+            Prize storage prize = raffle.prizes[winner.prizeIndex];
+            _transferPrize({prize: prize, recipient: msg.sender, multiplier: 1});
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        emit PrizesClaimed(raffleId, winnerIndices);
     }
 }

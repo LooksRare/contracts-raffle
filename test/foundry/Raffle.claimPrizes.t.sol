@@ -10,12 +10,13 @@ import {MockERC721} from "./mock/MockERC721.sol";
 
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
-contract Raffle_ClaimPrize_Test is TestHelpers {
+// TODO: Test claim prizes with multiple prizes / claim prizes from multiple raffles
+contract Raffle_ClaimPrizes_Test is TestHelpers {
     Raffle private looksRareRaffle;
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
+    event PrizesClaimed(uint256 raffleId, uint256[] winnerIndices);
 
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
@@ -37,7 +38,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         vm.stopPrank();
     }
 
-    function test_claimPrize_StatusIsDrawn() public {
+    function test_claimPrizes_StatusIsDrawn() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -52,7 +53,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         _assertPrizesTransferred();
     }
 
-    function test_claimPrize_StatusIsComplete() public {
+    function test_claimPrizes_StatusIsComplete() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -68,15 +69,22 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         _assertPrizesTransferred();
     }
 
-    function test_claimPrize_RevertIf_InvalidStatus() public {
+    function test_claimPrizes_RevertIf_InvalidStatus() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
+
+        uint256[] memory winnerIndices = new uint256[](1);
+        winnerIndices[0] = 0;
+
+        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        claimPrizesCalldata[0].raffleId = 0;
+        claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         vm.prank(user2);
-        looksRareRaffle.claimPrize(0, 0);
+        looksRareRaffle.claimPrizes(claimPrizesCalldata);
     }
 
-    function test_claimPrize_RevertIf_PrizeAlreadyClaimed() public {
+    function test_claimPrizes_RevertIf_PrizeAlreadyClaimed() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -91,12 +99,19 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         for (uint256 i; i < 11; ) {
             assertFalse(winners[i].claimed);
 
+            uint256[] memory winnerIndices = new uint256[](1);
+            winnerIndices[0] = i;
+
+            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+            claimPrizesCalldata[0].raffleId = 0;
+            claimPrizesCalldata[0].winnerIndices = winnerIndices;
+
             vm.prank(winners[i].participant);
-            looksRareRaffle.claimPrize(0, i);
+            looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
             vm.prank(winners[i].participant);
             vm.expectRevert(IRaffle.PrizeAlreadyClaimed.selector);
-            looksRareRaffle.claimPrize(0, i);
+            looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
             unchecked {
                 ++i;
@@ -104,7 +119,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         }
     }
 
-    function test_claimPrize_RevertIf_InvalidIndex() public {
+    function test_claimPrizes_RevertIf_InvalidIndex() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -116,12 +131,19 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
 
+        uint256[] memory winnerIndices = new uint256[](1);
+        winnerIndices[0] = 11;
+
+        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        claimPrizesCalldata[0].raffleId = 0;
+        claimPrizesCalldata[0].winnerIndices = winnerIndices;
+
         vm.prank(winners[10].participant);
         vm.expectRevert(IRaffle.InvalidIndex.selector);
-        looksRareRaffle.claimPrize(0, 11);
+        looksRareRaffle.claimPrizes(claimPrizesCalldata);
     }
 
-    function test_claimPrize_RevertIf_NotWinner() public {
+    function test_claimPrizes_RevertIf_NotWinner() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -132,9 +154,16 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         for (uint256 i; i < 11; ) {
+            uint256[] memory winnerIndices = new uint256[](1);
+            winnerIndices[0] = i;
+
+            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+            claimPrizesCalldata[0].raffleId = 0;
+            claimPrizesCalldata[0].winnerIndices = winnerIndices;
+
             vm.prank(address(42));
             vm.expectRevert(IRaffle.NotWinner.selector);
-            looksRareRaffle.claimPrize(0, i);
+            looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
             unchecked {
                 ++i;
@@ -147,8 +176,15 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         for (uint256 i; i < 11; ) {
             assertFalse(winners[i].claimed);
 
+            uint256[] memory winnerIndices = new uint256[](1);
+            winnerIndices[0] = i;
+
+            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+            claimPrizesCalldata[0].raffleId = 0;
+            claimPrizesCalldata[0].winnerIndices = winnerIndices;
+
             vm.prank(winners[i].participant);
-            looksRareRaffle.claimPrize(0, i);
+            looksRareRaffle.claimPrizes(claimPrizesCalldata);
             unchecked {
                 ++i;
             }
@@ -157,8 +193,10 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
     function _assertPrizesClaimedEventsEmitted() private {
         for (uint256 i; i < 11; ) {
+            uint256[] memory winnerIndices = new uint256[](1);
+            winnerIndices[0] = i;
             vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-            emit PrizeClaimed({raffleId: 0, winnerIndex: i});
+            emit PrizesClaimed({raffleId: 0, winnerIndices: winnerIndices});
             unchecked {
                 ++i;
             }
