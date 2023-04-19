@@ -401,6 +401,11 @@ contract Raffle is
             winnersCount
         );
 
+        // TODO: Test it
+        if (randomnessRequests[requestId].exists) {
+            revert RandomnessRequestAlreadyExists();
+        }
+
         randomnessRequests[requestId].exists = true;
         randomnessRequests[requestId].raffleId = raffleId;
 

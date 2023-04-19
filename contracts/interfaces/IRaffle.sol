@@ -175,6 +175,7 @@ interface IRaffle {
     error NotWinner();
     error PrizeAlreadyClaimed();
     error ProtocolFeeBpTooHigh();
+    error RandomnessRequestAlreadyExists();
 
     /**
      * @notice Creates a new raffle.
