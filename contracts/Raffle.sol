@@ -224,7 +224,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function depositPrizes(uint256 raffleId) external payable {
+    function depositPrizes(uint256 raffleId) external payable nonReentrant {
         Raffle storage raffle = raffles[raffleId];
 
         if (raffle.status != RaffleStatus.Created) {
@@ -277,7 +277,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function enterRaffles(EntryCalldata[] calldata entries) external payable {
+    function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant {
         uint256 entriesCount = entries.length;
         uint256 expectedEthValue;
         for (uint256 i; i < entriesCount; ) {
@@ -367,7 +367,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function drawWinners(uint256 raffleId) external {
+    function drawWinners(uint256 raffleId) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
         if (raffle.status != RaffleStatus.ReadyToBeDrawn) {
             revert InvalidStatus();
