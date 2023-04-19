@@ -60,6 +60,13 @@ contract Raffle is
     mapping(uint256 => mapping(address => ParticipantStats)) public rafflesParticipantsStats;
 
     /**
+     * @notice The maximum number of prizes per raffle.
+     *         Each individual ERC-721 counts as one prize.
+     *         Each ETH/ERC-20/ERC-1155 with winnersCount > 1 counts as one prize.
+     */
+    uint256 public constant MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE = 20;
+
+    /**
      * @notice According to Chainlink, realistically the maximum number of random words is 125.
      */
     uint40 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
@@ -181,8 +188,8 @@ contract Raffle is
         raffleId = rafflesCount;
 
         uint256 prizesCount = params.prizes.length;
-        if (prizesCount == 0) {
-            revert InvalidPrizeAmount();
+        if (prizesCount == 0 || prizesCount > MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE) {
+            revert InvalidPrizesCount();
         }
 
         uint40 cumulativeWinnersCount;

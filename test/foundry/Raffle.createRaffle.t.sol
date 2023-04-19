@@ -121,6 +121,27 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         );
     }
 
+    function test_createRaffle_RevertIf_InvalidPrizesCount_TooManyPrizes() public {
+        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](21);
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        vm.expectRevert(IRaffle.InvalidPrizesCount.selector);
+        looksRareRaffle.createRaffle(
+            IRaffle.CreateRaffleCalldata({
+                cutoffTime: uint40(block.timestamp + 86_400),
+                minimumEntries: 107,
+                maximumEntries: 200,
+                maximumEntriesPerParticipant: 200,
+                prizesTotalValue: 1 ether,
+                minimumProfitBp: 500,
+                protocolFeeBp: 500,
+                feeTokenAddress: address(0),
+                prizes: prizes,
+                pricingOptions: pricingOptions
+            })
+        );
+    }
+
     function test_createRaffle_RevertIf_InvalidPrizeTier() public {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         prizes[2].prizeTier = 2;
@@ -238,11 +259,11 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         );
     }
 
-    function test_createRaffle_RevertIf_ZeroPrizes() public {
+    function test_createRaffle_RevertIf_InvalidPrizesCount_ZeroPrizes() public {
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](0);
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
-        vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
+        vm.expectRevert(IRaffle.InvalidPrizesCount.selector);
         looksRareRaffle.createRaffle(
             IRaffle.CreateRaffleCalldata({
                 cutoffTime: uint40(block.timestamp + 86_400),
