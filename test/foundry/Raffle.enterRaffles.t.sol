@@ -84,6 +84,31 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.ReadyToBeDrawn);
     }
 
+    function testFuzz_enterRaffles_RefundExtraETH(uint256 extra) public asPrankedUser(user2) {
+        uint256 price = 0.025 ether;
+        vm.assume(extra != 0 && extra < type(uint256).max - price);
+        vm.deal(user2, price + extra);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit EntrySold({raffleId: 0, buyer: user2, entriesCount: 1, price: price});
+
+        looksRareRaffle.enterRaffles{value: price + extra}(entries);
+
+        assertEq(user2.balance, extra);
+        assertEq(address(looksRareRaffle).balance, price);
+
+        (uint256 amountPaid, uint256 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(0, user2);
+
+        assertEq(amountPaid, price);
+        assertEq(entriesCount, 1);
+        assertFalse(refunded);
+
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Open);
+    }
+
     function test_enterRaffles_RevertIf_InvalidIndex() public asPrankedUser(user2) {
         vm.deal(user2, 0.025 ether);
 

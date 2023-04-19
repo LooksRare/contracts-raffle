@@ -73,6 +73,44 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
     }
 
+    function testFuzz_depositPrizes_PrizesAreETH_RefundExtraETH(uint256 extra) public asPrankedUser(user1) {
+        uint256 prizesValue = 1.5 ether;
+        vm.assume(extra != 0 && extra < type(uint256).max - prizesValue);
+        vm.deal(user1, prizesValue + extra);
+
+        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](2);
+        prizes[0].prizeType = IRaffle.TokenType.ETH;
+        prizes[0].prizeAddress = address(0);
+        prizes[0].prizeId = 0;
+        prizes[0].prizeAmount = 1 ether;
+        prizes[0].winnersCount = 1;
+        prizes[1].prizeType = IRaffle.TokenType.ETH;
+        prizes[1].prizeAddress = address(0);
+        prizes[1].prizeId = 0;
+        prizes[1].prizeAmount = 0.5 ether;
+        prizes[1].winnersCount = 1;
+
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        looksRareRaffle.createRaffle({
+            cutoffTime: uint40(block.timestamp + 86_400),
+            minimumEntries: 107,
+            maximumEntries: 200,
+            maximumEntriesPerParticipant: 200,
+            prizesTotalValue: 1 ether,
+            minimumProfitBp: 500,
+            feeTokenAddress: address(0),
+            prizes: prizes,
+            pricingOptions: pricingOptions
+        });
+
+        looksRareRaffle.depositPrizes{value: prizesValue + extra}(1);
+
+        assertEq(user1.balance, extra);
+        assertEq(address(looksRareRaffle).balance, prizesValue);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
+    }
+
     // TODO: Use vm.store to mock different raffle statuses
     function test_depositPrizes_RevertIf_StatusIsNotCreated() public {
         vm.expectRevert(IRaffle.InvalidStatus.selector);

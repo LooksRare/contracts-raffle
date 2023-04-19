@@ -278,6 +278,8 @@ contract Raffle is
 
         if (expectedEthValue > msg.value) {
             revert InsufficientNativeTokensSupplied();
+        } else if (msg.value > expectedEthValue) {
+            _transferETHAndWrapIfFailWithGasLimit(WETH, msg.sender, msg.value - expectedEthValue, gasleft());
         }
 
         raffle.status = RaffleStatus.Open;
@@ -368,9 +370,10 @@ contract Raffle is
             }
         }
 
-        // TODO: Should we refund if msg.value > expectedEthValue?
         if (expectedEthValue > msg.value) {
             revert InsufficientNativeTokensSupplied();
+        } else if (msg.value > expectedEthValue) {
+            _transferETHAndWrapIfFailWithGasLimit(WETH, msg.sender, msg.value - expectedEthValue, gasleft());
         }
     }
 
