@@ -202,7 +202,7 @@ contract Raffle is
         for (uint256 i; i < prizesCount; ) {
             Prize memory prize = params.prizes[i];
             if (prize.prizeTier < currentPrizeTier) {
-                revert InvalidPrizeTier();
+                revert InvalidPrize();
             }
             _validatePrize(prize);
 

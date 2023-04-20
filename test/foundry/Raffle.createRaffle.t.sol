@@ -129,7 +129,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[2].prizeTier = 2;
 
-        vm.expectRevert(IRaffle.InvalidPrizeTier.selector);
+        vm.expectRevert(IRaffle.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 

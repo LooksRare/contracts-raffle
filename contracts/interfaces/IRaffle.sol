@@ -195,7 +195,6 @@ interface IRaffle {
     error InvalidPricingOption();
     error InvalidPrize();
     error InvalidPrizesCount();
-    error InvalidPrizeTier();
     error InvalidProtocolFeeBp();
     error InvalidProtocolFeeRecipient();
     error InvalidStatus();
