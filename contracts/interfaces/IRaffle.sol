@@ -333,12 +333,7 @@ interface IRaffle {
     function updateCurrencyStatus(address currency, bool isAllowed) external;
 
     /**
-     * @notice Pauses the contract. Only callable by contract owner.
+     * @notice Toggle the contract's paused status. Only callable by contract owner.
      */
-    function pause() external;
-
-    /**
-     * @notice Unpauses the contract. Only callable by contract owner.
-     */
-    function unpause() external;
+    function togglePaused() external;
 }

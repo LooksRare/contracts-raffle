@@ -914,14 +914,7 @@ contract Raffle is
         emit CurrencyStatusUpdated(currency, isAllowed);
     }
 
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function unpause() external onlyOwner {
-        _unpause();
+    function togglePaused() external onlyOwner {
+        paused() ? _unpause() : _pause();
     }
 }

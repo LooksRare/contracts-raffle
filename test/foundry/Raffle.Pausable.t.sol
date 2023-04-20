@@ -23,36 +23,25 @@ contract Raffle_SetUpState_Test is TestHelpers {
     function test_pause() public asPrankedUser(owner) {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit Paused(owner);
-        looksRareRaffle.pause();
+        looksRareRaffle.togglePaused();
         assertTrue(looksRareRaffle.paused());
-    }
-
-    function test_pause_RevertIf_IsPaused() public asPrankedUser(owner) {
-        looksRareRaffle.pause();
-        vm.expectRevert(Pausable.IsPaused.selector);
-        looksRareRaffle.pause();
     }
 
     function test_pause_RevertIf_NotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareRaffle.pause();
+        looksRareRaffle.togglePaused();
     }
 
     function test_unpause() public asPrankedUser(owner) {
-        looksRareRaffle.pause();
+        looksRareRaffle.togglePaused();
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit Unpaused(owner);
-        looksRareRaffle.unpause();
+        looksRareRaffle.togglePaused();
         assertFalse(looksRareRaffle.paused());
-    }
-
-    function test_unpause_RevertIf_NotPaused() public asPrankedUser(owner) {
-        vm.expectRevert(Pausable.NotPaused.selector);
-        looksRareRaffle.unpause();
     }
 
     function test_unpause_RevertIf_NotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareRaffle.unpause();
+        looksRareRaffle.togglePaused();
     }
 }
