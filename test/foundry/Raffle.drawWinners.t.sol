@@ -27,6 +27,9 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove(mockERC20, mockERC721, address(looksRareRaffle));
 
+        vm.prank(owner);
+        looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
+
         vm.startPrank(user1);
         _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
 

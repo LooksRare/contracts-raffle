@@ -7,7 +7,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
-import {Null} from "./mock/Null.sol";
 
 contract Raffle_CreateRaffle_Test is TestHelpers {
     Raffle public looksRareRaffle;
@@ -20,6 +19,9 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
         looksRareRaffle = _deployRaffle();
+
+        vm.prank(owner);
+        looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
     }
 
     function test_createRaffle() public asPrankedUser(user1) {
@@ -283,17 +285,14 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
-    function test_createRaffle_RevertIf_PricingInvalidERC20FeeToken() public {
+    function test_createRaffle_RevertIf_InvalidCurrency() public {
+        vm.prank(owner);
+        looksRareRaffle.updateCurrencyStatus(address(mockERC20), false);
+
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.feeTokenAddress = address(0xA11ce);
+        params.feeTokenAddress = address(mockERC20);
 
-        vm.expectRevert(IRaffle.InvalidFeeToken.selector);
-        looksRareRaffle.createRaffle(params);
-
-        Null nonERC20Contract = new Null();
-        params.feeTokenAddress = address(nonERC20Contract);
-
-        vm.expectRevert(IRaffle.InvalidFeeToken.selector);
+        vm.expectRevert(IRaffle.InvalidCurrency.selector);
         looksRareRaffle.createRaffle(params);
     }
 }

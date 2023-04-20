@@ -7,7 +7,6 @@ import {LowLevelERC721Transfer} from "@looksrare/contracts-libs/contracts/lowLev
 import {LowLevelERC1155Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC1155Transfer.sol";
 import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol";
 import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
-import {IERC20} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC20.sol";
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
@@ -59,6 +58,11 @@ contract Raffle is
      * @dev The key is the raffle ID and the nested key is the participant address.
      */
     mapping(uint256 => mapping(address => ParticipantStats)) public rafflesParticipantsStats;
+
+    /**
+     * @notice It checks whether the currency is allowed.
+     */
+    mapping(address => bool) public isCurrencyAllowed;
 
     /**
      * @notice The maximum number of prizes per raffle.
@@ -180,15 +184,8 @@ contract Raffle is
             revert InvalidProtocolFeeBp();
         }
 
-        if (params.feeTokenAddress != address(0)) {
-            // A sanity check to ensure that the fee token address is a valid ERC20 token address.
-            (bool success, bytes memory data) = params.feeTokenAddress.staticcall(
-                abi.encodeCall(IERC20.balanceOf, (address(this)))
-            );
-
-            if (!success || data.length != 32) {
-                revert InvalidFeeToken();
-            }
+        if (!isCurrencyAllowed[params.feeTokenAddress]) {
+            revert InvalidCurrency();
         }
 
         raffleId = rafflesCount;
@@ -716,7 +713,7 @@ contract Raffle is
     /**
      * @param prize The prize.
      */
-    function _validatePrize(Prize memory prize) private pure {
+    function _validatePrize(Prize memory prize) private view {
         if (prize.prizeType == TokenType.ERC721) {
             if (prize.prizeAmount != 1) {
                 revert InvalidPrizeAmount();
@@ -726,6 +723,13 @@ contract Raffle is
                 revert InvalidWinnersCount();
             }
         } else {
+            // ETH or ERC-20
+            if (uint8(prize.prizeType) > 1) {
+                if (!isCurrencyAllowed[prize.prizeAddress]) {
+                    revert InvalidCurrency();
+                }
+            }
+
             if (prize.prizeAmount == 0) {
                 revert InvalidPrizeAmount();
             }
@@ -912,5 +916,13 @@ contract Raffle is
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
         emit RandomnessRequested(raffleId, requestId);
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
+        isCurrencyAllowed[currency] = isAllowed;
+        emit CurrencyStatusUpdated(currency, isAllowed);
     }
 }

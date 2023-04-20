@@ -170,6 +170,7 @@ interface IRaffle {
     }
 
     event CallbackGasLimitUpdated(uint32 callbackGasLimit);
+    event CurrencyStatusUpdated(address currency, bool isAllowed);
     event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
     event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
@@ -185,10 +186,10 @@ interface IRaffle {
     error DrawExpirationTimeNotReached();
     error InsufficientNativeTokensSupplied();
     error InvalidCallbackGasLimit();
+    error InvalidCurrency();
     error InvalidCutoffTime();
     error InvalidEntriesCount();
     error InvalidEntriesRange();
-    error InvalidFeeToken();
     error InvalidIndex();
     error InvalidMaximumEntriesPerParticipant();
     error InvalidMinimumProfitBp();
@@ -324,4 +325,12 @@ interface IRaffle {
      * @param protocolFeeRecipient The protocol fee recipient.
      */
     function setProtocolFeeRecipient(address protocolFeeRecipient) external;
+
+    /**
+     * @notice This function allows the owner to update the status of a currency.
+     * @param currency Currency address (address(0) for ETH)
+     * @param isAllowed Whether the currency should be allowed for trading
+     * @dev Only callable by owner.
+     */
+    function updateCurrencyStatus(address currency, bool isAllowed) external;
 }

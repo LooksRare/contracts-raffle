@@ -36,6 +36,8 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             PROTOCOL_FEE_RECIPIENT,
             500
         );
+        vm.prank(owner);
+        looksRareRaffle.updateCurrencyStatus(address(0), true);
     }
 
     function _baseCreateRaffleParams(address mockERC20, address mockERC721)
