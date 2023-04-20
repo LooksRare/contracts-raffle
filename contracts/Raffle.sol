@@ -7,11 +7,7 @@ import {LowLevelERC721Transfer} from "@looksrare/contracts-libs/contracts/lowLev
 import {LowLevelERC1155Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC1155Transfer.sol";
 import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol";
 import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
-<<<<<<< HEAD
-=======
 import {Pausable} from "@looksrare/contracts-libs/contracts/Pausable.sol";
-import {IERC20} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC20.sol";
->>>>>>> ec75c7e (feat: Pausable contract)
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
