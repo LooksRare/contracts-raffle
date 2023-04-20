@@ -25,7 +25,11 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function test_createRaffle() public asPrankedUser(user1) {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Created);
-        _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
+        uint256 raffleId = looksRareRaffle.createRaffle(
+            _baseCreateRaffleParams(address(mockERC20), address(mockERC721))
+        );
+
+        assertEq(raffleId, 0);
 
         (
             address owner,
