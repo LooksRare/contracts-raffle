@@ -34,11 +34,11 @@ contract CreateRaffle is Script {
         Raffle raffle = Raffle(0x588D6b9e1ca9609C96c4ee597330fB01A52C228D);
 
         IRaffle.PricingOption[5] memory pricingOptions;
-        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
-        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});
-        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.5 ether});
-        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.75 ether});
-        pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.95 ether});
+        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
+        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.000022 ether});
+        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.00005 ether});
+        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.000075 ether});
+        pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.000095 ether});
 
         ITestERC721 nft = ITestERC721(0x77566D540d1E207dFf8DA205ed78750F9a1e7c55);
         uint256 totalSupply = nft.totalSupply();
@@ -75,9 +75,9 @@ contract CreateRaffle is Script {
             IRaffle.CreateRaffleCalldata({
                 cutoffTime: uint40(block.timestamp + 5 days),
                 minimumEntries: 10,
-                maximumEntries: 11,
+                maximumEntries: 10,
                 maximumEntriesPerParticipant: 10,
-                prizesTotalValue: 0.1 ether,
+                prizesTotalValue: 0.00001 ether,
                 minimumProfitBp: 500,
                 protocolFeeBp: 500,
                 feeTokenAddress: address(0),
