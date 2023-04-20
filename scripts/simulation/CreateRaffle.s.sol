@@ -31,7 +31,7 @@ contract CreateRaffle is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(0x99547238f05FA595423B81b88A87Dec43E019501);
+        Raffle raffle = Raffle(0xaE7Cf912aB5D9f6aa53126eA7aabd007f844CEEC);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
@@ -74,9 +74,9 @@ contract CreateRaffle is Script {
         uint256 raffleId = raffle.createRaffle(
             IRaffle.CreateRaffleCalldata({
                 cutoffTime: block.timestamp + 5 days,
-                minimumEntries: 100,
-                maximumEntries: 101,
-                maximumEntriesPerParticipant: 20,
+                minimumEntries: 10,
+                maximumEntries: 11,
+                maximumEntriesPerParticipant: 10,
                 prizesTotalValue: 1 ether,
                 minimumProfitBp: 500,
                 protocolFeeBp: 500,
