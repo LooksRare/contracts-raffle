@@ -420,14 +420,14 @@ contract Raffle is
 
         Winner[] memory winners = new Winner[](winnersCount);
 
-        uint256 entriesCount = raffle.entries.length;
-        uint256 currentEntryIndex = uint256(raffle.entries[entriesCount - 1].currentEntryIndex);
+        Entry[] memory entries = raffle.entries;
+        uint256 entriesCount = entries.length;
+        uint256 currentEntryIndex = uint256(entries[entriesCount - 1].currentEntryIndex);
 
         uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
 
         for (uint256 i; i < winnersCount; ) {
-            uint256 randomWord = randomWords[i];
-            uint256 winningEntry = randomWord % (currentEntryIndex + 1);
+            uint256 winningEntry = randomWords[i] % (currentEntryIndex + 1);
             (winningEntry, winningEntriesBitmap) = _incrementWinningEntryUntilThereIsNotADuplicate(
                 currentEntryIndex,
                 winningEntry,
@@ -436,12 +436,11 @@ contract Raffle is
 
             uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
             for (uint256 j; j < entriesCount; ) {
-                currentEntryIndexArray[j] = raffle.entries[j].currentEntryIndex;
+                currentEntryIndexArray[j] = entries[j].currentEntryIndex;
                 unchecked {
                     ++j;
                 }
             }
-            uint256 winnerIndex = currentEntryIndexArray.findUpperBound(winningEntry);
 
             Prize[] storage prizes = raffle.prizes;
             uint256 prizesCount = prizes.length;
@@ -452,11 +451,9 @@ contract Raffle is
                     ++j;
                 }
             }
-            uint8 prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
-
-            winners[i].participant = raffle.entries[winnerIndex].participant;
+            winners[i].participant = entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant;
             winners[i].entryIndex = uint40(winningEntry);
-            winners[i].prizeIndex = prizeIndex;
+            winners[i].prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
 
             raffle.winners.push(winners[i]);
 
