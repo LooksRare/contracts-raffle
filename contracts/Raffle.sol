@@ -390,9 +390,10 @@ contract Raffle is
             if (raffle.status == RaffleStatus.Drawing) {
                 Prize[] storage prizes = raffle.prizes;
                 if (_randomWords.length == prizes[prizes.length - 1].cumulativeWinnersCount) {
-                    raffle.status = RaffleStatus.RandomnessFulfilled;
+                    RaffleStatus status = RaffleStatus.RandomnessFulfilled;
+                    raffle.status = status;
                     randomnessRequests[_requestId].randomWords = _randomWords;
-                    emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
+                    emit RaffleStatusUpdated(raffleId, status);
                 }
             }
         }
