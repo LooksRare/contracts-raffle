@@ -388,7 +388,8 @@ contract Raffle is
             Raffle storage raffle = raffles[raffleId];
 
             if (raffle.status == RaffleStatus.Drawing) {
-                if (_randomWords.length == raffle.prizes[raffle.prizes.length - 1].cumulativeWinnersCount) {
+                Prize[] storage prizes = raffle.prizes;
+                if (_randomWords.length == prizes[prizes.length - 1].cumulativeWinnersCount) {
                     raffle.status = RaffleStatus.RandomnessFulfilled;
                     randomnessRequests[_requestId].randomWords = _randomWords;
                     emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
