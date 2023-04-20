@@ -7,6 +7,11 @@ import {LowLevelERC721Transfer} from "@looksrare/contracts-libs/contracts/lowLev
 import {LowLevelERC1155Transfer} from "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelERC1155Transfer.sol";
 import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol";
 import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
+<<<<<<< HEAD
+=======
+import {Pausable} from "@looksrare/contracts-libs/contracts/Pausable.sol";
+import {IERC20} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC20.sol";
+>>>>>>> ec75c7e (feat: Pausable contract)
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
@@ -28,7 +33,8 @@ contract Raffle is
     LowLevelERC1155Transfer,
     VRFConsumerBaseV2,
     OwnableTwoSteps,
-    PackableReentrancyGuard
+    PackableReentrancyGuard,
+    Pausable
 {
     using Arrays for uint256[];
 
@@ -240,7 +246,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function depositPrizes(uint256 raffleId) external payable nonReentrant {
+    function depositPrizes(uint256 raffleId) external payable nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
 
         if (raffle.status != RaffleStatus.Created) {
@@ -295,7 +301,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant {
+    function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
         uint256 entriesCount = entries.length;
         uint256 expectedEthValue;
         for (uint256 i; i < entriesCount; ) {
@@ -468,7 +474,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant {
+    function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant whenNotPaused {
         uint256 claimsCount = claimPrizesCalldata.length;
         for (uint256 i; i < claimsCount; ) {
             _claimPrizesPerRaffle(claimPrizesCalldata[i]);
@@ -529,7 +535,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimFees(uint256 raffleId) external nonReentrant {
+    function claimFees(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
         if (raffle.status != RaffleStatus.Drawn) {
             revert InvalidStatus();
@@ -594,7 +600,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function claimRefund(uint256[] calldata raffleIds) external nonReentrant {
+    function claimRefund(uint256[] calldata raffleIds) external nonReentrant whenNotPaused {
         uint256 count = raffleIds.length;
 
         for (uint256 i; i < count; ) {
@@ -922,5 +928,16 @@ contract Raffle is
     function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
         isCurrencyAllowed[currency] = isAllowed;
         emit CurrencyStatusUpdated(currency, isAllowed);
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 }

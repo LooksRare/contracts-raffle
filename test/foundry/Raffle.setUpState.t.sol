@@ -22,6 +22,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
         assertEq(looksRareRaffle.KEY_HASH(), hex"474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c");
         assertEq(address(looksRareRaffle.VRF_COORDINATOR()), 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625);
         assertEq(looksRareRaffle.SUBSCRIPTION_ID(), 1_122);
+        assertFalse(looksRareRaffle.paused());
     }
 
     function test_updateCurrencyStatus() public asPrankedUser(owner) {

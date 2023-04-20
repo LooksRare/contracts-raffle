@@ -333,4 +333,14 @@ interface IRaffle {
      * @dev Only callable by owner.
      */
     function updateCurrencyStatus(address currency, bool isAllowed) external;
+
+    /**
+     * @notice Pauses the contract. Only callable by contract owner.
+     */
+    function pause() external;
+
+    /**
+     * @notice Unpauses the contract. Only callable by contract owner.
+     */
+    function unpause() external;
 }

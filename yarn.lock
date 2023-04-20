@@ -1088,10 +1088,10 @@
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"
   integrity sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==
 
-"@looksrare/contracts-libs@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@looksrare/contracts-libs/-/contracts-libs-3.0.3.tgz#f3e981e766c55e978455626d80608f1730b3e84e"
-  integrity sha512-KO9mwSVV27O98gcOmD3rojZ5fThqBPoGoYBr859KXFI9/qOLI/Jo42kQxFMp9uz9wDLclds4xY+LXc4f+cjuZw==
+"@looksrare/contracts-libs@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@looksrare/contracts-libs/-/contracts-libs-3.1.0.tgz#b416e6828b790987a8dfa8e0f389b8a31375129a"
+  integrity sha512-RasCskpllxC2a6o3nFByPnuDGuW6v4EbLITiNoD14QpTiwySEORCTg7gMU59pFclwFBqROJ7apUtGWnCWAyM7Q==
 
 "@metamask/eth-sig-util@^4.0.0":
   version "4.0.0"
