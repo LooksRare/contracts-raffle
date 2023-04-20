@@ -206,7 +206,6 @@ interface IRaffle {
     error NotRaffleOwner();
     error NotWinner();
     error PrizeAlreadyClaimed();
-    error ProtocolFeeBpTooHigh();
     error RandomnessRequestAlreadyExists();
 
     /**
