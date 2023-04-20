@@ -47,7 +47,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(drawnAt, 0);
         assertEq(minimumEntries, 107);
         assertEq(maximumEntries, 200);
-        assertEq(maximumEntriesPerParticipant, 200);
+        assertEq(maximumEntriesPerParticipant, 199);
         assertEq(prizesTotalValue, 1 ether);
         assertEq(minimumProfitBp, 500);
         assertEq(protocolFeeBp, 500);

@@ -39,12 +39,10 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         looksRareRaffle.depositPrizes(0);
         vm.stopPrank();
 
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
+        vm.prank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
+
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
     }
 
     function test_fulfillRandomWords() public {

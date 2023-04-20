@@ -35,10 +35,35 @@ contract Raffle_DrawWinners_Test is TestHelpers {
     }
 
     function test_drawWinners() public {
+        vm.prank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+
+        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+
+        vm.expectCall(
+            0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
+            abi.encodeCall(
+                VRFCoordinatorV2Interface.requestRandomWords,
+                (
+                    hex"474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c",
+                    uint64(1_122),
+                    uint16(3),
+                    500_000,
+                    uint32(106)
+                )
+            )
+        );
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawing);
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RandomnessRequested(0, FULFILL_RANDOM_WORDS_REQUEST_ID);
+
         for (uint256 i; i < 10; ) {
             (, IRaffle.RaffleStatus currentStatus, , , , , , , , , , ) = looksRareRaffle.raffles(0);
 
-            if (currentStatus == IRaffle.RaffleStatus.ReadyToBeDrawn) {
+            if (currentStatus == IRaffle.RaffleStatus.Drawing) {
                 break;
             }
 
@@ -50,8 +75,6 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             uint256 pricingOptionIndex = i % 5;
             entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: pricingOptionIndex});
 
-            IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
-
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
 
@@ -59,36 +82,6 @@ contract Raffle_DrawWinners_Test is TestHelpers {
                 ++i;
             }
         }
-
-        uint32 winnersCount = 106;
-
-        vm.expectCall(
-            0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
-            abi.encodeCall(
-                VRFCoordinatorV2Interface.requestRandomWords,
-                (
-                    hex"474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c",
-                    uint64(1_122),
-                    uint16(3),
-                    500_000,
-                    winnersCount
-                )
-            )
-        );
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
-
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawing);
-
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RandomnessRequested(0, FULFILL_RANDOM_WORDS_REQUEST_ID);
-
-        looksRareRaffle.drawWinners(0);
-
-        vm.stopPrank();
 
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -98,17 +91,5 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         (, IRaffle.RaffleStatus status, , uint40 drawnAt, , , , , , , , ) = looksRareRaffle.raffles(0);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Drawing));
         assertEq(drawnAt, block.timestamp);
-    }
-
-    function test_drawWinners_RevertIf_InvalidStatus() public asPrankedUser(user2) {
-        vm.deal(user2, 0.95 ether);
-
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
-
-        looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
-
-        vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.drawWinners(0);
     }
 }

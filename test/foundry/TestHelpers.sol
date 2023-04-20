@@ -50,7 +50,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             cutoffTime: uint40(block.timestamp + 86_400),
             minimumEntries: 107,
             maximumEntries: 200,
-            maximumEntriesPerParticipant: 200,
+            maximumEntriesPerParticipant: 199,
             prizesTotalValue: 1 ether,
             minimumProfitBp: 500,
             protocolFeeBp: 500,
@@ -157,11 +157,9 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
+        vm.prank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
+
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
     }
 }

@@ -312,12 +312,9 @@ contract Raffle is
 
             uint256 raffleId = entry.raffleId;
             Raffle storage raffle = raffles[raffleId];
-            RaffleStatus status = raffle.status;
 
-            if (status != RaffleStatus.Open) {
-                if (status != RaffleStatus.ReadyToBeDrawn) {
-                    revert InvalidStatus();
-                }
+            if (raffle.status != RaffleStatus.Open) {
+                revert InvalidStatus();
             }
 
             if (block.timestamp >= raffle.cutoffTime) {
@@ -364,15 +361,12 @@ contract Raffle is
             emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
 
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
-                if (status == RaffleStatus.Open) {
-                    if (
-                        raffle.claimableFees >
-                        (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) /
-                            ONE_HUNDRED_PERCENT_BP
-                    ) {
-                        raffle.status = RaffleStatus.ReadyToBeDrawn;
-                        emit RaffleStatusUpdated(raffleId, RaffleStatus.ReadyToBeDrawn);
-                    }
+                if (
+                    raffle.claimableFees >
+                    (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) /
+                        ONE_HUNDRED_PERCENT_BP
+                ) {
+                    _drawWinners(raffleId, raffle);
                 }
             }
 
@@ -386,42 +380,6 @@ contract Raffle is
         } else if (msg.value > expectedEthValue) {
             _transferETHAndWrapIfFailWithGasLimit(WETH, msg.sender, msg.value - expectedEthValue, gasleft());
         }
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function drawWinners(uint256 raffleId) external nonReentrant {
-        Raffle storage raffle = raffles[raffleId];
-        if (raffle.status != RaffleStatus.ReadyToBeDrawn) {
-            revert InvalidStatus();
-        }
-
-        raffle.status = RaffleStatus.Drawing;
-        raffle.drawnAt = uint40(block.timestamp);
-
-        Prize[] storage prizes = raffle.prizes;
-        uint256 prizesCount = prizes.length;
-        uint32 winnersCount = uint32(prizes[prizesCount - 1].cumulativeWinnersCount);
-
-        uint256 requestId = VRF_COORDINATOR.requestRandomWords(
-            KEY_HASH,
-            SUBSCRIPTION_ID,
-            REQUEST_CONFIRMATIONS,
-            callbackGasLimit,
-            winnersCount
-        );
-
-        // TODO: Test it
-        if (randomnessRequests[requestId].exists) {
-            revert RandomnessRequestAlreadyExists();
-        }
-
-        randomnessRequests[requestId].exists = true;
-        randomnessRequests[requestId].raffleId = raffleId;
-
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
-        emit RandomnessRequested(raffleId, requestId);
     }
 
     function fulfillRandomWords(uint256 _requestId, uint256[] memory _randomWords) internal override {
@@ -876,5 +834,33 @@ contract Raffle is
         }
 
         emit PrizesClaimed(raffleId, winnerIndices);
+    }
+
+    function _drawWinners(uint256 raffleId, Raffle storage raffle) private {
+        raffle.status = RaffleStatus.Drawing;
+        raffle.drawnAt = uint40(block.timestamp);
+
+        Prize[] storage prizes = raffle.prizes;
+        uint256 prizesCount = prizes.length;
+        uint32 winnersCount = uint32(prizes[prizesCount - 1].cumulativeWinnersCount);
+
+        uint256 requestId = VRF_COORDINATOR.requestRandomWords(
+            KEY_HASH,
+            SUBSCRIPTION_ID,
+            REQUEST_CONFIRMATIONS,
+            callbackGasLimit,
+            winnersCount
+        );
+
+        // TODO: Test it
+        if (randomnessRequests[requestId].exists) {
+            revert RandomnessRequestAlreadyExists();
+        }
+
+        randomnessRequests[requestId].exists = true;
+        randomnessRequests[requestId].raffleId = raffleId;
+
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
+        emit RandomnessRequested(raffleId, requestId);
     }
 }

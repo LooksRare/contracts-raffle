@@ -40,12 +40,10 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners() public {
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
+        vm.prank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
+
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -103,12 +101,10 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners_SomeParticipantsDrawnMoreThanOnce() public {
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
+        vm.prank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
+
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
@@ -179,13 +175,41 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
     // TODO: Also test total entries count that is not divisible by 256
     function test_selectWinners_SomeParticipantsDrawnMoreThanOnce_MultipleBucketsWithOverflow() public {
+        mockERC721.mint(user1, 6);
+        mockERC721.mint(user1, 7);
+        mockERC721.mint(user1, 8);
+        mockERC721.mint(user1, 9);
+        mockERC721.mint(user1, 10);
+        mockERC721.mint(user1, 11);
+
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        for (uint256 i; i < 6; ) {
+            params.prizes[i].prizeId = i + 6;
+            unchecked {
+                ++i;
+            }
+        }
+        // Make it 11 winners in total instead of 106 winners for easier testing.
+        params.prizes[6].winnersCount = 5;
+        params.minimumEntries = 512;
+        params.maximumEntries = 513;
+        params.maximumEntriesPerParticipant = 100;
+
+        vm.startPrank(user1);
+        looksRareRaffle.createRaffle(params);
+        looksRareRaffle.depositPrizes(1);
+        vm.stopPrank();
+
+        vm.prank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+
         for (uint256 i; i < 512; ) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 0.025 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -194,11 +218,6 @@ contract Raffle_SelectWinners_Test is TestHelpers {
                 ++i;
             }
         }
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
@@ -221,14 +240,14 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         randomWords[10] = 69_420; // 69420 % 512 = 300 (bucket 1, index 46)
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
         assertEq(winners[0].participant, address(256));
@@ -269,7 +288,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             }
         }
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
 
     mapping(uint256 => bool) private winningEntries;
@@ -279,6 +298,9 @@ contract Raffle_SelectWinners_Test is TestHelpers {
      *      when adding 1-10 to it
      */
     function testFuzz_selectWinners(uint248 seed) public {
+        vm.prank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
         uint256 userIndex;
         uint256 currentEntryIndex;
@@ -298,11 +320,6 @@ contract Raffle_SelectWinners_Test is TestHelpers {
                 ++userIndex;
             }
         }
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
@@ -355,12 +372,10 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners_RevertIf_InvalidStatus() public {
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
-
-        vm.startPrank(SUBSCRIPTION_ADMIN);
+        vm.prank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-        looksRareRaffle.drawWinners(0);
-        vm.stopPrank();
+
+        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 

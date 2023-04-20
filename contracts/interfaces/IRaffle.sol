@@ -6,7 +6,6 @@ interface IRaffle {
         None,
         Created,
         Open,
-        ReadyToBeDrawn,
         Drawing,
         RandomnessFulfilled,
         Drawn,
@@ -228,12 +227,6 @@ interface IRaffle {
      * @param entries The entries to be made.
      */
     function enterRaffles(EntryCalldata[] calldata entries) external payable;
-
-    /**
-     * @notice Draws the winners for a raffle.
-     * @param raffleId The id of the raffle.
-     */
-    function drawWinners(uint256 raffleId) external;
 
     /**
      * @notice Select the winners for a raffle based on the random words returned by Chainlink.

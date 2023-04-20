@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+
 import {Raffle} from "../../contracts/Raffle.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 import {TestHelpers} from "./TestHelpers.sol";
@@ -18,6 +20,8 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
 
     function setUp() public {
+        vm.createSelectFork("sepolia", 3_269_983);
+
         looksRareRaffle = _deployRaffle();
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
@@ -54,7 +58,10 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Open);
     }
 
-    function test_enterRaffles_Multiple() public asPrankedUser(user2) {
+    function test_enterRaffles_Multiple() public {
+        vm.prank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+
         vm.deal(user2, 1.17 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
@@ -68,8 +75,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         emit EntrySold({raffleId: 0, buyer: user2, entriesCount: 100, price: 0.95 ether});
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.ReadyToBeDrawn);
+        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawing);
 
+        vm.prank(user2);
         looksRareRaffle.enterRaffles{value: 1.17 ether}(entries);
 
         assertEq(user2.balance, 0);
@@ -81,7 +89,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(entriesCount, 110);
         assertFalse(refunded);
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.ReadyToBeDrawn);
+        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawing);
     }
 
     function testFuzz_enterRaffles_RefundExtraETH(uint256 extra) public asPrankedUser(user2) {
@@ -152,27 +160,31 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_RevertIf_MaximumEntriesReached() public {
-        vm.deal(user2, 0.95 ether);
-        vm.deal(user3, 1 ether);
+        vm.prank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        vm.deal(user2, 0.975 ether);
+        vm.deal(user3, 0.95 ether);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
         entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
+        looksRareRaffle.enterRaffles{value: 0.975 ether}(entries);
 
-        vm.startPrank(user3);
-        looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
-
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
+        entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
 
         vm.expectRevert(IRaffle.MaximumEntriesReached.selector);
-        looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-        vm.stopPrank();
+        vm.prank(user3);
+        looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
     }
 
-    function test_enterRaffles_RevertIf_InsufficientNativeTokensSupplied() public asPrankedUser(user2) {
+    function test_enterRaffles_RevertIf_InsufficientNativeTokensSupplied() public {
+        vm.prank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+
         vm.deal(user2, 0.95 ether);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
@@ -180,18 +192,22 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
 
         vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);
+        vm.prank(user2);
         looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
     }
 
-    function test_enterRaffles_RevertIf_MaximumEntriesPerParticipantReached() public asPrankedUser(user2) {
-        vm.deal(user2, 1.91 ether);
+    function test_enterRaffles_RevertIf_MaximumEntriesPerParticipantReached() public {
+        vm.prank(SUBSCRIPTION_ADMIN);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](3);
+        vm.deal(user2, 1.9 ether);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
         entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
         entries[1] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 4});
-        entries[2] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
 
         vm.expectRevert(IRaffle.MaximumEntriesPerParticipantReached.selector);
-        looksRareRaffle.enterRaffles{value: 1.91 ether}(entries);
+        vm.prank(user2);
+        looksRareRaffle.enterRaffles{value: 1.9 ether}(entries);
     }
 }
