@@ -715,12 +715,8 @@ contract Raffle is
      */
     function _validatePrize(Prize memory prize) private view {
         if (prize.prizeType == TokenType.ERC721) {
-            if (prize.prizeAmount != 1) {
-                revert InvalidPrizeAmount();
-            }
-
-            if (prize.winnersCount != 1) {
-                revert InvalidWinnersCount();
+            if (prize.prizeAmount != 1 || prize.winnersCount != 1) {
+                revert InvalidPrize();
             }
         } else {
             // ETH or ERC-20
@@ -730,12 +726,8 @@ contract Raffle is
                 }
             }
 
-            if (prize.prizeAmount == 0) {
-                revert InvalidPrizeAmount();
-            }
-
-            if (prize.winnersCount == 0) {
-                revert InvalidWinnersCount();
+            if (prize.prizeAmount == 0 || prize.winnersCount == 0) {
+                revert InvalidPrize();
             }
         }
     }

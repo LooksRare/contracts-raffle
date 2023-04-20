@@ -194,7 +194,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[0].prizeAmount = prizeAmount;
 
-        vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
+        vm.expectRevert(IRaffle.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -204,7 +204,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[0].winnersCount = winnersCount;
 
-        vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
+        vm.expectRevert(IRaffle.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -216,7 +216,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[6].prizeAmount = 0;
 
-        vm.expectRevert(IRaffle.InvalidPrizeAmount.selector);
+        vm.expectRevert(IRaffle.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -224,7 +224,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[6].winnersCount = 0;
 
-        vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
+        vm.expectRevert(IRaffle.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 

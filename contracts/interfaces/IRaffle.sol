@@ -194,7 +194,7 @@ interface IRaffle {
     error InvalidMaximumEntriesPerParticipant();
     error InvalidMinimumProfitBp();
     error InvalidPrice();
-    error InvalidPrizeAmount();
+    error InvalidPrize();
     error InvalidPrizesCount();
     error InvalidPrizeTier();
     error InvalidProtocolFeeBp();
