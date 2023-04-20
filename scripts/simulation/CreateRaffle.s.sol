@@ -47,7 +47,7 @@ contract CreateRaffle is Script {
 
         IERC20 looks = IERC20(0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC);
 
-        looks.approve(address(raffle), 10_000e18);
+        looks.approve(address(raffle), 3_000e18);
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
         for (uint256 i; i < 6; ) {
@@ -69,7 +69,7 @@ contract CreateRaffle is Script {
         prizes[6].prizeType = IRaffle.TokenType.ERC20;
         prizes[6].prizeAddress = address(looks);
         prizes[6].prizeAmount = 1_000e18;
-        prizes[6].winnersCount = 10;
+        prizes[6].winnersCount = 3;
 
         uint256 raffleId = raffle.createRaffle(
             IRaffle.CreateRaffleCalldata({
