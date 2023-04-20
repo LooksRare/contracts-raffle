@@ -405,6 +405,10 @@ contract Raffle is
      */
     function selectWinners(uint256 requestId) external {
         RandomnessRequest memory randomnessRequest = randomnessRequests[requestId];
+        if (!randomnessRequest.exists) {
+            revert RandomnessRequestDoesNotExist();
+        }
+
         uint256 raffleId = randomnessRequest.raffleId;
         Raffle storage raffle = raffles[raffleId];
         if (raffle.status != RaffleStatus.RandomnessFulfilled) {

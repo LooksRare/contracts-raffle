@@ -389,4 +389,9 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
     }
+
+    function test_selectWinners_RevertIf_RandomnessRequestDoesNotExist(uint256 requestId) public {
+        vm.expectRevert(IRaffle.RandomnessRequestDoesNotExist.selector);
+        looksRareRaffle.selectWinners(requestId);
+    }
 }
