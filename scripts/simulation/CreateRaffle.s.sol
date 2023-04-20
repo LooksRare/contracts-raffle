@@ -77,7 +77,7 @@ contract CreateRaffle is Script {
                 minimumEntries: 10,
                 maximumEntries: 11,
                 maximumEntriesPerParticipant: 10,
-                prizesTotalValue: 1 ether,
+                prizesTotalValue: 0.1 ether,
                 minimumProfitBp: 500,
                 protocolFeeBp: 500,
                 feeTokenAddress: address(0),
