@@ -148,17 +148,10 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function test_createRaffle_RevertIf_InvalidEntriesRange() public {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
 
-        uint8[2] memory maximumEntries = [106, 107];
-        for (uint256 i; i < 2; ) {
-            params.maximumEntries = maximumEntries[i];
-            params.maximumEntriesPerParticipant = maximumEntries[i];
-            vm.expectRevert(IRaffle.InvalidEntriesRange.selector);
-            looksRareRaffle.createRaffle(params);
-
-            unchecked {
-                ++i;
-            }
-        }
+        params.minimumEntries = params.maximumEntries + 1;
+        params.maximumEntriesPerParticipant = params.maximumEntries;
+        vm.expectRevert(IRaffle.InvalidEntriesRange.selector);
+        looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_InvalidCutoffTime_TooShort(uint256 lifespan) public {

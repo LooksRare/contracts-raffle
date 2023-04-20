@@ -164,7 +164,7 @@ contract Raffle is
             revert InvalidMaximumEntriesPerParticipant();
         }
 
-        if (params.minimumEntries >= params.maximumEntries) {
+        if (params.minimumEntries > params.maximumEntries) {
             revert InvalidEntriesRange();
         }
 
