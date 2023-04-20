@@ -166,19 +166,24 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId) {
-        if (params.maximumEntriesPerParticipant > params.maximumEntries) {
+        uint40 maximumEntries = params.maximumEntries;
+        uint40 maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        if (maximumEntriesPerParticipant > maximumEntries) {
             revert InvalidMaximumEntriesPerParticipant();
         }
 
-        if (params.minimumEntries > params.maximumEntries) {
+        uint40 minimumEntries = params.minimumEntries;
+        if (minimumEntries > maximumEntries) {
             revert InvalidEntriesRange();
         }
 
-        if (block.timestamp + ONE_DAY > params.cutoffTime || params.cutoffTime > block.timestamp + ONE_WEEK) {
+        uint40 cutoffTime = params.cutoffTime;
+        if (block.timestamp + ONE_DAY > cutoffTime || cutoffTime > block.timestamp + ONE_WEEK) {
             revert InvalidCutoffTime();
         }
 
-        if (params.minimumProfitBp > ONE_HUNDRED_PERCENT_BP) {
+        uint16 minimumProfitBp = params.minimumProfitBp;
+        if (minimumProfitBp > ONE_HUNDRED_PERCENT_BP) {
             revert InvalidMinimumProfitBp();
         }
 
@@ -186,7 +191,8 @@ contract Raffle is
             revert InvalidProtocolFeeBp();
         }
 
-        if (!isCurrencyAllowed[params.feeTokenAddress]) {
+        address feeTokenAddress = params.feeTokenAddress;
+        if (!isCurrencyAllowed[feeTokenAddress]) {
             revert InvalidCurrency();
         }
 
@@ -216,10 +222,7 @@ contract Raffle is
             }
         }
 
-        if (
-            cumulativeWinnersCount > params.minimumEntries ||
-            cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE
-        ) {
+        if (cumulativeWinnersCount > minimumEntries || cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
             revert InvalidWinnersCount();
         }
 
@@ -227,14 +230,14 @@ contract Raffle is
 
         raffles[raffleId].owner = msg.sender;
         raffles[raffleId].status = RaffleStatus.Created;
-        raffles[raffleId].cutoffTime = params.cutoffTime;
-        raffles[raffleId].minimumEntries = params.minimumEntries;
-        raffles[raffleId].maximumEntries = params.maximumEntries;
-        raffles[raffleId].maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        raffles[raffleId].minimumProfitBp = params.minimumProfitBp;
+        raffles[raffleId].cutoffTime = cutoffTime;
+        raffles[raffleId].minimumEntries = minimumEntries;
+        raffles[raffleId].maximumEntries = maximumEntries;
+        raffles[raffleId].maximumEntriesPerParticipant = maximumEntriesPerParticipant;
+        raffles[raffleId].minimumProfitBp = minimumProfitBp;
         raffles[raffleId].protocolFeeBp = params.protocolFeeBp;
         raffles[raffleId].prizesTotalValue = params.prizesTotalValue;
-        raffles[raffleId].feeTokenAddress = params.feeTokenAddress;
+        raffles[raffleId].feeTokenAddress = feeTokenAddress;
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
     }
