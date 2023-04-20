@@ -20,7 +20,7 @@ contract Deployment is Script {
         uint256 chainId = block.chainid;
         uint256 deployerPrivateKey;
 
-        addresss weth;
+        address weth;
         bytes32 keyHash;
         uint64 subscriptionId;
         address vrfCoordinator;
