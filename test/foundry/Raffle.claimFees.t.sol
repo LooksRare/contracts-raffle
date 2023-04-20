@@ -16,7 +16,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
     MockERC721 private mockERC721;
 
     event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
-    event FeesClaimed(uint256 raffleId, address recipient, uint256 amount);
+    event FeesClaimed(uint256 raffleId, uint256 amount);
 
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
@@ -63,7 +63,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Complete);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit FeesClaimed(1, user1, 2.54125 ether);
+        emit FeesClaimed(1, 2.54125 ether);
 
         looksRareRaffle.claimFees(1);
 
