@@ -30,7 +30,7 @@ contract Raffle_Cancel_Test is TestHelpers {
         vm.startPrank(user1);
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
 
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
     }
 
@@ -39,11 +39,11 @@ contract Raffle_Cancel_Test is TestHelpers {
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Cancelled);
+        emit RaffleStatusUpdated(2, IRaffle.RaffleStatus.Cancelled);
 
-        looksRareRaffle.cancel(1);
+        looksRareRaffle.cancel(2);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Cancelled);
 
         assertEq(mockERC721.balanceOf(user2), 0);
         assertEq(mockERC20.balanceOf(user2), 0);
@@ -57,11 +57,11 @@ contract Raffle_Cancel_Test is TestHelpers {
         vm.warp(block.timestamp + 86_400 + 1);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Cancelled);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Cancelled);
 
-        looksRareRaffle.cancel(0);
+        looksRareRaffle.cancel(1);
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
 
         assertEq(mockERC721.balanceOf(user1), 6);
         for (uint256 i; i < 6; ) {
@@ -76,14 +76,14 @@ contract Raffle_Cancel_Test is TestHelpers {
     function test_cancel_RevertIf_InvalidStatus() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
         vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.cancel(0);
+        looksRareRaffle.cancel(1);
     }
 
     function test_cancel_RevertIf_CutoffTimeNotReached() public {
         _enterRaffles();
         vm.warp(block.timestamp + 86_399);
         vm.expectRevert(IRaffle.CutoffTimeNotReached.selector);
-        looksRareRaffle.cancel(0);
+        looksRareRaffle.cancel(1);
     }
 
     function _enterRaffles() private {
@@ -94,7 +94,7 @@ contract Raffle_Cancel_Test is TestHelpers {
             vm.deal(participant, 0.025 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);

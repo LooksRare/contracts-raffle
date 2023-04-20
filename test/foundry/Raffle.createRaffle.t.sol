@@ -26,12 +26,12 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
     function test_createRaffle() public asPrankedUser(user1) {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Created);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Created);
         uint256 raffleId = looksRareRaffle.createRaffle(
             _baseCreateRaffleParams(address(mockERC20), address(mockERC721))
         );
 
-        assertEq(raffleId, 0);
+        assertEq(raffleId, 1);
 
         (
             address owner,
@@ -46,7 +46,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             uint256 prizesTotalValue,
             address feeTokenAddress,
             uint256 claimableFees
-        ) = looksRareRaffle.raffles(0);
+        ) = looksRareRaffle.raffles(1);
         assertEq(owner, user1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Created));
         assertEq(cutoffTime, uint40(block.timestamp + 86_400));
@@ -60,10 +60,10 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(feeTokenAddress, address(0));
         assertEq(claimableFees, 0);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, 0);
 
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(0);
+        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(1);
         assertEq(prizes.length, 7);
         for (uint256 i; i < 6; ) {
             assertEq(uint8(prizes[i].prizeType), uint8(IRaffle.TokenType.ERC721));
@@ -89,7 +89,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(prizes[6].winnersCount, 100);
         assertEq(prizes[6].cumulativeWinnersCount, 106);
 
-        IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(0);
+        IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(1);
 
         assertEq(pricingOptions[0].entriesCount, 1);
         assertEq(pricingOptions[1].entriesCount, 10);
@@ -103,7 +103,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(pricingOptions[3].price, 0.75 ether);
         assertEq(pricingOptions[4].price, 0.95 ether);
 
-        IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(0);
+        IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(1);
         assertEq(entries.length, 0);
 
         assertEq(looksRareRaffle.rafflesCount(), 1);

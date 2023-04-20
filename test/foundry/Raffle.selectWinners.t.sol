@@ -38,7 +38,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
     }
 
@@ -52,14 +52,14 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
         assertEq(winners[0].participant, address(79));
@@ -100,7 +100,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             }
         }
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
 
     function test_selectWinners_SomeParticipantsDrawnMoreThanOnce() public {
@@ -125,14 +125,14 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         randomWords[10] = 21_406; // 21406 % 100 = 6 (becomes 10)
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
         assertEq(winners[0].participant, address(1));
@@ -173,7 +173,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             }
         }
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
 
     // TODO: Also test total entries count that is not divisible by 256
@@ -200,7 +200,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(1);
+        looksRareRaffle.depositPrizes(2);
         vm.stopPrank();
 
         vm.prank(SUBSCRIPTION_ADMIN);
@@ -212,7 +212,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             vm.deal(participant, 0.025 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 0});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -243,14 +243,14 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         randomWords[10] = 69_420; // 69420 % 512 = 300 (bucket 1, index 46)
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
+        emit RaffleStatusUpdated(2, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(2);
         assertEq(winners.length, winnersCount);
 
         assertEq(winners[0].participant, address(256));
@@ -291,7 +291,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             }
         }
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Drawn);
     }
 
     mapping(uint256 => bool) private winningEntries;
@@ -313,7 +313,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
             uint256 pricingOptionIndex = userIndex % 5;
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: pricingOptionIndex});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
@@ -334,14 +334,14 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         }
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawn);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
         for (uint256 i; i < 6; ) {
@@ -371,7 +371,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             }
         }
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
 
     function test_selectWinners_RevertIf_InvalidStatus() public {
@@ -387,7 +387,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
 
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);

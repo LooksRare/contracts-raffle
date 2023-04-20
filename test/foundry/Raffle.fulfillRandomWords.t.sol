@@ -39,7 +39,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         vm.startPrank(user1);
         looksRareRaffle.createRaffle(params);
 
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
 
         vm.prank(SUBSCRIPTION_ADMIN);
@@ -52,7 +52,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         uint256[] memory _randomWords = _generateRandomWordsForRaffleWith11Winners();
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.RandomnessFulfilled);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
@@ -63,10 +63,10 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
         uint256[] memory randomWords = looksRareRaffle.getRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID);
         assertTrue(exists);
-        assertEq(raffleId, 0);
+        assertEq(raffleId, 1);
         assertEq(randomWords, _randomWords);
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.RandomnessFulfilled);
     }
 
     function test_fulfillRandomWords_RequestIdDoesNotExists() public {
@@ -83,7 +83,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         assertEq(raffleId, 0);
         assertEq(randomWords, new uint256[](0));
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawing);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawing);
     }
 
     function test_fulfillRandomWords_RandomWordsLengthIsNotEqualToCumulativeWinnersCount() public {
@@ -98,17 +98,17 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
         uint256[] memory randomWords = looksRareRaffle.getRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID);
         assertTrue(exists);
-        assertEq(raffleId, 0);
+        assertEq(raffleId, 1);
         assertEq(randomWords, new uint256[](0));
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Drawing);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawing);
     }
 
     function test_fulfillRandomWords_RaffleStatusIsNotDrawing() public {
         uint256[] memory _randomWords = _generateRandomWordsForRaffleWith11Winners();
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.RandomnessFulfilled);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
@@ -128,9 +128,9 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
         uint256[] memory randomWords = looksRareRaffle.getRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID);
         assertTrue(exists);
-        assertEq(raffleId, 0);
+        assertEq(raffleId, 1);
         assertEq(randomWords, _randomWords);
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.RandomnessFulfilled);
     }
 }

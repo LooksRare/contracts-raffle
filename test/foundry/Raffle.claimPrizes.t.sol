@@ -37,7 +37,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         vm.startPrank(user1);
         looksRareRaffle.createRaffle(params);
 
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
     }
 
@@ -65,7 +65,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
-        looksRareRaffle.claimFees(0);
+        looksRareRaffle.claimFees(1);
 
         _assertPrizesClaimedEventsEmitted();
         _claimPrizes();
@@ -79,7 +79,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         winnerIndices[0] = 0;
 
         IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
-        claimPrizesCalldata[0].raffleId = 0;
+        claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
         vm.expectRevert(IRaffle.InvalidStatus.selector);
@@ -97,7 +97,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
 
         for (uint256 i; i < 11; ) {
             assertFalse(winners[i].claimed);
@@ -106,7 +106,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             winnerIndices[0] = i;
 
             IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
-            claimPrizesCalldata[0].raffleId = 0;
+            claimPrizesCalldata[0].raffleId = 1;
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
             vm.prank(winners[i].participant);
@@ -132,13 +132,13 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
 
         uint256[] memory winnerIndices = new uint256[](1);
         winnerIndices[0] = 11;
 
         IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
-        claimPrizesCalldata[0].raffleId = 0;
+        claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
         vm.prank(winners[10].participant);
@@ -161,7 +161,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             winnerIndices[0] = i;
 
             IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
-            claimPrizesCalldata[0].raffleId = 0;
+            claimPrizesCalldata[0].raffleId = 1;
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
             vm.prank(address(42));
@@ -175,7 +175,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function _claimPrizes() private {
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         for (uint256 i; i < 11; ) {
             assertFalse(winners[i].claimed);
 
@@ -183,7 +183,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             winnerIndices[0] = i;
 
             IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
-            claimPrizesCalldata[0].raffleId = 0;
+            claimPrizesCalldata[0].raffleId = 1;
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
             vm.prank(winners[i].participant);
@@ -199,7 +199,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             uint256[] memory winnerIndices = new uint256[](1);
             winnerIndices[0] = i;
             vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-            emit PrizesClaimed({raffleId: 0, winnerIndices: winnerIndices});
+            emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
             unchecked {
                 ++i;
             }
@@ -231,7 +231,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         assertEq(mockERC20.balanceOf(address(70)), 1_000 ether);
         assertEq(mockERC20.balanceOf(address(8)), 1_000 ether);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(0);
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         for (uint256 i; i < 11; ) {
             assertTrue(winners[i].claimed);
             unchecked {

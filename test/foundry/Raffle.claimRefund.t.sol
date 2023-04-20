@@ -31,7 +31,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         vm.startPrank(user1);
         _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
 
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
     }
 
@@ -40,9 +40,9 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
-        looksRareRaffle.cancel(0);
+        looksRareRaffle.cancel(1);
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
 
         _validClaimRefunds();
     }
@@ -53,9 +53,12 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         for (uint256 i = 10; i < 109; ) {
             address participant = address(uint160(i + 1));
 
+            uint256[] memory raffleIds = new uint256[](1);
+            raffleIds[0] = 1;
+
             vm.expectRevert(IRaffle.InvalidStatus.selector);
             vm.prank(participant);
-            looksRareRaffle.claimRefund(new uint256[](1));
+            looksRareRaffle.claimRefund(raffleIds);
 
             unchecked {
                 ++i;
@@ -68,16 +71,19 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
-        looksRareRaffle.cancel(0);
+        looksRareRaffle.cancel(1);
 
         _validClaimRefunds();
 
         for (uint256 i = 10; i < 109; ) {
             address participant = address(uint160(i + 1));
 
+            uint256[] memory raffleIds = new uint256[](1);
+            raffleIds[0] = 1;
+
             vm.expectRevert(IRaffle.AlreadyRefunded.selector);
             vm.prank(participant);
-            looksRareRaffle.claimRefund(new uint256[](1));
+            looksRareRaffle.claimRefund(raffleIds);
 
             unchecked {
                 ++i;
@@ -93,7 +99,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             vm.deal(participant, 0.025 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -108,13 +114,16 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         for (uint256 i = 10; i < 109; ) {
             address participant = address(uint160(i + 1));
 
+            uint256[] memory raffleIds = new uint256[](1);
+            raffleIds[0] = 1;
+
             vm.prank(participant);
-            looksRareRaffle.claimRefund(new uint256[](1));
+            looksRareRaffle.claimRefund(raffleIds);
 
             assertEq(participant.balance, 0.025 ether);
 
             (uint256 amountPaid, uint256 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
-                0,
+                1,
                 participant
             );
 

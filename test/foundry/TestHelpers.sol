@@ -147,7 +147,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             vm.deal(participant, 0.025 ether);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);

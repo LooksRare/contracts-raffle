@@ -33,7 +33,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         vm.startPrank(user1);
         _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
 
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
     }
 
@@ -58,13 +58,13 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         );
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Drawing);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawing);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RandomnessRequested(0, FULFILL_RANDOM_WORDS_REQUEST_ID);
+        emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         for (uint256 i; i < 10; ) {
-            (, IRaffle.RaffleStatus currentStatus, , , , , , , , , , ) = looksRareRaffle.raffles(0);
+            (, IRaffle.RaffleStatus currentStatus, , , , , , , , , , ) = looksRareRaffle.raffles(1);
 
             if (currentStatus == IRaffle.RaffleStatus.Drawing) {
                 break;
@@ -76,7 +76,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
             uint256 pricingOptionIndex = i % 5;
-            entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: pricingOptionIndex});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
@@ -89,9 +89,9 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         assertTrue(exists);
-        assertEq(raffleId, 0);
+        assertEq(raffleId, 1);
 
-        (, IRaffle.RaffleStatus status, , uint40 drawnAt, , , , , , , , ) = looksRareRaffle.raffles(0);
+        (, IRaffle.RaffleStatus status, , uint40 drawnAt, , , , , , , , ) = looksRareRaffle.raffles(1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Drawing));
         assertEq(drawnAt, block.timestamp);
     }

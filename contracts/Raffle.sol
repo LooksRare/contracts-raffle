@@ -188,7 +188,7 @@ contract Raffle is
             revert InvalidCurrency();
         }
 
-        raffleId = rafflesCount;
+        raffleId = ++rafflesCount;
 
         uint256 prizesCount = params.prizes.length;
         if (prizesCount == 0 || prizesCount > MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE) {
@@ -235,8 +235,6 @@ contract Raffle is
         raffles[raffleId].feeTokenAddress = params.feeTokenAddress;
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
-
-        rafflesCount = raffleId + 1;
     }
 
     /**

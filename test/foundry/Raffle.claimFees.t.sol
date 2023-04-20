@@ -37,7 +37,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         vm.startPrank(user1);
         looksRareRaffle.createRaffle(params);
 
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
     }
 
@@ -51,7 +51,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        (, , , , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(0);
+        (, , , , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
         assertEq(address(looksRareRaffle).balance, 2.675 ether);
         assertEq(claimableFees, 2.675 ether);
         uint256 raffleOwnerBalance = user1.balance;
@@ -60,19 +60,19 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(0, IRaffle.RaffleStatus.Complete);
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Complete);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit FeesClaimed(0, user1, 2.54125 ether);
+        emit FeesClaimed(1, user1, 2.54125 ether);
 
-        looksRareRaffle.claimFees(0);
+        looksRareRaffle.claimFees(1);
 
-        (, , , , , , , , , , , claimableFees) = looksRareRaffle.raffles(0);
+        (, , , , , , , , , , , claimableFees) = looksRareRaffle.raffles(1);
         assertEq(address(looksRareRaffle).balance, 0.13375 ether);
         assertEq(claimableFees, 0);
         assertEq(user1.balance, raffleOwnerBalance + 2.54125 ether);
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0.13375 ether);
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Complete);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Complete);
 
         vm.prank(owner);
         looksRareRaffle.claimProtocolFees(address(0));
@@ -86,6 +86,6 @@ contract Raffle_ClaimFees_Test is TestHelpers {
     function test_claimFees_RevertIf_InvalidStatus() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
         vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.claimFees(0);
+        looksRareRaffle.claimFees(1);
     }
 }

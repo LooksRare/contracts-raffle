@@ -27,7 +27,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
     }
 
     function test_depositPrizes() public asPrankedUser(user1) {
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
 
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
         assertEq(mockERC721.balanceOf(address(looksRareRaffle)), 6);
@@ -38,7 +38,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
             }
         }
 
-        assertRaffleStatus(looksRareRaffle, 0, IRaffle.RaffleStatus.Open);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
     }
 
     function test_depositPrizes_PrizesAreETH() public asPrankedUser(user1) {
@@ -61,11 +61,11 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
 
         looksRareRaffle.createRaffle(params);
 
-        looksRareRaffle.depositPrizes{value: 1.5 ether}(1);
+        looksRareRaffle.depositPrizes{value: 1.5 ether}(2);
 
         assertEq(user1.balance, 0);
         assertEq(address(looksRareRaffle).balance, 1.5 ether);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
+        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Open);
     }
 
     function testFuzz_depositPrizes_PrizesAreETH_RefundExtraETH(uint256 extra) public asPrankedUser(user1) {
@@ -90,26 +90,26 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
 
         looksRareRaffle.createRaffle(params);
 
-        looksRareRaffle.depositPrizes{value: prizesValue + extra}(1);
+        looksRareRaffle.depositPrizes{value: prizesValue + extra}(2);
 
         assertEq(user1.balance, extra);
         assertEq(address(looksRareRaffle).balance, prizesValue);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
+        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Open);
     }
 
     // TODO: Use vm.store to mock different raffle statuses
     function test_depositPrizes_RevertIf_StatusIsNotCreated() public {
         vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.depositPrizes(1);
+        looksRareRaffle.depositPrizes(2);
     }
 
     function test_depositPrizes_RevertIf_NotRaffleOwner() public asPrankedUser(user2) {
         vm.expectRevert(IRaffle.NotRaffleOwner.selector);
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
     }
 
     function test_depositPrizes_RevertIf_PrizesAlreadyDeposited() public asPrankedUser(user1) {
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
 
         assertEq(mockERC20.balanceOf(user1), 0);
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
@@ -117,7 +117,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         mockERC20.mint(user1, 100_000 ether);
 
         vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.depositPrizes(0);
+        looksRareRaffle.depositPrizes(1);
 
         assertEq(mockERC20.balanceOf(user1), 100_000 ether);
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
@@ -144,6 +144,6 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
 
         vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);
-        looksRareRaffle.depositPrizes{value: 1.49 ether}(1);
+        looksRareRaffle.depositPrizes{value: 1.49 ether}(2);
     }
 }
