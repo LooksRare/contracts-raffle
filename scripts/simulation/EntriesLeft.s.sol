@@ -14,7 +14,7 @@ contract EntriesLeft is Script {
     error ChainIdInvalid(uint256 chainId);
 
     function run() external view {
-        IRaffle raffle = IRaffle(0xaE7Cf912aB5D9f6aa53126eA7aabd007f844CEEC);
+        IRaffle raffle = IRaffle(0x588D6b9e1ca9609C96c4ee597330fB01A52C228D);
         IRaffle.Entry[] memory entries = raffle.getEntries(0);
         IRaffle.Entry memory lastEntry = entries[entries.length - 1];
         console2.logUint(lastEntry.currentEntryIndex);
