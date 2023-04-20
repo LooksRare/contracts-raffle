@@ -685,21 +685,16 @@ contract Raffle is
             PricingOption memory pricingOption = pricingOptions[i];
 
             if (i == 0) {
-                if (pricingOption.entriesCount == 0) {
-                    revert InvalidEntriesCount();
-                }
-
-                if (pricingOption.price == 0) {
-                    revert InvalidPrice();
+                if (pricingOption.entriesCount == 0 || pricingOption.price == 0) {
+                    revert InvalidPricingOption();
                 }
             } else {
                 PricingOption memory lastPricingOption = pricingOptions[i - 1];
-                if (pricingOption.entriesCount <= lastPricingOption.entriesCount) {
-                    revert InvalidEntriesCount();
-                }
-
-                if (pricingOption.price <= lastPricingOption.price) {
-                    revert InvalidPrice();
+                if (
+                    pricingOption.entriesCount <= lastPricingOption.entriesCount ||
+                    pricingOption.price <= lastPricingOption.price
+                ) {
+                    revert InvalidPricingOption();
                 }
             }
 

@@ -255,7 +255,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.pricingOptions[0].entriesCount = 0;
 
-        vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
+        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -263,7 +263,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.pricingOptions[0].price = 0;
 
-        vm.expectRevert(IRaffle.InvalidPrice.selector);
+        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -272,7 +272,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         // params.pricingOptions[1].entriesCount == 10
         params.pricingOptions[2].entriesCount = 9;
 
-        vm.expectRevert(IRaffle.InvalidEntriesCount.selector);
+        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -281,7 +281,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         // params.pricingOptions[1].price == 0.22 ether
         params.pricingOptions[2].price = 0.219 ether;
 
-        vm.expectRevert(IRaffle.InvalidPrice.selector);
+        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 

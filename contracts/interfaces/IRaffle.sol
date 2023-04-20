@@ -188,12 +188,11 @@ interface IRaffle {
     error InvalidCallbackGasLimit();
     error InvalidCurrency();
     error InvalidCutoffTime();
-    error InvalidEntriesCount();
     error InvalidEntriesRange();
     error InvalidIndex();
     error InvalidMaximumEntriesPerParticipant();
     error InvalidMinimumProfitBp();
-    error InvalidPrice();
+    error InvalidPricingOption();
     error InvalidPrize();
     error InvalidPrizesCount();
     error InvalidPrizeTier();
