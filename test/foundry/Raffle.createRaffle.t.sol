@@ -99,6 +99,8 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
         IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(0);
         assertEq(entries.length, 0);
+
+        assertEq(looksRareRaffle.rafflesCount(), 1);
     }
 
     function test_createRaffle_RevertIf_InvalidMaximumEntriesPerParticipant() public {
