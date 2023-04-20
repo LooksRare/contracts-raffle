@@ -382,6 +382,10 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param _requestId The ID of the request
+     * @param _randomWords The random words returned by Chainlink
+     */
     function fulfillRandomWords(uint256 _requestId, uint256[] memory _randomWords) internal override {
         if (randomnessRequests[_requestId].exists) {
             uint256 raffleId = randomnessRequests[_requestId].raffleId;
@@ -622,6 +626,9 @@ contract Raffle is
         }
     }
 
+    /**
+     * @inheritdoc IRaffle
+     */
     function setCallbackGasLimit(uint32 _callbackGasLimit) external onlyOwner {
         if (_callbackGasLimit > 2_500_000) {
             revert InvalidCallbackGasLimit();
@@ -630,14 +637,23 @@ contract Raffle is
         emit CallbackGasLimitUpdated(_callbackGasLimit);
     }
 
+    /**
+     * @inheritdoc IRaffle
+     */
     function setProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {
         _setProtocolFeeRecipient(_protocolFeeRecipient);
     }
 
+    /**
+     * @inheritdoc IRaffle
+     */
     function setProtocolFeeBp(uint16 _protocolFeeBp) external onlyOwner {
         _setProtocolFeeBp(_protocolFeeBp);
     }
 
+    /**
+     * @param _protocolFeeRecipient The new protocol fee recipient address
+     */
     function _setProtocolFeeRecipient(address _protocolFeeRecipient) private {
         if (_protocolFeeRecipient == address(0)) {
             revert InvalidProtocolFeeRecipient();
@@ -646,6 +662,9 @@ contract Raffle is
         emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
     }
 
+    /**
+     * @param _protocolFeeBp The new protocol fee in basis points
+     */
     function _setProtocolFeeBp(uint16 _protocolFeeBp) private {
         if (_protocolFeeBp > MAXIMUM_PROTOCOL_FEE_BP) {
             revert InvalidProtocolFeeBp();
@@ -654,6 +673,9 @@ contract Raffle is
         emit ProtocolFeeBpUpdated(_protocolFeeBp);
     }
 
+    /**
+     * @param raffleId The ID of the raffle.
+     */
     function _validateAndSetPricingOptions(
         uint256 raffleId,
         PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions
@@ -688,6 +710,9 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param prize The prize.
+     */
     function _validatePrize(Prize memory prize) private pure {
         if (prize.prizeType == TokenType.ERC721) {
             if (prize.prizeAmount != 1) {
@@ -708,6 +733,11 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param currentEntryIndex The current entry index.
+     * @param winningEntry The winning entry.
+     * @param winningEntriesBitmap The bitmap of winning entries.
+     */
     function _incrementWinningEntryUntilThereIsNotADuplicate(
         uint256 currentEntryIndex,
         uint256 winningEntry,
@@ -734,6 +764,11 @@ contract Raffle is
         return (winningEntry, winningEntriesBitmap);
     }
 
+    /**
+     * @param prize The prize to transfer.
+     * @param recipient The recipient of the prize.
+     * @param multiplier The multiplier to apply to the prize amount.
+     */
     function _transferPrize(
         Prize storage prize,
         address recipient,
@@ -756,6 +791,11 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param currency The currency to transfer.
+     * @param recipient The recipient of the currency.
+     * @param amount The amount of currency to transfer.
+     */
     function _transferFungibleTokens(
         address currency,
         address recipient,
@@ -795,6 +835,9 @@ contract Raffle is
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
     }
 
+    /**
+     * @param claimPrizesCalldata The calldata for claiming prizes.
+     */
     function _claimPrizesPerRaffle(ClaimPrizesCalldata calldata claimPrizesCalldata) private {
         uint256 raffleId = claimPrizesCalldata.raffleId;
         Raffle storage raffle = raffles[raffleId];
@@ -836,6 +879,10 @@ contract Raffle is
         emit PrizesClaimed(raffleId, winnerIndices);
     }
 
+    /**
+     * @param raffleId The ID of the raffle to draw winners for.
+     * @param raffle The raffle to draw winners for.
+     */
     function _drawWinners(uint256 raffleId, Raffle storage raffle) private {
         raffle.status = RaffleStatus.Drawing;
         raffle.drawnAt = uint40(block.timestamp);
