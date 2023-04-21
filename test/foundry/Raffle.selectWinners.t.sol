@@ -35,7 +35,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners() public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
         _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256 winnersCount = 11;
@@ -82,7 +82,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners_SomeParticipantsDrawnMoreThanOnce() public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
         _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256 winnersCount = 11;
@@ -161,7 +161,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         looksRareRaffle.depositPrizes(2);
         vm.stopPrank();
 
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
 
         for (uint256 i; i < 512; ) {
             address participant = address(uint160(i + 1));
@@ -246,7 +246,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
      *      when adding 1-10 to it
      */
     function testFuzz_selectWinners(uint248 seed) public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
 
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
         uint256 userIndex;
@@ -319,7 +319,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners_RevertIf_InvalidStatus() public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
         _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();

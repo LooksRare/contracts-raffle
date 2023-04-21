@@ -54,7 +54,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_Multiple() public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
 
         vm.deal(user2, 1.17 ether);
 
@@ -154,7 +154,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_RevertIf_InsufficientNativeTokensSupplied() public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
 
         vm.deal(user2, 0.95 ether);
 
@@ -168,7 +168,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_RevertIf_MaximumEntriesPerParticipantReached() public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
 
         vm.deal(user2, 1.9 ether);
 

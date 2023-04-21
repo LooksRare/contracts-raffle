@@ -33,7 +33,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
     }
 
     function test_drawWinners() public {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
 
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 

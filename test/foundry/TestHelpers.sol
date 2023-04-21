@@ -153,13 +153,13 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
-        _subscribeRaffleToVRF(address(looksRareRaffle));
+        _subscribeRaffleToVRF();
         _enterRafflesWithSingleEntryUpToMinimumEntries();
     }
 
-    function _subscribeRaffleToVRF(address looksRareRaffle) internal {
+    function _subscribeRaffleToVRF() internal {
         vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, looksRareRaffle);
+        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
     }
 
     function _fulfillRandomWords(address looksRareRaffle) internal {
