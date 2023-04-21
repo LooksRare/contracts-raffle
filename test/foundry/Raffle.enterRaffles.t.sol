@@ -15,7 +15,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
+    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
 
     event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
 
@@ -96,8 +96,8 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function testFuzz_enterRaffles_RefundExtraETH(uint256 extra) public asPrankedUser(user2) {
-        uint256 price = 0.025 ether;
-        vm.assume(extra != 0 && extra < type(uint256).max - price);
+        uint208 price = 0.025 ether;
+        vm.assume(extra != 0 && extra < type(uint208).max - price);
         vm.deal(user2, price + extra);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);

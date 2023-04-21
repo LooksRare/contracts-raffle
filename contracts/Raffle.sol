@@ -284,7 +284,7 @@ contract Raffle is
      */
     function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
         uint256 entriesCount = entries.length;
-        uint256 expectedEthValue;
+        uint208 expectedEthValue;
         for (uint256 i; i < entriesCount; ) {
             EntryCalldata calldata entry = entries[i];
 
@@ -312,7 +312,7 @@ contract Raffle is
             }
             rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
-            uint256 price = pricingOption.price;
+            uint208 price = pricingOption.price;
 
             if (raffle.feeTokenAddress == address(0)) {
                 expectedEthValue += price;
@@ -511,8 +511,8 @@ contract Raffle is
             revert InvalidStatus();
         }
 
-        uint256 claimableFees = raffle.claimableFees;
-        uint256 protocolFees = (claimableFees * uint256(raffle.protocolFeeBp)) / ONE_HUNDRED_PERCENT_BP;
+        uint208 claimableFees = raffle.claimableFees;
+        uint208 protocolFees = (claimableFees * uint208(raffle.protocolFeeBp)) / uint208(ONE_HUNDRED_PERCENT_BP);
         claimableFees -= protocolFees;
 
         raffle.status = RaffleStatus.Complete;
@@ -588,7 +588,7 @@ contract Raffle is
 
             stats.refunded = true;
 
-            uint256 amountPaid = stats.amountPaid;
+            uint208 amountPaid = stats.amountPaid;
             _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
 
             emit EntryRefunded(raffleId, msg.sender, amountPaid);
@@ -657,7 +657,7 @@ contract Raffle is
             PricingOption memory pricingOption = pricingOptions[i];
 
             uint40 entriesCount = pricingOption.entriesCount;
-            uint256 price = pricingOption.price;
+            uint208 price = pricingOption.price;
 
             if (i == 0) {
                 if (entriesCount != 1 || price == 0) {

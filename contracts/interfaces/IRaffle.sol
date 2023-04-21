@@ -26,7 +26,7 @@ interface IRaffle {
      */
     struct PricingOption {
         uint40 entriesCount;
-        uint256 price;
+        uint208 price;
     }
 
     /**
@@ -77,8 +77,8 @@ interface IRaffle {
      * @param drawnAt The time at which the raffle was drawn. It is still pending Chainlink to fulfill the randomness request.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
-     * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
+     * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
      * @param claimableFees The amount of fees collected from selling entries.
      * @param pricingOptions The pricing options for the raffle.
      * @param prizes The prizes to be distributed.
@@ -92,9 +92,9 @@ interface IRaffle {
         uint40 drawnAt;
         uint40 minimumEntries;
         uint40 maximumEntriesPerParticipant;
-        uint16 protocolFeeBp;
         address feeTokenAddress;
-        uint256 claimableFees;
+        uint16 protocolFeeBp;
+        uint208 claimableFees;
         PricingOption[5] pricingOptions;
         Prize[] prizes;
         Entry[] entries;
@@ -107,7 +107,7 @@ interface IRaffle {
      * @param refunded Whether the participant has been refunded.
      */
     struct ParticipantStats {
-        uint256 amountPaid;
+        uint208 amountPaid;
         uint40 entriesCount;
         bool refunded;
     }
@@ -159,8 +159,8 @@ interface IRaffle {
 
     event CallbackGasLimitUpdated(uint32 callbackGasLimit);
     event CurrencyStatusUpdated(address currency, bool isAllowed);
-    event EntryRefunded(uint256 raffleId, address buyer, uint256 amount);
-    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint256 price);
+    event EntryRefunded(uint256 raffleId, address buyer, uint208 amount);
+    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
     event FeesClaimed(uint256 raffleId, uint256 amount);
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndex);
     event ProtocolFeeBpUpdated(uint16 protocolFeeBp);

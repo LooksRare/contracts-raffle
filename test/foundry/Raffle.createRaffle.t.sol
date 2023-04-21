@@ -40,8 +40,8 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             uint40 drawnAt,
             uint40 minimumEntries,
             uint40 maximumEntriesPerParticipant,
-            uint16 protocolFeeBp,
             address feeTokenAddress,
+            uint16 protocolFeeBp,
             uint256 claimableFees
         ) = looksRareRaffle.raffles(1);
         assertEq(owner, user1);
