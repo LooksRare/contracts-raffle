@@ -8,9 +8,13 @@ contract MockERC721 is ERC721("MockERC721", "MockERC721") {
         _mint(to, tokenId);
     }
 
-    function batchMint(address to, uint256 count) public {
+    function batchMint(
+        address to,
+        uint256 fromTokenId,
+        uint256 count
+    ) public {
         for (uint256 i; i < count; i++) {
-            _mint(to, i);
+            _mint(to, fromTokenId + i);
         }
     }
 }

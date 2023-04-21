@@ -121,7 +121,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         address looksRareRaffle
     ) internal {
         mockERC20.mint(user1, 100_000 ether);
-        mockERC721.batchMint(user1, 6);
+        mockERC721.batchMint(user1, 0, 6);
 
         vm.startPrank(user1);
         mockERC20.approve(looksRareRaffle, 100_000 ether);

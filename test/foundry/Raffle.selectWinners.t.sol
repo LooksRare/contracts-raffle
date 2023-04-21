@@ -177,12 +177,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
     // TODO: Also test total entries count that is not divisible by 256
     function test_selectWinners_SomeParticipantsDrawnMoreThanOnce_MultipleBucketsWithOverflow() public {
-        mockERC721.mint(user1, 6);
-        mockERC721.mint(user1, 7);
-        mockERC721.mint(user1, 8);
-        mockERC721.mint(user1, 9);
-        mockERC721.mint(user1, 10);
-        mockERC721.mint(user1, 11);
+        mockERC721.batchMint(user1, 6, 6);
 
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < 6; ) {
