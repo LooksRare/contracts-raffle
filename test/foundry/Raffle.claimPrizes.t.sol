@@ -12,10 +12,6 @@ import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2
 
 // TODO: Test claim prizes with multiple prizes / claim prizes from multiple raffles
 contract Raffle_ClaimPrizes_Test is TestHelpers {
-    Raffle private looksRareRaffle;
-    MockERC20 private mockERC20;
-    MockERC721 private mockERC721;
-
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndices);
 
     function setUp() public {

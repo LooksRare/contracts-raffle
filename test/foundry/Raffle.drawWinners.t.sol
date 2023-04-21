@@ -11,10 +11,6 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 contract Raffle_DrawWinners_Test is TestHelpers {
-    Raffle private looksRareRaffle;
-    MockERC20 private mockERC20;
-    MockERC721 private mockERC721;
-
     event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
     function setUp() public {

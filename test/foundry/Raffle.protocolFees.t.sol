@@ -10,8 +10,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_ProtocolFees_Test is TestHelpers {
-    Raffle public looksRareRaffle;
-
     event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
 

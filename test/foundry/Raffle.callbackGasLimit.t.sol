@@ -10,8 +10,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_CallbackGasLimit_Test is TestHelpers {
-    Raffle public looksRareRaffle;
-
     event CallbackGasLimitUpdated(uint32 callbackGasLimit);
 
     function setUp() public {

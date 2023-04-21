@@ -11,8 +11,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_SetUpState_Test is TestHelpers {
-    Raffle public looksRareRaffle;
-
     event Paused(address account);
     event Unpaused(address account);
 

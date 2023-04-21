@@ -15,6 +15,10 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {MockWETH} from "./mock/MockWETH.sol";
 
 abstract contract TestHelpers is AssertionHelpers, TestParameters {
+    Raffle internal looksRareRaffle;
+    MockERC20 internal mockERC20;
+    MockERC721 internal mockERC721;
+
     address public user1 = address(1);
     address public user2 = address(2);
     address public user3 = address(3);

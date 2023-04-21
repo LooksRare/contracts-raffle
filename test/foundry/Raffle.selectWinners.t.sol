@@ -11,10 +11,6 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 contract Raffle_SelectWinners_Test is TestHelpers {
-    Raffle private looksRareRaffle;
-    MockERC20 private mockERC20;
-    MockERC721 private mockERC721;
-
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 
