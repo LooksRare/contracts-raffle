@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-
 import {Raffle} from "../../contracts/Raffle.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 import {TestHelpers} from "./TestHelpers.sol";
@@ -62,8 +60,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_Multiple() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        _subscribeRaffleToVRF(address(looksRareRaffle));
 
         vm.deal(user2, 1.17 ether);
 
@@ -163,8 +160,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_RevertIf_InsufficientNativeTokensSupplied() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        _subscribeRaffleToVRF(address(looksRareRaffle));
 
         vm.deal(user2, 0.95 ether);
 
@@ -178,8 +174,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_RevertIf_MaximumEntriesPerParticipantReached() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        _subscribeRaffleToVRF(address(looksRareRaffle));
 
         vm.deal(user2, 1.9 ether);
 

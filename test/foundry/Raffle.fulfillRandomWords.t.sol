@@ -8,7 +8,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 contract Raffle_FulfillRandomWords_Test is TestHelpers {
@@ -41,9 +40,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
 
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-
+        _subscribeRaffleToVRF(address(looksRareRaffle));
         _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
     }
 

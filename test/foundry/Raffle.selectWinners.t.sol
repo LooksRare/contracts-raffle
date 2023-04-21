@@ -8,7 +8,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 contract Raffle_SelectWinners_Test is TestHelpers {
@@ -42,9 +41,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-
+        _subscribeRaffleToVRF(address(looksRareRaffle));
         _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         uint256 winnersCount = 11;
@@ -103,9 +100,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners_SomeParticipantsDrawnMoreThanOnce() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-
+        _subscribeRaffleToVRF(address(looksRareRaffle));
         _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         uint256 winnersCount = 11;
@@ -196,8 +191,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         looksRareRaffle.depositPrizes(2);
         vm.stopPrank();
 
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        _subscribeRaffleToVRF(address(looksRareRaffle));
 
         for (uint256 i; i < 512; ) {
             address participant = address(uint160(i + 1));
@@ -294,8 +288,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
      *      when adding 1-10 to it
      */
     function testFuzz_selectWinners(uint248 seed) public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        _subscribeRaffleToVRF(address(looksRareRaffle));
 
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
         uint256 userIndex;
@@ -368,9 +361,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function test_selectWinners_RevertIf_InvalidStatus() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-
+        _subscribeRaffleToVRF(address(looksRareRaffle));
         _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();

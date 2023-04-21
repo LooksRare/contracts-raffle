@@ -38,8 +38,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
     }
 
     function test_drawWinners() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        _subscribeRaffleToVRF(address(looksRareRaffle));
 
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
