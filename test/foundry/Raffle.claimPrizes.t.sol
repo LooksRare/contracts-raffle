@@ -10,7 +10,6 @@ import {MockERC721} from "./mock/MockERC721.sol";
 
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
-// TODO: Test claim prizes with multiple prizes / claim prizes from multiple raffles
 contract Raffle_ClaimPrizes_Test is TestHelpers {
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndices);
 
@@ -55,6 +54,62 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         _claimPrizes();
         _assertPrizesTransferred();
     }
+
+    function test_claimPrizes_MultiplePrizes() public {
+        _subscribeRaffleToVRF();
+
+        address participant = address(69);
+        uint256 price = 1.17 ether;
+
+        vm.deal(participant, price);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4});
+
+        vm.prank(participant);
+        looksRareRaffle.enterRaffles{value: price}(entries);
+        _fulfillRandomWords();
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        uint256[] memory winnerIndices = new uint256[](11);
+        for (uint256 i; i < 11; ) {
+            winnerIndices[i] = i;
+            unchecked {
+                ++i;
+            }
+        }
+        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        claimPrizesCalldata[0].raffleId = 1;
+        claimPrizesCalldata[0].winnerIndices = winnerIndices;
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
+
+        vm.prank(participant);
+        looksRareRaffle.claimPrizes(claimPrizesCalldata);
+
+        assertEq(mockERC721.balanceOf(participant), 6);
+        for (uint256 i; i < 6; ) {
+            assertEq(mockERC721.ownerOf(i), participant);
+            unchecked {
+                ++i;
+            }
+        }
+
+        assertEq(mockERC20.balanceOf(participant), 5_000 ether);
+
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        for (uint256 i; i < 11; ) {
+            assertTrue(winners[i].claimed);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    // TODO: write test
+    function test_claimPrizes_MultipleRaffles() public {}
 
     function test_claimPrizes_RevertIf_InvalidStatus() public {
         _transitionRaffleStatusToDrawing();
