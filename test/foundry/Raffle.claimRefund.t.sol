@@ -38,7 +38,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     function test_claimRefund_RevertIf_InvalidStatus() public {
         _enterRaffles();
 
-        for (uint256 i = 10; i < 109; ) {
+        for (uint256 i = 10; i < 109; i++) {
             address participant = address(uint160(i + 1));
 
             uint256[] memory raffleIds = new uint256[](1);
@@ -47,10 +47,6 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             vm.expectRevert(IRaffle.InvalidStatus.selector);
             vm.prank(participant);
             looksRareRaffle.claimRefund(raffleIds);
-
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -63,7 +59,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         _validClaimRefunds();
 
-        for (uint256 i = 10; i < 109; ) {
+        for (uint256 i = 10; i < 109; i++) {
             address participant = address(uint160(i + 1));
 
             uint256[] memory raffleIds = new uint256[](1);
@@ -72,16 +68,12 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             vm.expectRevert(IRaffle.AlreadyRefunded.selector);
             vm.prank(participant);
             looksRareRaffle.claimRefund(raffleIds);
-
-            unchecked {
-                ++i;
-            }
         }
     }
 
     function _enterRaffles() private {
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 109; ) {
+        for (uint256 i = 10; i < 109; i++) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 0.025 ether);
@@ -91,15 +83,11 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
         }
     }
 
     function _validClaimRefunds() private {
-        for (uint256 i = 10; i < 109; ) {
+        for (uint256 i = 10; i < 109; i++) {
             address participant = address(uint160(i + 1));
 
             uint256[] memory raffleIds = new uint256[](1);
@@ -118,10 +106,6 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             assertEq(amountPaid, 0.025 ether);
             assertEq(entriesCount, 1);
             assertTrue(refunded);
-
-            unchecked {
-                ++i;
-            }
         }
 
         assertEq(address(looksRareRaffle).balance, 0);

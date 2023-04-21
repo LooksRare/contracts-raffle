@@ -22,11 +22,8 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
 
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
         assertEq(mockERC721.balanceOf(address(looksRareRaffle)), 6);
-        for (uint256 i; i < 6; ) {
+        for (uint256 i; i < 6; i++) {
             assertEq(mockERC721.ownerOf(i), address(looksRareRaffle));
-            unchecked {
-                ++i;
-            }
         }
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
@@ -95,14 +92,11 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
 
     function test_depositPrizes_RevertIf_StatusIsNotCreated_StubAllStatuses() public {
         uint256 raffleId = 1;
-        for (uint8 status; status <= uint8(IRaffle.RaffleStatus.Cancelled); ) {
+        for (uint8 status; status <= uint8(IRaffle.RaffleStatus.Cancelled); status++) {
             if (status != 1) {
                 _stubRaffleStatus(raffleId, status);
                 vm.expectRevert(IRaffle.InvalidStatus.selector);
                 looksRareRaffle.depositPrizes(raffleId);
-            }
-            unchecked {
-                ++status;
             }
         }
     }

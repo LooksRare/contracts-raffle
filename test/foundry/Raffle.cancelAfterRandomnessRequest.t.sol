@@ -39,11 +39,8 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
 
         assertEq(mockERC721.balanceOf(user1), 6);
-        for (uint256 i; i < 6; ) {
+        for (uint256 i; i < 6; i++) {
             assertEq(mockERC721.ownerOf(i), user1);
-            unchecked {
-                ++i;
-            }
         }
         assertEq(mockERC20.balanceOf(user1), 100_000 ether);
     }
@@ -78,7 +75,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
 
     function _enterRaffles() private {
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 116; ) {
+        for (uint256 i = 10; i < 116; i++) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 0.025 ether);
@@ -88,10 +85,6 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
         }
     }
 }

@@ -51,7 +51,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        for (uint256 i; i < 10; ) {
+        for (uint256 i; i < 10; i++) {
             (, IRaffle.RaffleStatus currentStatus, , , , , , , ) = looksRareRaffle.raffles(1);
 
             if (currentStatus == IRaffle.RaffleStatus.Drawing) {
@@ -68,10 +68,6 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
-
-            unchecked {
-                ++i;
-            }
         }
 
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);

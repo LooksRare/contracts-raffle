@@ -142,15 +142,12 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
         entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
 
-        for (uint8 status; status <= uint8(IRaffle.RaffleStatus.Cancelled); ) {
+        for (uint8 status; status <= uint8(IRaffle.RaffleStatus.Cancelled); status++) {
             if (status != 2) {
                 _stubRaffleStatus(raffleId, status);
                 vm.prank(user2);
                 vm.expectRevert(IRaffle.InvalidStatus.selector);
                 looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-            }
-            unchecked {
-                ++status;
             }
         }
     }

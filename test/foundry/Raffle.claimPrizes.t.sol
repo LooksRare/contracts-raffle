@@ -72,11 +72,8 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         uint256[] memory winnerIndices = new uint256[](11);
-        for (uint256 i; i < 11; ) {
+        for (uint256 i; i < 11; i++) {
             winnerIndices[i] = i;
-            unchecked {
-                ++i;
-            }
         }
         IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
         claimPrizesCalldata[0].raffleId = 1;
@@ -89,11 +86,8 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
         assertEq(mockERC721.balanceOf(participant), 6);
-        for (uint256 i; i < 6; ) {
+        for (uint256 i; i < 6; i++) {
             assertEq(mockERC721.ownerOf(i), participant);
-            unchecked {
-                ++i;
-            }
         }
 
         assertEq(mockERC20.balanceOf(participant), 5_000 ether);
@@ -144,11 +138,8 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         looksRareRaffle.selectWinners(requestIdTwo);
 
         uint256[] memory winnerIndices = new uint256[](11);
-        for (uint256 i; i < 11; ) {
+        for (uint256 i; i < 11; i++) {
             winnerIndices[i] = i;
-            unchecked {
-                ++i;
-            }
         }
         IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](2);
         claimPrizesCalldata[0].raffleId = 1;
@@ -166,11 +157,8 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
         assertEq(mockERC721.balanceOf(participant), 12);
-        for (uint256 i; i < 12; ) {
+        for (uint256 i; i < 12; i++) {
             assertEq(mockERC721.ownerOf(i), participant);
-            unchecked {
-                ++i;
-            }
         }
 
         assertEq(mockERC20.balanceOf(participant), 10_000 ether);
@@ -206,7 +194,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
 
-        for (uint256 i; i < 11; ) {
+        for (uint256 i; i < 11; i++) {
             assertFalse(winners[i].claimed);
 
             uint256[] memory winnerIndices = new uint256[](1);
@@ -222,10 +210,6 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             vm.prank(winners[i].participant);
             vm.expectRevert(IRaffle.PrizeAlreadyClaimed.selector);
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
-
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -257,7 +241,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        for (uint256 i; i < 11; ) {
+        for (uint256 i; i < 11; i++) {
             uint256[] memory winnerIndices = new uint256[](1);
             winnerIndices[0] = i;
 
@@ -268,16 +252,12 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             vm.prank(address(42));
             vm.expectRevert(IRaffle.NotWinner.selector);
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
-
-            unchecked {
-                ++i;
-            }
         }
     }
 
     function _claimPrizes() private {
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
-        for (uint256 i; i < 11; ) {
+        for (uint256 i; i < 11; i++) {
             assertFalse(winners[i].claimed);
 
             uint256[] memory winnerIndices = new uint256[](1);
@@ -289,21 +269,15 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
             vm.prank(winners[i].participant);
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
-            unchecked {
-                ++i;
-            }
         }
     }
 
     function _assertPrizesClaimedEventsEmitted() private {
-        for (uint256 i; i < 11; ) {
+        for (uint256 i; i < 11; i++) {
             uint256[] memory winnerIndices = new uint256[](1);
             winnerIndices[0] = i;
             vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
             emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
-            unchecked {
-                ++i;
-            }
         }
     }
 

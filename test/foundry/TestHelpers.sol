@@ -90,7 +90,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         returns (IRaffle.Prize[] memory prizes)
     {
         prizes = new IRaffle.Prize[](7);
-        for (uint256 i; i < 6; ) {
+        for (uint256 i; i < 6; i++) {
             prizes[i].prizeType = IRaffle.TokenType.ERC721;
             prizes[i].prizeAddress = erc721;
             prizes[i].prizeId = i;
@@ -99,10 +99,6 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
             if (i != 0) {
                 prizes[i].prizeTier = 1;
-            }
-
-            unchecked {
-                i++;
             }
         }
         prizes[6].prizeType = IRaffle.TokenType.ERC20;
@@ -142,7 +138,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntries() internal {
-        for (uint256 i; i < 107; ) {
+        for (uint256 i; i < 107; i++) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 0.025 ether);
@@ -152,10 +148,6 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
         }
     }
 

@@ -139,11 +139,8 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         mockERC721.batchMint(user1, 6, 6);
 
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        for (uint256 i; i < 6; ) {
+        for (uint256 i; i < 6; i++) {
             params.prizes[i].prizeId = i + 6;
-            unchecked {
-                ++i;
-            }
         }
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
@@ -157,7 +154,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
         _subscribeRaffleToVRF();
 
-        for (uint256 i; i < 512; ) {
+        for (uint256 i; i < 512; i++) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 0.025 ether);
@@ -167,10 +164,6 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-
-            unchecked {
-                ++i;
-            }
         }
 
         uint256 winnersCount = 11;
@@ -264,11 +257,8 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
-        for (uint256 i; i < winnersCount; ) {
+        for (uint256 i; i < winnersCount; i++) {
             randomWords[i] = uint256(keccak256(abi.encodePacked(seed + i)));
-            unchecked {
-                ++i;
-            }
         }
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
@@ -282,31 +272,21 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
-        for (uint256 i; i < 6; ) {
+        for (uint256 i; i < 6; i++) {
             assertEq(winners[i].prizeIndex, i);
-            unchecked {
-                ++i;
-            }
         }
 
-        for (uint256 i = 6; i < winnersCount; ) {
+        for (uint256 i = 6; i < winnersCount; i++) {
             assertEq(winners[i].prizeIndex, 6);
-            unchecked {
-                ++i;
-            }
         }
 
-        for (uint256 i; i < winnersCount; ) {
+        for (uint256 i; i < winnersCount; i++) {
             assertFalse(winners[i].claimed);
             assertNotEq(winners[i].participant, address(0));
 
             uint256 entryIndex = winners[i].entryIndex;
             assertFalse(winningEntries[entryIndex]);
             winningEntries[entryIndex] = true;
-
-            unchecked {
-                ++i;
-            }
         }
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
@@ -335,18 +315,12 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     }
 
     function _assertERC20Winners(IRaffle.Winner[] memory winners) private {
-        for (uint256 i = 6; i < winners.length; ) {
+        for (uint256 i = 6; i < winners.length; i++) {
             assertEq(winners[i].prizeIndex, 6);
-            unchecked {
-                ++i;
-            }
         }
 
-        for (uint256 i; i < winners.length; ) {
+        for (uint256 i; i < winners.length; i++) {
             assertFalse(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
         }
     }
 }
