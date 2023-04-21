@@ -16,9 +16,6 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.prank(owner);
-        looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
-
         vm.startPrank(user1);
         _createStandardRaffle();
 

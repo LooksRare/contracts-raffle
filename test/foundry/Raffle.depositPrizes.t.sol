@@ -13,9 +13,6 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.prank(owner);
-        looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
-
         vm.prank(user1);
         _createStandardRaffle();
     }

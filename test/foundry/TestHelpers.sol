@@ -32,6 +32,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _deployRaffle() internal {
         MockWETH weth = new MockWETH();
+
         looksRareRaffle = new Raffle(
             address(weth),
             KEY_HASH,
@@ -41,10 +42,14 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             PROTOCOL_FEE_RECIPIENT,
             500
         );
+
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
-        vm.prank(owner);
+
+        vm.startPrank(owner);
         looksRareRaffle.updateCurrencyStatus(address(0), true);
+        looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
+        vm.stopPrank();
     }
 
     function _baseCreateRaffleParams(address erc20, address erc721)

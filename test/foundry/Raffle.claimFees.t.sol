@@ -19,9 +19,6 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.prank(owner);
-        looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
-
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
