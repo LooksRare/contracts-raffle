@@ -35,7 +35,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         vm.stopPrank();
 
         _subscribeRaffleToVRF(address(looksRareRaffle));
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
+        _enterRafflesWithSingleEntryUpToMinimumEntries();
     }
 
     function test_fulfillRandomWords() public {

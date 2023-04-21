@@ -36,7 +36,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
     function test_selectWinners() public {
         _subscribeRaffleToVRF(address(looksRareRaffle));
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
+        _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
@@ -83,7 +83,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
     function test_selectWinners_SomeParticipantsDrawnMoreThanOnce() public {
         _subscribeRaffleToVRF(address(looksRareRaffle));
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
+        _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256 winnersCount = 11;
         uint256[] memory randomWords = new uint256[](winnersCount);
@@ -320,7 +320,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
     function test_selectWinners_RevertIf_InvalidStatus() public {
         _subscribeRaffleToVRF(address(looksRareRaffle));
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
+        _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 

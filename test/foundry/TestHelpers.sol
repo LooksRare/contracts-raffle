@@ -134,7 +134,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
     }
 
-    function _enterRafflesWithSingleEntryUpToMinimumEntries(Raffle looksRareRaffle) internal {
+    function _enterRafflesWithSingleEntryUpToMinimumEntries() internal {
         for (uint256 i; i < 107; ) {
             address participant = address(uint160(i + 1));
 
@@ -154,7 +154,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
         _subscribeRaffleToVRF(address(looksRareRaffle));
-        _enterRafflesWithSingleEntryUpToMinimumEntries(looksRareRaffle);
+        _enterRafflesWithSingleEntryUpToMinimumEntries();
     }
 
     function _subscribeRaffleToVRF(address looksRareRaffle) internal {
