@@ -88,10 +88,23 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Open);
     }
 
-    // TODO: Use vm.store to mock different raffle statuses
     function test_depositPrizes_RevertIf_StatusIsNotCreated() public {
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.depositPrizes(2);
+    }
+
+    function test_depositPrizes_RevertIf_StatusIsNotCreated_StubAllStatuses() public {
+        uint256 raffleId = 1;
+        for (uint8 status; status <= uint8(IRaffle.RaffleStatus.Cancelled); ) {
+            if (status != 1) {
+                _stubRaffleStatus(raffleId, status);
+                vm.expectRevert(IRaffle.InvalidStatus.selector);
+                looksRareRaffle.depositPrizes(raffleId);
+            }
+            unchecked {
+                ++status;
+            }
+        }
     }
 
     function test_depositPrizes_RevertIf_NotRaffleOwner() public asPrankedUser(user2) {

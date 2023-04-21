@@ -175,4 +175,14 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
     }
+
+    function _stubRaffleStatus(uint256 raffleId, uint8 status) internal {
+        address raffle = address(looksRareRaffle);
+        bytes32 slot = bytes32(keccak256(abi.encode(raffleId, uint256(3))));
+        uint256 value = uint256(vm.load(raffle, slot));
+        uint256 mask = 0xff << 160;
+        uint256 statusBits = uint256(status) << 160;
+
+        vm.store(raffle, slot, bytes32((value & ~mask) | (statusBits & mask)));
+    }
 }

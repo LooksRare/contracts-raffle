@@ -115,7 +115,6 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
     }
 
-    // TODO: use vm.store to mock the raffle status
     function test_enterRaffles_RevertIf_InvalidStatus() public {
         vm.deal(user2, 1 ether);
 
@@ -134,6 +133,26 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.prank(user2);
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
+    }
+
+    function test_enterRaffles_RevertIf_InvalidStatus_StubAllStatuses() public {
+        uint256 raffleId = 1;
+        vm.deal(user2, 1 ether);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
+
+        for (uint8 status; status <= uint8(IRaffle.RaffleStatus.Cancelled); ) {
+            if (status != 2) {
+                _stubRaffleStatus(raffleId, status);
+                vm.prank(user2);
+                vm.expectRevert(IRaffle.InvalidStatus.selector);
+                looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
+            }
+            unchecked {
+                ++status;
+            }
+        }
     }
 
     function test_enterRaffles_RevertIf_CutoffTimeReached() public asPrankedUser(user2) {
