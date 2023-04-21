@@ -31,7 +31,10 @@ contract CreateRaffle is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(0x588D6b9e1ca9609C96c4ee597330fB01A52C228D);
+        Raffle raffle = Raffle(0x61d9Ffd914f1b5f3829B195E60B53d0E5a173681);
+
+        raffle.updateCurrencyStatus(address(0), true);
+        raffle.updateCurrencyStatus(0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC, true);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
