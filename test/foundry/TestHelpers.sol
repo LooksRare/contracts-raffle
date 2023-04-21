@@ -51,7 +51,6 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         params = IRaffle.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
             minimumEntries: 107,
-            maximumEntries: 200,
             maximumEntriesPerParticipant: 199,
             prizesTotalValue: 1 ether,
             minimumProfitBp: 500,

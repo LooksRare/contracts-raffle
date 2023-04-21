@@ -39,7 +39,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             uint40 cutoffTime,
             uint40 drawnAt,
             uint40 minimumEntries,
-            uint40 maximumEntries,
             uint40 maximumEntriesPerParticipant,
             uint16 minimumProfitBp,
             uint16 protocolFeeBp,
@@ -52,7 +51,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(cutoffTime, uint40(block.timestamp + 86_400));
         assertEq(drawnAt, 0);
         assertEq(minimumEntries, 107);
-        assertEq(maximumEntries, 200);
         assertEq(maximumEntriesPerParticipant, 199);
         assertEq(prizesTotalValue, 1 ether);
         assertEq(minimumProfitBp, 500);
@@ -109,14 +107,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(looksRareRaffle.rafflesCount(), 1);
     }
 
-    function test_createRaffle_RevertIf_InvalidMaximumEntriesPerParticipant() public {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.maximumEntriesPerParticipant = params.maximumEntries + 1;
-
-        vm.expectRevert(IRaffle.InvalidMaximumEntriesPerParticipant.selector);
-        looksRareRaffle.createRaffle(params);
-    }
-
     function test_createRaffle_RevertIf_InvalidPrizesCount_TooManyPrizes() public {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes = new IRaffle.Prize[](21);
@@ -148,15 +138,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         params.protocolFeeBp = protocolFeeBp;
 
         vm.expectRevert(IRaffle.InvalidProtocolFeeBp.selector);
-        looksRareRaffle.createRaffle(params);
-    }
-
-    function test_createRaffle_RevertIf_InvalidEntriesRange() public {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-
-        params.minimumEntries = params.maximumEntries + 1;
-        params.maximumEntriesPerParticipant = params.maximumEntries;
-        vm.expectRevert(IRaffle.InvalidEntriesRange.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -233,7 +214,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function test_createRaffle_RevertIf_PrizeIsETH_InvalidWinnersCount() public {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.minimumEntries = 105;
-        params.maximumEntries = 106;
         params.maximumEntriesPerParticipant = 100;
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);

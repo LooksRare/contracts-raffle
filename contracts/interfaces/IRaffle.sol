@@ -76,7 +76,6 @@ interface IRaffle {
      * @param cutoffTime The time after which the raffle cannot be entered.
      * @param drawnAt The time at which the raffle was drawn. It is still pending Chainlink to fulfill the randomness request.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
-     * @param maximumEntries The maximum number of entries allowed in the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
@@ -94,7 +93,6 @@ interface IRaffle {
         uint40 cutoffTime;
         uint40 drawnAt;
         uint40 minimumEntries;
-        uint40 maximumEntries;
         uint40 maximumEntriesPerParticipant;
         uint16 minimumProfitBp;
         uint16 protocolFeeBp;
@@ -130,7 +128,6 @@ interface IRaffle {
     /**
      * @param cutoffTime The time at which the raffle will be closed.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
-     * @param maximumEntries The maximum number of entries allowed to enter the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
@@ -142,7 +139,6 @@ interface IRaffle {
     struct CreateRaffleCalldata {
         uint40 cutoffTime;
         uint40 minimumEntries;
-        uint40 maximumEntries;
         uint40 maximumEntriesPerParticipant;
         uint16 minimumProfitBp;
         uint16 protocolFeeBp;
@@ -188,9 +184,7 @@ interface IRaffle {
     error InvalidCallbackGasLimit();
     error InvalidCurrency();
     error InvalidCutoffTime();
-    error InvalidEntriesRange();
     error InvalidIndex();
-    error InvalidMaximumEntriesPerParticipant();
     error InvalidMinimumProfitBp();
     error InvalidPricingOption();
     error InvalidPrize();
@@ -199,7 +193,6 @@ interface IRaffle {
     error InvalidProtocolFeeRecipient();
     error InvalidStatus();
     error InvalidWinnersCount();
-    error MaximumEntriesReached();
     error MaximumEntriesPerParticipantReached();
     error MinimumEntriesReached();
     error NotRaffleOwner();

@@ -33,7 +33,6 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
-        params.maximumEntries = 512;
         params.maximumEntriesPerParticipant = 100;
 
         vm.startPrank(user1);

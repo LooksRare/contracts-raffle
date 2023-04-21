@@ -64,7 +64,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         for (uint256 i; i < 10; ) {
-            (, IRaffle.RaffleStatus currentStatus, , , , , , , , , , ) = looksRareRaffle.raffles(1);
+            (, IRaffle.RaffleStatus currentStatus, , , , , , , , , ) = looksRareRaffle.raffles(1);
 
             if (currentStatus == IRaffle.RaffleStatus.Drawing) {
                 break;
@@ -91,7 +91,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         assertTrue(exists);
         assertEq(raffleId, 1);
 
-        (, IRaffle.RaffleStatus status, , uint40 drawnAt, , , , , , , , ) = looksRareRaffle.raffles(1);
+        (, IRaffle.RaffleStatus status, , uint40 drawnAt, , , , , , , ) = looksRareRaffle.raffles(1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Drawing));
         assertEq(drawnAt, block.timestamp);
     }

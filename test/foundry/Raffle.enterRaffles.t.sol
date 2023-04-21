@@ -162,28 +162,6 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
     }
 
-    function test_enterRaffles_RevertIf_MaximumEntriesReached() public {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
-
-        vm.deal(user2, 0.975 ether);
-        vm.deal(user3, 0.95 ether);
-
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
-
-        vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: 0.975 ether}(entries);
-
-        entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4});
-
-        vm.expectRevert(IRaffle.MaximumEntriesReached.selector);
-        vm.prank(user3);
-        looksRareRaffle.enterRaffles{value: 0.95 ether}(entries);
-    }
-
     function test_enterRaffles_RevertIf_InsufficientNativeTokensSupplied() public {
         vm.prank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));

@@ -166,17 +166,6 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId) {
-        uint40 maximumEntries = params.maximumEntries;
-        uint40 maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        if (maximumEntriesPerParticipant > maximumEntries) {
-            revert InvalidMaximumEntriesPerParticipant();
-        }
-
-        uint40 minimumEntries = params.minimumEntries;
-        if (minimumEntries > maximumEntries) {
-            revert InvalidEntriesRange();
-        }
-
         uint40 cutoffTime = params.cutoffTime;
         if (block.timestamp + ONE_DAY > cutoffTime || cutoffTime > block.timestamp + ONE_WEEK) {
             revert InvalidCutoffTime();
@@ -222,6 +211,7 @@ contract Raffle is
             }
         }
 
+        uint40 minimumEntries = params.minimumEntries;
         if (cumulativeWinnersCount > minimumEntries || cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
             revert InvalidWinnersCount();
         }
@@ -232,8 +222,7 @@ contract Raffle is
         raffles[raffleId].status = RaffleStatus.Created;
         raffles[raffleId].cutoffTime = cutoffTime;
         raffles[raffleId].minimumEntries = minimumEntries;
-        raffles[raffleId].maximumEntries = maximumEntries;
-        raffles[raffleId].maximumEntriesPerParticipant = maximumEntriesPerParticipant;
+        raffles[raffleId].maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
         raffles[raffleId].minimumProfitBp = minimumProfitBp;
         raffles[raffleId].protocolFeeBp = params.protocolFeeBp;
         raffles[raffleId].prizesTotalValue = params.prizesTotalValue;
@@ -346,10 +335,6 @@ contract Raffle is
                 currentEntryIndex =
                     raffle.entries[raffleEntriesCount - 1].currentEntryIndex +
                     pricingOption.entriesCount;
-            }
-
-            if (currentEntryIndex >= raffle.maximumEntries) {
-                revert MaximumEntriesReached();
             }
 
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));

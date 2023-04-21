@@ -51,7 +51,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        (, , , , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
+        (, , , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
         assertEq(address(looksRareRaffle).balance, 2.675 ether);
         assertEq(claimableFees, 2.675 ether);
         uint256 raffleOwnerBalance = user1.balance;
@@ -67,7 +67,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         looksRareRaffle.claimFees(1);
 
-        (, , , , , , , , , , , claimableFees) = looksRareRaffle.raffles(1);
+        (, , , , , , , , , , claimableFees) = looksRareRaffle.raffles(1);
         assertEq(address(looksRareRaffle).balance, 0.13375 ether);
         assertEq(claimableFees, 0);
         assertEq(user1.balance, raffleOwnerBalance + 2.54125 ether);

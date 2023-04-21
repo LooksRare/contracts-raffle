@@ -78,7 +78,6 @@ contract CreateRaffle is Script {
             IRaffle.CreateRaffleCalldata({
                 cutoffTime: uint40(block.timestamp + 5 days),
                 minimumEntries: 10,
-                maximumEntries: 10,
                 maximumEntriesPerParticipant: 10,
                 prizesTotalValue: 0.00001 ether,
                 minimumProfitBp: 500,
