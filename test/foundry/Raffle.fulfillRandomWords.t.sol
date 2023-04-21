@@ -45,21 +45,16 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     }
 
     function test_fulfillRandomWords() public {
-        uint256[] memory _randomWords = _generateRandomWordsForRaffleWith11Winners();
-
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
-            FULFILL_RANDOM_WORDS_REQUEST_ID,
-            _randomWords
-        );
+        _fulfillRandomWords(address(looksRareRaffle));
 
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
         uint256[] memory randomWords = looksRareRaffle.getRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID);
         assertTrue(exists);
         assertEq(raffleId, 1);
+        uint256[] memory _randomWords = _generateRandomWordsForRaffleWith11Winners();
         assertEq(randomWords, _randomWords);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.RandomnessFulfilled);
@@ -101,16 +96,10 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     }
 
     function test_fulfillRandomWords_RaffleStatusIsNotDrawing() public {
-        uint256[] memory _randomWords = _generateRandomWordsForRaffleWith11Winners();
-
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
-            FULFILL_RANDOM_WORDS_REQUEST_ID,
-            _randomWords
-        );
+        _fulfillRandomWords(address(looksRareRaffle));
 
         uint256[] memory _randomWordsTwo = new uint256[](11);
 
@@ -125,6 +114,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         uint256[] memory randomWords = looksRareRaffle.getRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID);
         assertTrue(exists);
         assertEq(raffleId, 1);
+        uint256[] memory _randomWords = _generateRandomWordsForRaffleWith11Winners();
         assertEq(randomWords, _randomWords);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.RandomnessFulfilled);

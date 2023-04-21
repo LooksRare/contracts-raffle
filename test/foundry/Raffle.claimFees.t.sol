@@ -43,11 +43,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
     function test_claimFees() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
-
-        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        _fulfillRandomWords(address(looksRareRaffle));
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 

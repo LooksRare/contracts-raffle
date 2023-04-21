@@ -44,10 +44,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_StatusIsDrawn() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        _fulfillRandomWords(address(looksRareRaffle));
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -59,10 +56,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_StatusIsComplete() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        _fulfillRandomWords(address(looksRareRaffle));
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
         looksRareRaffle.claimFees(1);
@@ -90,10 +84,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_RevertIf_PrizeAlreadyClaimed() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        _fulfillRandomWords(address(looksRareRaffle));
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -125,10 +116,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_RevertIf_InvalidIndex() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        _fulfillRandomWords(address(looksRareRaffle));
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -149,10 +137,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_RevertIf_NotWinner() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        _fulfillRandomWords(address(looksRareRaffle));
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 

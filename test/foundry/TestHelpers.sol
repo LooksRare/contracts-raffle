@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 import {AssertionHelpers} from "./AssertionHelpers.sol";
@@ -163,5 +164,12 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     function _subscribeRaffleToVRF(address looksRareRaffle) internal {
         vm.prank(SUBSCRIPTION_ADMIN);
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, looksRareRaffle);
+    }
+
+    function _fulfillRandomWords(address looksRareRaffle) internal {
+        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
+
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
     }
 }
