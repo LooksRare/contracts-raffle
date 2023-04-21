@@ -162,7 +162,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
     }
 
-    function _fulfillRandomWords(address looksRareRaffle) internal {
+    function _fulfillRandomWords() internal {
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
         vm.prank(VRF_COORDINATOR);

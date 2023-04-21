@@ -40,7 +40,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_StatusIsDrawn() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -52,7 +52,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_StatusIsComplete() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
         looksRareRaffle.claimFees(1);
@@ -80,7 +80,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_RevertIf_PrizeAlreadyClaimed() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -112,7 +112,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_RevertIf_InvalidIndex() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -133,7 +133,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     function test_claimPrizes_RevertIf_NotWinner() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
 
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 

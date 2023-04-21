@@ -42,7 +42,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
         uint256[] memory randomWords = looksRareRaffle.getRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID);
@@ -93,7 +93,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         uint256[] memory _randomWordsTwo = new uint256[](11);
 

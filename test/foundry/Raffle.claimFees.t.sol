@@ -38,7 +38,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
     function test_claimFees() public {
         _transitionRaffleStatusToDrawing(looksRareRaffle);
-        _fulfillRandomWords(address(looksRareRaffle));
+        _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
