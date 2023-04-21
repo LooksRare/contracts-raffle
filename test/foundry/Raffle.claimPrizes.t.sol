@@ -25,7 +25,6 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         vm.startPrank(user1);
         looksRareRaffle.createRaffle(params);
-
         looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
     }
@@ -108,8 +107,95 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         }
     }
 
-    // TODO: write test
-    function test_claimPrizes_MultipleRaffles() public {}
+    function test_claimPrizes_MultipleRaffles() public {
+        mockERC721.batchMint(user1, 6, 6);
+
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        for (uint256 i; i < prizes.length; i++) {
+            prizes[i].prizeId = i + 6;
+        }
+
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        prizes[6].winnersCount = 5;
+        params.prizes = prizes;
+
+        vm.startPrank(user1);
+        looksRareRaffle.createRaffle(params);
+        looksRareRaffle.depositPrizes(2);
+        vm.stopPrank();
+
+        _subscribeRaffleToVRF();
+
+        address participant = address(69);
+        uint256 price = 2.34 ether;
+
+        vm.deal(participant, price);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](4);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4});
+        entries[2] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1});
+        entries[3] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4});
+
+        vm.prank(participant);
+        looksRareRaffle.enterRaffles{value: price}(entries);
+        _fulfillRandomWords();
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        uint256 requestIdTwo = 108392438658618723438648115145292582477374264027476206043327064348457204807342;
+        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(requestIdTwo, randomWords);
+        looksRareRaffle.selectWinners(requestIdTwo);
+
+        uint256[] memory winnerIndices = new uint256[](11);
+        for (uint256 i; i < 11; ) {
+            winnerIndices[i] = i;
+            unchecked {
+                ++i;
+            }
+        }
+        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](2);
+        claimPrizesCalldata[0].raffleId = 1;
+        claimPrizesCalldata[0].winnerIndices = winnerIndices;
+        claimPrizesCalldata[1].raffleId = 2;
+        claimPrizesCalldata[1].winnerIndices = winnerIndices;
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit PrizesClaimed({raffleId: 2, winnerIndices: winnerIndices});
+
+        vm.prank(participant);
+        looksRareRaffle.claimPrizes(claimPrizesCalldata);
+
+        assertEq(mockERC721.balanceOf(participant), 12);
+        for (uint256 i; i < 12; ) {
+            assertEq(mockERC721.ownerOf(i), participant);
+            unchecked {
+                ++i;
+            }
+        }
+
+        assertEq(mockERC20.balanceOf(participant), 10_000 ether);
+
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        for (uint256 i; i < 11; ) {
+            assertTrue(winners[i].claimed);
+            unchecked {
+                ++i;
+            }
+        }
+
+        winners = looksRareRaffle.getWinners(2);
+        for (uint256 i; i < 11; ) {
+            assertTrue(winners[i].claimed);
+            unchecked {
+                ++i;
+            }
+        }
+    }
 
     function test_claimPrizes_RevertIf_InvalidStatus() public {
         _transitionRaffleStatusToDrawing();
