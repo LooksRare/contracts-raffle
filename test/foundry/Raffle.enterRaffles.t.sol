@@ -24,7 +24,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
 
         vm.startPrank(user1);
-        _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
+        _createStandardRaffle();
 
         looksRareRaffle.depositPrizes(1);
         vm.stopPrank();
@@ -135,7 +135,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
 
         // Raffle is not open
         vm.prank(user1);
-        _createStandardRaffle(address(mockERC20), address(mockERC721), looksRareRaffle);
+        _createStandardRaffle();
 
         vm.prank(user2);
         vm.expectRevert(IRaffle.InvalidStatus.selector);

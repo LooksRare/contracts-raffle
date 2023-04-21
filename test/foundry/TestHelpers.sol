@@ -130,12 +130,8 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         vm.stopPrank();
     }
 
-    function _createStandardRaffle(
-        address mockERC20,
-        address mockERC721,
-        Raffle looksRareRaffle
-    ) internal {
-        looksRareRaffle.createRaffle(_baseCreateRaffleParams(mockERC20, mockERC721));
+    function _createStandardRaffle() internal {
+        looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntries(Raffle looksRareRaffle) internal {
