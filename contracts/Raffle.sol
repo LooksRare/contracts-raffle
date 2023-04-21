@@ -457,45 +457,6 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function getWinners(uint256 raffleId) external view returns (Winner[] memory winners) {
-        winners = raffles[raffleId].winners;
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function getPrizes(uint256 raffleId) external view returns (Prize[] memory prizes) {
-        prizes = raffles[raffleId].prizes;
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function getEntries(uint256 raffleId) external view returns (Entry[] memory entries) {
-        entries = raffles[raffleId].entries;
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function getPricingOptions(uint256 raffleId)
-        external
-        view
-        returns (PricingOption[PRICING_OPTIONS_PER_RAFFLE] memory pricingOptions)
-    {
-        pricingOptions = raffles[raffleId].pricingOptions;
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function getRandomWords(uint256 requestId) external view returns (uint256[] memory randomWords) {
-        randomWords = randomnessRequests[requestId].randomWords;
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
     function claimProtocolFees(address currency) external onlyOwner {
         uint256 claimableFees = protocolFeeRecipientClaimableFees[currency];
         protocolFeeRecipientClaimableFees[currency] = 0;
@@ -622,6 +583,60 @@ contract Raffle is
      */
     function setProtocolFeeBp(uint16 _protocolFeeBp) external onlyOwner {
         _setProtocolFeeBp(_protocolFeeBp);
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
+        isCurrencyAllowed[currency] = isAllowed;
+        emit CurrencyStatusUpdated(currency, isAllowed);
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function togglePaused() external onlyOwner {
+        paused() ? _unpause() : _pause();
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function getWinners(uint256 raffleId) external view returns (Winner[] memory winners) {
+        winners = raffles[raffleId].winners;
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function getPrizes(uint256 raffleId) external view returns (Prize[] memory prizes) {
+        prizes = raffles[raffleId].prizes;
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function getEntries(uint256 raffleId) external view returns (Entry[] memory entries) {
+        entries = raffles[raffleId].entries;
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function getPricingOptions(uint256 raffleId)
+        external
+        view
+        returns (PricingOption[PRICING_OPTIONS_PER_RAFFLE] memory pricingOptions)
+    {
+        pricingOptions = raffles[raffleId].pricingOptions;
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function getRandomWords(uint256 requestId) external view returns (uint256[] memory randomWords) {
+        randomWords = randomnessRequests[requestId].randomWords;
     }
 
     /**
@@ -882,17 +897,5 @@ contract Raffle is
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
         emit RandomnessRequested(raffleId, requestId);
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
-        isCurrencyAllowed[currency] = isAllowed;
-        emit CurrencyStatusUpdated(currency, isAllowed);
-    }
-
-    function togglePaused() external onlyOwner {
-        paused() ? _unpause() : _pause();
     }
 }

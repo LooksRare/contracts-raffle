@@ -218,40 +218,6 @@ interface IRaffle {
     function selectWinners(uint256 requestId) external;
 
     /**
-     * @notice Gets the winners for a raffle.
-     * @param raffleId The id of the raffle.
-     * @return winners The winners of the raffle.
-     */
-    function getWinners(uint256 raffleId) external view returns (Winner[] memory);
-
-    /**
-     * @notice Gets the pricing options for a raffle.
-     * @param raffleId The id of the raffle.
-     * @return pricingOptions The pricing options for the raffle.
-     */
-    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[5] memory);
-
-    /**
-     * @notice Gets the prizes for a raffle.
-     * @param raffleId The id of the raffle.
-     * @return prizes The prizes to be distributed.
-     */
-    function getPrizes(uint256 raffleId) external view returns (Prize[] memory);
-
-    /**
-     * @notice Gets the entries for a raffle.
-     * @param raffleId The id of the raffle.
-     * @return entries The entries entered for the raffle.
-     */
-    function getEntries(uint256 raffleId) external view returns (Entry[] memory);
-
-    /**
-     * @notice Gets the random words returned by Chainlink for a randomness request.
-     * @param requestId The request id returned by Chainlink.
-     */
-    function getRandomWords(uint256 requestId) external view returns (uint256[] memory);
-
-    /**
      * @notice Claims the prizes for a winner. A winner can claim multiple prizes
      *         from multiple raffles in a single transaction.
      * @param claimPrizesCalldata The calldata for claiming prizes.
@@ -320,4 +286,38 @@ interface IRaffle {
      * @notice Toggle the contract's paused status. Only callable by contract owner.
      */
     function togglePaused() external;
+
+    /**
+     * @notice Gets the winners for a raffle.
+     * @param raffleId The id of the raffle.
+     * @return winners The winners of the raffle.
+     */
+    function getWinners(uint256 raffleId) external view returns (Winner[] memory);
+
+    /**
+     * @notice Gets the pricing options for a raffle.
+     * @param raffleId The id of the raffle.
+     * @return pricingOptions The pricing options for the raffle.
+     */
+    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[5] memory);
+
+    /**
+     * @notice Gets the prizes for a raffle.
+     * @param raffleId The id of the raffle.
+     * @return prizes The prizes to be distributed.
+     */
+    function getPrizes(uint256 raffleId) external view returns (Prize[] memory);
+
+    /**
+     * @notice Gets the entries for a raffle.
+     * @param raffleId The id of the raffle.
+     * @return entries The entries entered for the raffle.
+     */
+    function getEntries(uint256 raffleId) external view returns (Entry[] memory);
+
+    /**
+     * @notice Gets the random words returned by Chainlink for a randomness request.
+     * @param requestId The request id returned by Chainlink.
+     */
+    function getRandomWords(uint256 requestId) external view returns (uint256[] memory);
 }
