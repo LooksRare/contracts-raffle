@@ -13,7 +13,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         _deployRaffle();
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
-        _mintStandardRafflePrizesToRaffleOwnerAndApprove(mockERC20, mockERC721, address(looksRareRaffle));
+        _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
         vm.prank(owner);
         looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);

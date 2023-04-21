@@ -45,12 +45,12 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         looksRareRaffle.updateCurrencyStatus(address(0), true);
     }
 
-    function _baseCreateRaffleParams(address mockERC20, address mockERC721)
+    function _baseCreateRaffleParams(address erc20, address erc721)
         internal
         view
         returns (IRaffle.CreateRaffleCalldata memory params)
     {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(mockERC20, mockERC721);
+        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(erc20, erc721);
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
         params = IRaffle.CreateRaffleCalldata({
@@ -77,7 +77,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
      *      2nd prize: floor ERC721 (5 winners)
      *      3rd prize: 1,000 LOOKS (100 winners)
      */
-    function _generateStandardRafflePrizes(address mockERC20, address mockERC721)
+    function _generateStandardRafflePrizes(address erc20, address erc721)
         internal
         pure
         returns (IRaffle.Prize[] memory prizes)
@@ -85,7 +85,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         prizes = new IRaffle.Prize[](7);
         for (uint256 i; i < 6; ) {
             prizes[i].prizeType = IRaffle.TokenType.ERC721;
-            prizes[i].prizeAddress = mockERC721;
+            prizes[i].prizeAddress = erc721;
             prizes[i].prizeId = i;
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
@@ -100,7 +100,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         }
         prizes[6].prizeType = IRaffle.TokenType.ERC20;
         prizes[6].prizeTier = 2;
-        prizes[6].prizeAddress = mockERC20;
+        prizes[6].prizeAddress = erc20;
         prizes[6].prizeAmount = 1_000e18;
         prizes[6].winnersCount = 100;
     }
@@ -120,17 +120,13 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         randomWords[10] = 3_14159; // 314159 % 107 + 1 = 8
     }
 
-    function _mintStandardRafflePrizesToRaffleOwnerAndApprove(
-        MockERC20 mockERC20,
-        MockERC721 mockERC721,
-        address looksRareRaffle
-    ) internal {
+    function _mintStandardRafflePrizesToRaffleOwnerAndApprove() internal {
         mockERC20.mint(user1, 100_000 ether);
         mockERC721.batchMint(user1, 0, 6);
 
         vm.startPrank(user1);
-        mockERC20.approve(looksRareRaffle, 100_000 ether);
-        mockERC721.setApprovalForAll(looksRareRaffle, true);
+        mockERC20.approve(address(looksRareRaffle), 100_000 ether);
+        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
         vm.stopPrank();
     }
 
