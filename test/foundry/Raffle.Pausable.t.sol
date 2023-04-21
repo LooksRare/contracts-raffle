@@ -15,7 +15,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
     event Unpaused(address account);
 
     function setUp() public {
-        looksRareRaffle = _deployRaffle();
+        _deployRaffle();
     }
 
     function test_pause() public asPrankedUser(owner) {

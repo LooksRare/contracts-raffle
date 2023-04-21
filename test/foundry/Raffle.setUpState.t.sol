@@ -13,7 +13,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
     event CurrencyStatusUpdated(address currency, bool isAllowed);
 
     function setUp() public {
-        looksRareRaffle = _deployRaffle();
+        _deployRaffle();
     }
 
     function test_setUpState() public {

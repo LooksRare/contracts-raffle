@@ -12,7 +12,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function setUp() public {
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
-        looksRareRaffle = _deployRaffle();
+        _deployRaffle();
 
         vm.prank(owner);
         looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);

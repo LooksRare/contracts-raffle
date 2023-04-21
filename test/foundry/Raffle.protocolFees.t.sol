@@ -14,7 +14,7 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
 
     function setUp() public {
-        looksRareRaffle = _deployRaffle();
+        _deployRaffle();
     }
 
     function test_setProtocolFeeRecipient() public asPrankedUser(owner) {

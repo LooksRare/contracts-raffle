@@ -10,7 +10,7 @@ import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_DepositPrizes_Test is TestHelpers {
     function setUp() public {
-        looksRareRaffle = _deployRaffle();
+        _deployRaffle();
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove(mockERC20, mockERC721, address(looksRareRaffle));

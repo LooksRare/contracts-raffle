@@ -30,7 +30,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         vm.stopPrank();
     }
 
-    function _deployRaffle() internal returns (Raffle looksRareRaffle) {
+    function _deployRaffle() internal {
         MockWETH weth = new MockWETH();
         looksRareRaffle = new Raffle(
             address(weth),

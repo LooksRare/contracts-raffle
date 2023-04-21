@@ -14,7 +14,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 
-        looksRareRaffle = _deployRaffle();
+        _deployRaffle();
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
 

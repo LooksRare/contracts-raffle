@@ -13,7 +13,7 @@ contract Raffle_CallbackGasLimit_Test is TestHelpers {
     event CallbackGasLimitUpdated(uint32 callbackGasLimit);
 
     function setUp() public {
-        looksRareRaffle = _deployRaffle();
+        _deployRaffle();
     }
 
     function test_setCallbackGasLimit() public asPrankedUser(owner) {
