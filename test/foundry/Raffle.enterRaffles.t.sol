@@ -15,8 +15,6 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
 
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
 
-    event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
-
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 

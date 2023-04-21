@@ -13,8 +13,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
-
     function setUp() public {
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();

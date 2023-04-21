@@ -14,8 +14,6 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     MockERC20 private mockERC20;
     MockERC721 private mockERC721;
 
-    event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
-
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 

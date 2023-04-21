@@ -10,6 +10,8 @@ import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
 abstract contract AssertionHelpers is Test {
+    event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
+
     function assertRaffleStatus(
         Raffle looksRareRaffle,
         uint256 raffleId,
