@@ -20,4 +20,10 @@ abstract contract AssertionHelpers is Test {
         (, IRaffle.RaffleStatus status, , , , , , , ) = looksRareRaffle.raffles(raffleId);
         assertEq(uint8(status), uint8(expectedStatus));
     }
+
+    function assertAllWinnersClaimed(IRaffle.Winner[] memory winners) internal {
+        for (uint256 i; i < winners.length; i++) {
+            assertTrue(winners[i].claimed);
+        }
+    }
 }

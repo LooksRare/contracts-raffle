@@ -99,12 +99,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         assertEq(mockERC20.balanceOf(participant), 5_000 ether);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
-        for (uint256 i; i < 11; ) {
-            assertTrue(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        assertAllWinnersClaimed(winners);
     }
 
     function test_claimPrizes_MultipleRaffles() public {
@@ -181,20 +176,10 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         assertEq(mockERC20.balanceOf(participant), 10_000 ether);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
-        for (uint256 i; i < 11; ) {
-            assertTrue(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        assertAllWinnersClaimed(winners);
 
         winners = looksRareRaffle.getWinners(2);
-        for (uint256 i; i < 11; ) {
-            assertTrue(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        assertAllWinnersClaimed(winners);
     }
 
     function test_claimPrizes_RevertIf_InvalidStatus() public {
@@ -348,11 +333,6 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         assertEq(mockERC20.balanceOf(address(8)), 1_000 ether);
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
-        for (uint256 i; i < 11; ) {
-            assertTrue(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        assertAllWinnersClaimed(winners);
     }
 }
