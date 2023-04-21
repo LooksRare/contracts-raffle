@@ -685,7 +685,7 @@ contract Raffle is
             PricingOption memory pricingOption = pricingOptions[i];
 
             if (i == 0) {
-                if (pricingOption.entriesCount == 0 || pricingOption.price == 0) {
+                if (pricingOption.entriesCount != 1 || pricingOption.price == 0) {
                     revert InvalidPricingOption();
                 }
             } else {

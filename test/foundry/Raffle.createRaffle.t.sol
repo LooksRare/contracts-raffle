@@ -251,15 +251,17 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
-    function test_createRaffle_RevertIf_PricingEntriesCountIsZero() public {
+    function test_createRaffle_RevertIf_FirstPricingOptionEntriesCountIsNotOne(uint40 entriesCount) public {
+        vm.assume(entriesCount != 1);
+
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.pricingOptions[0].entriesCount = 0;
+        params.pricingOptions[0].entriesCount = entriesCount;
 
         vm.expectRevert(IRaffle.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
-    function test_createRaffle_RevertIf_PricingPriceIsZero() public {
+    function test_createRaffle_RevertIf_FirstPricingOptionPriceIsZero() public {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.pricingOptions[0].price = 0;
 
