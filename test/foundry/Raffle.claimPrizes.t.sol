@@ -38,7 +38,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function test_claimPrizes_StatusIsDrawn() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
 
         _fulfillRandomWords();
 
@@ -50,7 +50,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function test_claimPrizes_StatusIsComplete() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
 
         _fulfillRandomWords();
 
@@ -63,7 +63,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function test_claimPrizes_RevertIf_InvalidStatus() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
 
         uint256[] memory winnerIndices = new uint256[](1);
         winnerIndices[0] = 0;
@@ -78,7 +78,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function test_claimPrizes_RevertIf_PrizeAlreadyClaimed() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
 
         _fulfillRandomWords();
 
@@ -110,7 +110,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function test_claimPrizes_RevertIf_InvalidIndex() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
 
         _fulfillRandomWords();
 
@@ -131,7 +131,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function test_claimPrizes_RevertIf_NotWinner() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
 
         _fulfillRandomWords();
 

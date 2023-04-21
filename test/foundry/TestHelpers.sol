@@ -152,7 +152,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         }
     }
 
-    function _transitionRaffleStatusToDrawing(Raffle looksRareRaffle) internal {
+    function _transitionRaffleStatusToDrawing() internal {
         _subscribeRaffleToVRF();
         _enterRafflesWithSingleEntryUpToMinimumEntries();
     }

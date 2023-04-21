@@ -68,7 +68,7 @@ contract Raffle_Cancel_Test is TestHelpers {
     }
 
     function test_cancel_RevertIf_InvalidStatus() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.cancel(1);
     }

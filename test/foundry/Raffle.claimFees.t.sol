@@ -37,7 +37,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
     }
 
     function test_claimFees() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
         _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
@@ -75,7 +75,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
     }
 
     function test_claimFees_RevertIf_InvalidStatus() public {
-        _transitionRaffleStatusToDrawing(looksRareRaffle);
+        _transitionRaffleStatusToDrawing();
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.claimFees(1);
     }
