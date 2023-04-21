@@ -77,9 +77,7 @@ interface IRaffle {
      * @param drawnAt The time at which the raffle was drawn. It is still pending Chainlink to fulfill the randomness request.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
-     * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
-     * @param prizesTotalValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param claimableFees The amount of fees collected from selling entries.
      * @param pricingOptions The pricing options for the raffle.
@@ -94,9 +92,7 @@ interface IRaffle {
         uint40 drawnAt;
         uint40 minimumEntries;
         uint40 maximumEntriesPerParticipant;
-        uint16 minimumProfitBp;
         uint16 protocolFeeBp;
-        uint256 prizesTotalValue;
         address feeTokenAddress;
         uint256 claimableFees;
         PricingOption[5] pricingOptions;
@@ -129,9 +125,7 @@ interface IRaffle {
      * @param cutoffTime The time at which the raffle will be closed.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
-     * @param minimumProfitBp The minimum profit in basis points required to draw the raffle.
      * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
-     * @param prizesTotalValue The total value of the prizes.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
      * @param prizes The prizes to be distributed.
      * @param pricingOptions The pricing options for the raffle.
@@ -140,9 +134,7 @@ interface IRaffle {
         uint40 cutoffTime;
         uint40 minimumEntries;
         uint40 maximumEntriesPerParticipant;
-        uint16 minimumProfitBp;
         uint16 protocolFeeBp;
-        uint256 prizesTotalValue;
         address feeTokenAddress;
         Prize[] prizes;
         PricingOption[5] pricingOptions;
@@ -185,7 +177,6 @@ interface IRaffle {
     error InvalidCurrency();
     error InvalidCutoffTime();
     error InvalidIndex();
-    error InvalidMinimumProfitBp();
     error InvalidPricingOption();
     error InvalidPrize();
     error InvalidPrizesCount();

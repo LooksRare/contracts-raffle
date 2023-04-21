@@ -171,11 +171,6 @@ contract Raffle is
             revert InvalidCutoffTime();
         }
 
-        uint16 minimumProfitBp = params.minimumProfitBp;
-        if (minimumProfitBp > ONE_HUNDRED_PERCENT_BP) {
-            revert InvalidMinimumProfitBp();
-        }
-
         if (params.protocolFeeBp != protocolFeeBp) {
             revert InvalidProtocolFeeBp();
         }
@@ -223,9 +218,7 @@ contract Raffle is
         raffles[raffleId].cutoffTime = cutoffTime;
         raffles[raffleId].minimumEntries = minimumEntries;
         raffles[raffleId].maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        raffles[raffleId].minimumProfitBp = minimumProfitBp;
         raffles[raffleId].protocolFeeBp = params.protocolFeeBp;
-        raffles[raffleId].prizesTotalValue = params.prizesTotalValue;
         raffles[raffleId].feeTokenAddress = feeTokenAddress;
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
@@ -345,13 +338,7 @@ contract Raffle is
             emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
 
             if (currentEntryIndex >= raffle.minimumEntries - 1) {
-                if (
-                    raffle.claimableFees >
-                    (raffle.prizesTotalValue * (ONE_HUNDRED_PERCENT_BP + raffle.minimumProfitBp)) /
-                        ONE_HUNDRED_PERCENT_BP
-                ) {
-                    _drawWinners(raffleId, raffle);
-                }
+                _drawWinners(raffleId, raffle);
             }
 
             unchecked {
@@ -669,15 +656,21 @@ contract Raffle is
         for (uint256 i; i < PRICING_OPTIONS_PER_RAFFLE; ) {
             PricingOption memory pricingOption = pricingOptions[i];
 
+            uint40 entriesCount = pricingOption.entriesCount;
+            uint256 price = pricingOption.price;
+
             if (i == 0) {
-                if (pricingOption.entriesCount != 1 || pricingOption.price == 0) {
+                if (entriesCount != 1 || price == 0) {
                     revert InvalidPricingOption();
                 }
             } else {
                 PricingOption memory lastPricingOption = pricingOptions[i - 1];
+
                 if (
-                    pricingOption.entriesCount <= lastPricingOption.entriesCount ||
-                    pricingOption.price <= lastPricingOption.price
+                    price % entriesCount != 0 ||
+                    entriesCount <= lastPricingOption.entriesCount ||
+                    price <= lastPricingOption.price ||
+                    price / entriesCount > lastPricingOption.price / lastPricingOption.entriesCount
                 ) {
                     revert InvalidPricingOption();
                 }

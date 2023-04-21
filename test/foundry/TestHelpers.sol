@@ -52,8 +52,6 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             cutoffTime: uint40(block.timestamp + 86_400),
             minimumEntries: 107,
             maximumEntriesPerParticipant: 199,
-            prizesTotalValue: 1 ether,
-            minimumProfitBp: 500,
             protocolFeeBp: 500,
             feeTokenAddress: address(0),
             prizes: prizes,

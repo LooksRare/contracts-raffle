@@ -40,9 +40,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             uint40 drawnAt,
             uint40 minimumEntries,
             uint40 maximumEntriesPerParticipant,
-            uint16 minimumProfitBp,
             uint16 protocolFeeBp,
-            uint256 prizesTotalValue,
             address feeTokenAddress,
             uint256 claimableFees
         ) = looksRareRaffle.raffles(1);
@@ -52,8 +50,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(drawnAt, 0);
         assertEq(minimumEntries, 107);
         assertEq(maximumEntriesPerParticipant, 199);
-        assertEq(prizesTotalValue, 1 ether);
-        assertEq(minimumProfitBp, 500);
         assertEq(protocolFeeBp, 500);
         assertEq(feeTokenAddress, address(0));
         assertEq(claimableFees, 0);
@@ -120,14 +116,6 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         params.prizes[2].prizeTier = 2;
 
         vm.expectRevert(IRaffle.InvalidPrize.selector);
-        looksRareRaffle.createRaffle(params);
-    }
-
-    function test_createRaffle_RevertIf_InvalidMinimumProfitBp() public {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.minimumProfitBp = 10_001;
-
-        vm.expectRevert(IRaffle.InvalidMinimumProfitBp.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -231,7 +219,23 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
-    function test_createRaffle_RevertIf_FirstPricingOptionEntriesCountIsNotOne(uint40 entriesCount) public {
+    function test_createRaffle_RevertIf_PricingOptionPricingOptionIsMoreExpensiveThanTheLastOne() public {
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions[1].entriesCount = 2;
+
+        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        looksRareRaffle.createRaffle(params);
+    }
+
+    function test_createRaffle_RevertIf_PricingOptionPriceIsNotDivisibleByEntriesCount() public {
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions[4].entriesCount = 123;
+
+        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        looksRareRaffle.createRaffle(params);
+    }
+
+    function testFuzz_createRaffle_RevertIf_FirstPricingOptionEntriesCountIsNotOne(uint40 entriesCount) public {
         vm.assume(entriesCount != 1);
 
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
