@@ -76,19 +76,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         assertEq(winners[9].participant, address(70));
         assertEq(winners[10].participant, address(8));
 
-        for (uint256 i = 6; i < winnersCount; ) {
-            assertEq(winners[i].prizeIndex, 6);
-            unchecked {
-                ++i;
-            }
-        }
-
-        for (uint256 i; i < winnersCount; ) {
-            assertFalse(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        _assertERC20Winners(winners);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
@@ -147,19 +135,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         assertEq(winners[9].participant, address(10));
         assertEq(winners[10].participant, address(11));
 
-        for (uint256 i = 6; i < winnersCount; ) {
-            assertEq(winners[i].prizeIndex, 6);
-            unchecked {
-                ++i;
-            }
-        }
-
-        for (uint256 i; i < winnersCount; ) {
-            assertFalse(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        _assertERC20Winners(winners);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
@@ -258,19 +234,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         assertEq(winners[9].participant, address(78));
         assertEq(winners[10].participant, address(301));
 
-        for (uint256 i = 6; i < winnersCount; ) {
-            assertEq(winners[i].prizeIndex, 6);
-            unchecked {
-                ++i;
-            }
-        }
-
-        for (uint256 i; i < winnersCount; ) {
-            assertFalse(winners[i].claimed);
-            unchecked {
-                ++i;
-            }
-        }
+        _assertERC20Winners(winners);
 
         assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Drawn);
     }
@@ -374,5 +338,21 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     function test_selectWinners_RevertIf_RandomnessRequestDoesNotExist(uint256 requestId) public {
         vm.expectRevert(IRaffle.RandomnessRequestDoesNotExist.selector);
         looksRareRaffle.selectWinners(requestId);
+    }
+
+    function _assertERC20Winners(IRaffle.Winner[] memory winners) private {
+        for (uint256 i = 6; i < winners.length; ) {
+            assertEq(winners[i].prizeIndex, 6);
+            unchecked {
+                ++i;
+            }
+        }
+
+        for (uint256 i; i < winners.length; ) {
+            assertFalse(winners[i].claimed);
+            unchecked {
+                ++i;
+            }
+        }
     }
 }
