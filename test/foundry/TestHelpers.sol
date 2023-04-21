@@ -41,6 +41,8 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             PROTOCOL_FEE_RECIPIENT,
             500
         );
+        mockERC20 = new MockERC20();
+        mockERC721 = new MockERC721();
         vm.prank(owner);
         looksRareRaffle.updateCurrencyStatus(address(0), true);
     }

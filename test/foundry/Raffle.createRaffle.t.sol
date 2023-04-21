@@ -10,10 +10,7 @@ import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_CreateRaffle_Test is TestHelpers {
     function setUp() public {
-        mockERC20 = new MockERC20();
-        mockERC721 = new MockERC721();
         _deployRaffle();
-
         vm.prank(owner);
         looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
     }

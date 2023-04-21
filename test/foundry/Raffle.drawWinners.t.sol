@@ -17,9 +17,6 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         vm.createSelectFork("sepolia", 3_269_915);
 
         _deployRaffle();
-        mockERC20 = new MockERC20();
-        mockERC721 = new MockERC721();
-
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
         vm.prank(owner);
