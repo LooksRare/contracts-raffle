@@ -686,6 +686,7 @@ contract Raffle is
 
     /**
      * @param raffleId The ID of the raffle.
+     * @param pricingOptions The pricing options for the raffle.
      */
     function _validateAndSetPricingOptions(
         uint256 raffleId,
