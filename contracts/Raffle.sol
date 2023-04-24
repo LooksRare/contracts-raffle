@@ -234,13 +234,8 @@ contract Raffle is
     function depositPrizes(uint256 raffleId) external payable nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
 
-        if (raffle.status != RaffleStatus.Created) {
-            revert InvalidStatus();
-        }
-
-        if (msg.sender != raffle.owner) {
-            revert InvalidCaller();
-        }
+        _validateRaffleStatus(raffle, RaffleStatus.Created);
+        _validateCaller(raffle.owner);
 
         Prize[] storage prizes = raffle.prizes;
         uint256 prizesCount = prizes.length;
@@ -273,11 +268,7 @@ contract Raffle is
             }
         }
 
-        if (expectedEthValue > msg.value) {
-            revert InsufficientNativeTokensSupplied();
-        } else if (msg.value > expectedEthValue) {
-            _transferETHAndWrapIfFailWithGasLimit(WETH, msg.sender, msg.value - expectedEthValue, gasleft());
-        }
+        _validateExpectedEthValueOrRefund(expectedEthValue);
 
         raffle.status = RaffleStatus.Open;
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
@@ -299,9 +290,7 @@ contract Raffle is
             uint256 raffleId = entry.raffleId;
             Raffle storage raffle = raffles[raffleId];
 
-            if (raffle.status != RaffleStatus.Open) {
-                revert InvalidStatus();
-            }
+            _validateRaffleStatus(raffle, RaffleStatus.Open);
 
             if (block.timestamp >= raffle.cutoffTime) {
                 revert CutoffTimeReached();
@@ -356,11 +345,7 @@ contract Raffle is
             }
         }
 
-        if (expectedEthValue > msg.value) {
-            revert InsufficientNativeTokensSupplied();
-        } else if (msg.value > expectedEthValue) {
-            _transferETHAndWrapIfFailWithGasLimit(WETH, msg.sender, msg.value - expectedEthValue, gasleft());
-        }
+        _validateExpectedEthValueOrRefund(expectedEthValue);
     }
 
     /**
@@ -395,9 +380,7 @@ contract Raffle is
 
         uint256 raffleId = randomnessRequest.raffleId;
         Raffle storage raffle = raffles[raffleId];
-        if (raffle.status != RaffleStatus.RandomnessFulfilled) {
-            revert InvalidStatus();
-        }
+        _validateRaffleStatus(raffle, RaffleStatus.RandomnessFulfilled);
 
         raffle.status = RaffleStatus.Drawn;
 
@@ -478,15 +461,11 @@ contract Raffle is
      */
     function claimFees(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
-        if (raffle.status != RaffleStatus.Drawn) {
-            revert InvalidStatus();
-        }
+        _validateRaffleStatus(raffle, RaffleStatus.Drawn);
 
         address raffleOwner = raffle.owner;
         if (msg.sender != raffleOwner) {
-            if (msg.sender != owner) {
-                revert InvalidCaller();
-            }
+            _validateCaller(owner);
         }
 
         uint208 claimableFees = raffle.claimableFees;
@@ -520,8 +499,8 @@ contract Raffle is
             if (raffle.cutoffTime > block.timestamp) {
                 revert CutoffTimeNotReached();
             }
-        } else if (status != RaffleStatus.Created) {
-            revert InvalidStatus();
+        } else {
+            _validateRaffleStatus(raffle, RaffleStatus.Created);
         }
 
         _cancel(raffleId, raffle, isOpen);
@@ -533,9 +512,7 @@ contract Raffle is
     function cancelAfterRandomnessRequest(uint256 raffleId) external onlyOwner nonReentrant {
         Raffle storage raffle = raffles[raffleId];
 
-        if (raffle.status != RaffleStatus.Drawing) {
-            revert InvalidStatus();
-        }
+        _validateRaffleStatus(raffle, RaffleStatus.Drawing);
 
         if (block.timestamp < raffle.drawnAt + ONE_DAY) {
             revert DrawExpirationTimeNotReached();
@@ -554,9 +531,7 @@ contract Raffle is
             uint256 raffleId = raffleIds[i];
             Raffle storage raffle = raffles[raffleId];
 
-            if (raffle.status != RaffleStatus.Cancelled) {
-                revert InvalidStatus();
-            }
+            _validateRaffleStatus(raffle, RaffleStatus.Cancelled);
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
 
@@ -855,9 +830,7 @@ contract Raffle is
         Raffle storage raffle = raffles[raffleId];
         RaffleStatus status = raffle.status;
         if (status != RaffleStatus.Drawn) {
-            if (status != RaffleStatus.Complete) {
-                revert InvalidStatus();
-            }
+            _validateRaffleStatus(raffle, RaffleStatus.Complete);
         }
 
         Winner[] storage winners = raffle.winners;
@@ -875,9 +848,7 @@ contract Raffle is
             if (winner.claimed) {
                 revert PrizeAlreadyClaimed();
             }
-            if (winner.participant != msg.sender) {
-                revert InvalidCaller();
-            }
+            _validateCaller(winner.participant);
             winner.claimed = true;
 
             Prize storage prize = raffle.prizes[winner.prizeIndex];
@@ -921,5 +892,35 @@ contract Raffle is
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
         emit RandomnessRequested(raffleId, requestId);
+    }
+
+    /**
+     * @param raffle The raffle to check the status of.
+     * @param status The expected status of the raffle
+     */
+    function _validateRaffleStatus(Raffle storage raffle, RaffleStatus status) private view {
+        if (raffle.status != status) {
+            revert InvalidStatus();
+        }
+    }
+
+    /**
+     * @param caller The expected caller.
+     */
+    function _validateCaller(address caller) private view {
+        if (msg.sender != caller) {
+            revert InvalidCaller();
+        }
+    }
+
+    /**
+     * @param expectedEthValue The expected ETH value to be sent by the caller.
+     */
+    function _validateExpectedEthValueOrRefund(uint256 expectedEthValue) private {
+        if (expectedEthValue > msg.value) {
+            revert InsufficientNativeTokensSupplied();
+        } else if (msg.value > expectedEthValue) {
+            _transferETHAndWrapIfFailWithGasLimit(WETH, msg.sender, msg.value - expectedEthValue, gasleft());
+        }
     }
 }
