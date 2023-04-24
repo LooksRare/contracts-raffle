@@ -180,4 +180,12 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
         vm.store(raffle, slot, bytes32((value & ~mask) | (statusBits & mask)));
     }
+
+    function _stubRandomnessRequestExistence(uint256 requestId, bool exists) internal {
+        address raffle = address(looksRareRaffle);
+        bytes32 slot = bytes32(keccak256(abi.encode(requestId, uint256(6))));
+        uint256 value = exists ? 1 : 0;
+
+        vm.store(raffle, slot, bytes32(value));
+    }
 }
