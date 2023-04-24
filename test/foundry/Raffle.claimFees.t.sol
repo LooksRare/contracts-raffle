@@ -46,7 +46,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit FeesClaimed(1, 2.54125 ether);
 
         vm.prank(user1);
@@ -76,7 +76,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit FeesClaimed(1, 2.54125 ether);
 
         vm.prank(owner);

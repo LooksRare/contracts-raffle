@@ -47,7 +47,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawing);
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         for (uint256 i; i < 10; i++) {

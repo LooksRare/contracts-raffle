@@ -27,7 +27,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
         address[] memory currencies = new address[](1);
         currencies[0] = address(0);
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit CurrenciesStatusUpdated(currencies, false);
 
         assertTrue(looksRareRaffle.isCurrencyAllowed(address(0)));

@@ -18,7 +18,7 @@ contract Raffle_CallbackGasLimit_Test is TestHelpers {
 
     function test_setCallbackGasLimit() public asPrankedUser(owner) {
         uint32 newCallbackGasLimit = 2_500_000;
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit CallbackGasLimitUpdated(newCallbackGasLimit);
         looksRareRaffle.setCallbackGasLimit(newCallbackGasLimit);
         assertEq(looksRareRaffle.callbackGasLimit(), newCallbackGasLimit);

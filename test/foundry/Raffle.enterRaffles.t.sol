@@ -30,7 +30,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
         entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 1, price: 0.025 ether});
 
         looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
@@ -56,10 +56,10 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1});
         entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4});
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 10, price: 0.22 ether});
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 100, price: 0.95 ether});
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawing);
@@ -87,7 +87,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
         entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 1, price: price});
 
         looksRareRaffle.enterRaffles{value: price + extra}(entries);

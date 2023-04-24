@@ -19,7 +19,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
     }
 
     function test_pause() public asPrankedUser(owner) {
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit Paused(owner);
         looksRareRaffle.togglePaused();
         assertTrue(looksRareRaffle.paused());
@@ -32,7 +32,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
 
     function test_unpause() public asPrankedUser(owner) {
         looksRareRaffle.togglePaused();
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit Unpaused(owner);
         looksRareRaffle.togglePaused();
         assertFalse(looksRareRaffle.paused());

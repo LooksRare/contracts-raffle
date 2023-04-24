@@ -19,7 +19,7 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
 
     function test_setProtocolFeeRecipient() public asPrankedUser(owner) {
         address newRecipient = address(0x1);
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit ProtocolFeeRecipientUpdated(newRecipient);
         looksRareRaffle.setProtocolFeeRecipient(newRecipient);
         assertEq(looksRareRaffle.protocolFeeRecipient(), newRecipient);
@@ -39,7 +39,7 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
 
     function test_setProtocolFeeBp() public asPrankedUser(owner) {
         uint16 newProtocolFeeBp = 2_409;
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit ProtocolFeeBpUpdated(newProtocolFeeBp);
         looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
         assertEq(looksRareRaffle.protocolFeeBp(), newProtocolFeeBp);

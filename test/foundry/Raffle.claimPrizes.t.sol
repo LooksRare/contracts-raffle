@@ -80,7 +80,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
 
         vm.prank(participant);
@@ -148,10 +148,10 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         claimPrizesCalldata[1].raffleId = 2;
         claimPrizesCalldata[1].winnerIndices = winnerIndices;
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        expectEmitCheckAll();
         emit PrizesClaimed({raffleId: 2, winnerIndices: winnerIndices});
 
         vm.prank(participant);
@@ -277,7 +277,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         for (uint256 i; i < 11; i++) {
             uint256[] memory winnerIndices = new uint256[](1);
             winnerIndices[0] = i;
-            vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+            expectEmitCheckAll();
             emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
         }
     }
