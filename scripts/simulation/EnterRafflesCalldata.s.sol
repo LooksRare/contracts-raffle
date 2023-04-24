@@ -11,11 +11,9 @@ import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 import "forge-std/console2.sol";
 
 contract EnterRafflesCalldata is Script {
-    error ChainIdInvalid(uint256 chainId);
-
     function run() external view {
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 0, pricingOptionIndex: 0});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
 
         bytes memory data = abi.encodeCall(IRaffle.enterRaffles, entries);
         console2.logBytes(data);
