@@ -8,7 +8,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-// TODO: test claimRefund with multiple raffles
 contract Raffle_ClaimRefund_Test is TestHelpers {
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
