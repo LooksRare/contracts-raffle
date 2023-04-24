@@ -45,31 +45,20 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
+        _assertERC721Winners(winners);
         assertEq(winners[0].participant, address(79));
-        assertEq(winners[0].prizeIndex, 0);
-
         assertEq(winners[1].participant, address(95));
-        assertEq(winners[1].prizeIndex, 1);
-
         assertEq(winners[2].participant, address(29));
-        assertEq(winners[2].prizeIndex, 2);
-
         assertEq(winners[3].participant, address(56));
-        assertEq(winners[3].prizeIndex, 3);
-
         assertEq(winners[4].participant, address(17));
-        assertEq(winners[4].prizeIndex, 4);
-
         assertEq(winners[5].participant, address(100));
-        assertEq(winners[5].prizeIndex, 5);
 
+        _assertERC20Winners(winners);
         assertEq(winners[6].participant, address(31));
         assertEq(winners[7].participant, address(33));
         assertEq(winners[8].participant, address(62));
         assertEq(winners[9].participant, address(70));
         assertEq(winners[10].participant, address(8));
-
-        _assertERC20Winners(winners);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
@@ -103,31 +92,20 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
+        _assertERC721Winners(winners);
         assertEq(winners[0].participant, address(1));
-        assertEq(winners[0].prizeIndex, 0);
-
         assertEq(winners[1].participant, address(2));
-        assertEq(winners[1].prizeIndex, 1);
-
         assertEq(winners[2].participant, address(3));
-        assertEq(winners[2].prizeIndex, 2);
-
         assertEq(winners[3].participant, address(4));
-        assertEq(winners[3].prizeIndex, 3);
-
         assertEq(winners[4].participant, address(5));
-        assertEq(winners[4].prizeIndex, 4);
-
         assertEq(winners[5].participant, address(6));
-        assertEq(winners[5].prizeIndex, 5);
 
+        _assertERC20Winners(winners);
         assertEq(winners[6].participant, address(7));
         assertEq(winners[7].participant, address(8));
         assertEq(winners[8].participant, address(9));
         assertEq(winners[9].participant, address(10));
         assertEq(winners[10].participant, address(11));
-
-        _assertERC20Winners(winners);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
     }
@@ -194,31 +172,20 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(2);
         assertEq(winners.length, winnersCount);
 
+        _assertERC721Winners(winners);
         assertEq(winners[0].participant, address(256));
-        assertEq(winners[0].prizeIndex, 0);
-
         assertEq(winners[1].participant, address(257));
-        assertEq(winners[1].prizeIndex, 1);
-
         assertEq(winners[2].participant, address(512));
-        assertEq(winners[2].prizeIndex, 2);
-
         assertEq(winners[3].participant, address(1));
-        assertEq(winners[3].prizeIndex, 3);
-
         assertEq(winners[4].participant, address(511));
-        assertEq(winners[4].prizeIndex, 4);
-
         assertEq(winners[5].participant, address(377));
-        assertEq(winners[5].prizeIndex, 5);
 
+        _assertERC20Winners(winners);
         assertEq(winners[6].participant, address(334));
         assertEq(winners[7].participant, address(46));
         assertEq(winners[8].participant, address(2));
         assertEq(winners[9].participant, address(78));
         assertEq(winners[10].participant, address(301));
-
-        _assertERC20Winners(winners);
 
         assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Drawn);
     }
@@ -268,16 +235,10 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
-        for (uint256 i; i < 6; i++) {
-            assertEq(winners[i].prizeIndex, i);
-        }
-
-        for (uint256 i = 6; i < winnersCount; i++) {
-            assertEq(winners[i].prizeIndex, 6);
-        }
+        _assertERC721Winners(winners);
+        _assertERC20Winners(winners);
 
         for (uint256 i; i < winnersCount; i++) {
-            assertFalse(winners[i].claimed);
             assertNotEq(winners[i].participant, address(0));
 
             uint256 entryIndex = winners[i].entryIndex;
@@ -310,12 +271,16 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         looksRareRaffle.selectWinners(requestId);
     }
 
+    function _assertERC721Winners(IRaffle.Winner[] memory winners) private {
+        for (uint256 i; i < 6; i++) {
+            assertEq(winners[i].prizeIndex, i);
+            assertFalse(winners[i].claimed);
+        }
+    }
+
     function _assertERC20Winners(IRaffle.Winner[] memory winners) private {
         for (uint256 i = 6; i < winners.length; i++) {
             assertEq(winners[i].prizeIndex, 6);
-        }
-
-        for (uint256 i; i < winners.length; i++) {
             assertFalse(winners[i].claimed);
         }
     }
