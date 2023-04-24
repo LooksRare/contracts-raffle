@@ -164,6 +164,9 @@ contract Raffle is
 
     /**
      * @inheritdoc IRaffle
+     * @dev This function can still be called when the contract is paused because the raffle creator
+     *      would not be able to deposit prizes and open the raffle anyway. The restriction to disallow
+     *      raffles creation when the contract is paused will be enforced in the frontend.
      */
     function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId) {
         uint40 cutoffTime = params.cutoffTime;
