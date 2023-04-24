@@ -33,8 +33,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     }
 
     function test_fulfillRandomWords() public {
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
         _fulfillRandomWords();
 
@@ -84,8 +83,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     }
 
     function test_fulfillRandomWords_RaffleStatusIsNotDrawing() public {
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.RandomnessFulfilled);
 
         _fulfillRandomWords();
 

@@ -26,4 +26,9 @@ abstract contract AssertionHelpers is Test {
             assertTrue(winners[i].claimed);
         }
     }
+
+    function assertRaffleStatusUpdatedEventEmitted(uint256 raffleId, IRaffle.RaffleStatus status) internal {
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(raffleId, status);
+    }
 }

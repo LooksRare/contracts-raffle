@@ -35,8 +35,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         uint256 winnersCount = 11;
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
@@ -94,8 +93,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         randomWords[9] = 21_405; // 21405 % 100 = 5 (becomes 9)
         randomWords[10] = 21_406; // 21406 % 100 = 6 (becomes 10)
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
@@ -186,8 +184,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         randomWords[9] = 77; // 77 % 512 = 77 (bucket 0, index 77)
         randomWords[10] = 69_420; // 69420 % 512 = 300 (bucket 1, index 46)
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(2, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatusUpdatedEventEmitted(2, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
@@ -261,8 +258,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             randomWords[i] = uint256(keccak256(abi.encodePacked(seed + i)));
         }
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);

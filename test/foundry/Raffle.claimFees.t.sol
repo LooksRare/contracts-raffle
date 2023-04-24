@@ -44,8 +44,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         assertEq(PROTOCOL_FEE_RECIPIENT.balance, 0);
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0);
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Complete);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit FeesClaimed(1, 2.54125 ether);
@@ -75,8 +74,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Complete);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit FeesClaimed(1, 2.54125 ether);

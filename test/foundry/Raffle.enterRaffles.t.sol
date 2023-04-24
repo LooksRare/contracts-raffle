@@ -62,8 +62,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 100, price: 0.95 ether});
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Drawing);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawing);
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: 1.17 ether}(entries);

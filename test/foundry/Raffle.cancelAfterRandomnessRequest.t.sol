@@ -27,8 +27,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest() public {
         _transitionRaffleStatusToDrawing();
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Cancelled);
 
         (, , , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(1);
         vm.warp(drawnAt + 86_400 + 1);

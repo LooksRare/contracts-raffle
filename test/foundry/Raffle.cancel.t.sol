@@ -25,8 +25,7 @@ contract Raffle_Cancel_Test is TestHelpers {
     function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user2) {
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(2, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatusUpdatedEventEmitted(2, IRaffle.RaffleStatus.Cancelled);
 
         looksRareRaffle.cancel(2);
 
@@ -43,8 +42,7 @@ contract Raffle_Cancel_Test is TestHelpers {
         _enterRaffles();
         vm.warp(block.timestamp + 86_400 + 1);
 
-        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Cancelled);
 
         looksRareRaffle.cancel(1);
 
