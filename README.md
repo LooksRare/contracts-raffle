@@ -13,31 +13,31 @@ the prizes can be ERC-721, ERC-1155, ETH or ERC-20.
 
 Each raffle consists of the following states:
 
-1. None
+1. `None`
    There is no raffle at the provided ID.
 
-2. Created
+2. `Created`
    The raffle has been created, but the prizes have not been deposited.
 
-3. Open
+3. `Open`
    The prizes have been deposited and is open for entries.
 
-4. Drawing
+4. `Drawing`
    When a raffle's minimum entries has reached before the cutoff time, the smart contract calls Chainlink VRF
    to draw multiple random numbers to determine the winners. The state `Drawing` represents the intermediary state
    of waiting for Chainlink VRF's callback.
 
-5. RandomnessFulfilled
+5. `RandomnessFulfilled`
    When Chainlink VRF's callback is complete, the raffle stores the random words and transitions to `RandomnessFulfilled`.
 
-6. Drawn
+6. `Drawn`
    The process to store random words and to select the winners are separated into 2 functions as there is a 2.5m callback gas limit
    from Chainlink. Once the winners are selected via the function `selectWinners`, the raffle is considered `Drawn`.
 
-7. Complete
+7. `Complete`
    After the raffle creator claims the fees accumulated from selling raffle tickets, the raffle is considered `Complete`.
 
-8. Cancelled
+8. `Cancelled`
    If the raffle is still in the `Created` state (no prizes were deposited) or is not able to sell out at least the specified minimum entries, then the raffle can be cancelled. Once the raffle is cancelled, the raffle creator can withdraw the prizes deposited (if any) and the ticket buyers can withdraw the fees spent (if any).
 
 ### Protocol fees
