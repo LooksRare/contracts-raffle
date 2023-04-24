@@ -190,4 +190,37 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: 1.9 ether}(entries);
     }
+
+    function test_enterRaffles_RevertIf_IsMinimumEntriesFixedAndMinimumEntriesReached() public {
+        mockERC20.mint(user1, 100_000 ether);
+        mockERC721.batchMint(user1, 6, 6);
+
+        vm.startPrank(user1);
+
+        mockERC20.approve(address(looksRareRaffle), 100_000 ether);
+        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        for (uint256 i; i < 6; i++) {
+            params.prizes[i].prizeId = i + 6;
+        }
+        params.isMinimumEntriesFixed = true;
+        looksRareRaffle.createRaffle(params);
+
+        looksRareRaffle.depositPrizes(2);
+
+        vm.stopPrank();
+
+        uint256 cost = 1.71 ether;
+        vm.deal(user2, cost);
+
+        // 110 entries > minimum entries (107)
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1});
+
+        vm.prank(user2);
+        vm.expectRevert(IRaffle.MaximumEntriesReached.selector);
+        looksRareRaffle.enterRaffles{value: cost}(entries);
+    }
 }

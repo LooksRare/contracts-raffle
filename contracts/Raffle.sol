@@ -215,6 +215,7 @@ contract Raffle is
 
         raffles[raffleId].owner = msg.sender;
         raffles[raffleId].status = RaffleStatus.Created;
+        raffles[raffleId].isMinimumEntriesFixed = params.isMinimumEntriesFixed;
         raffles[raffleId].cutoffTime = cutoffTime;
         raffles[raffleId].minimumEntries = minimumEntries;
         raffles[raffleId].maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
@@ -328,6 +329,12 @@ contract Raffle is
                 currentEntryIndex =
                     raffle.entries[raffleEntriesCount - 1].currentEntryIndex +
                     pricingOption.entriesCount;
+            }
+
+            if (raffle.isMinimumEntriesFixed) {
+                if (currentEntryIndex >= raffle.minimumEntries) {
+                    revert MaximumEntriesReached();
+                }
             }
 
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));

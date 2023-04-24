@@ -25,6 +25,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         (
             address owner,
             IRaffle.RaffleStatus status,
+            bool isMinimumEntriesFixed,
             uint40 cutoffTime,
             uint40 drawnAt,
             uint40 minimumEntries,
@@ -35,6 +36,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         ) = looksRareRaffle.raffles(1);
         assertEq(owner, user1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Created));
+        assertFalse(isMinimumEntriesFixed);
         assertEq(cutoffTime, uint40(block.timestamp + 86_400));
         assertEq(drawnAt, 0);
         assertEq(minimumEntries, 107);

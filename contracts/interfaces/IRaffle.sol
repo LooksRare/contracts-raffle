@@ -73,6 +73,7 @@ interface IRaffle {
     /**
      * @param owner The address of the raffle owner.
      * @param status The status of the raffle.
+     * @param isMinimumEntriesFixed Whether the minimum number of entries is fixed.
      * @param cutoffTime The time after which the raffle cannot be entered.
      * @param drawnAt The time at which the raffle was drawn. It is still pending Chainlink to fulfill the randomness request.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
@@ -88,6 +89,7 @@ interface IRaffle {
     struct Raffle {
         address owner;
         RaffleStatus status;
+        bool isMinimumEntriesFixed;
         uint40 cutoffTime;
         uint40 drawnAt;
         uint40 minimumEntries;
@@ -124,6 +126,7 @@ interface IRaffle {
     /**
      * @param cutoffTime The time at which the raffle will be closed.
      * @param minimumEntries The minimum number of entries required to draw the raffle.
+     * @param isMinimumEntriesFixed Whether the minimum number of entries is fixed.
      * @param maximumEntriesPerParticipant The maximum number of entries allowed per participant.
      * @param protocolFeeBp The protocol fee in basis points. It must be equal to the protocol fee basis points when the raffle was created.
      * @param feeTokenAddress The address of the token to be used as a fee. If the fee token type is ETH, then this address is ignored.
@@ -132,6 +135,7 @@ interface IRaffle {
      */
     struct CreateRaffleCalldata {
         uint40 cutoffTime;
+        bool isMinimumEntriesFixed;
         uint40 minimumEntries;
         uint40 maximumEntriesPerParticipant;
         uint16 protocolFeeBp;
@@ -185,7 +189,7 @@ interface IRaffle {
     error InvalidStatus();
     error InvalidWinnersCount();
     error MaximumEntriesPerParticipantReached();
-    error MinimumEntriesReached();
+    error MaximumEntriesReached();
     error NotRaffleOwner();
     error NotWinner();
     error PrizeAlreadyClaimed();
