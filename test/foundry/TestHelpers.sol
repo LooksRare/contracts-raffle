@@ -133,7 +133,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _mintStandardRafflePrizesToRaffleOwnerAndApprove() internal {
         mockERC20.mint(user1, 100_000 ether);
-        mockERC721.batchMint(user1, 0, 6);
+        mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
         vm.startPrank(user1);
         mockERC20.approve(address(looksRareRaffle), 100_000 ether);

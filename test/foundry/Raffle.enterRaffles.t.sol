@@ -191,13 +191,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     }
 
     function test_enterRaffles_RevertIf_IsMinimumEntriesFixedAndMinimumEntriesReached() public {
-        mockERC20.mint(user1, 100_000 ether);
-        mockERC721.batchMint(user1, 6, 6);
+        _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
         vm.startPrank(user1);
-
-        mockERC20.approve(address(looksRareRaffle), 100_000 ether);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
 
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < 6; i++) {
