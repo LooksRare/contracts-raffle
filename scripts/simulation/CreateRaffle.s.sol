@@ -77,8 +77,9 @@ contract CreateRaffle is Script {
         uint256 raffleId = raffle.createRaffle(
             IRaffle.CreateRaffleCalldata({
                 cutoffTime: uint40(block.timestamp + 5 days),
-                minimumEntries: 10,
-                maximumEntriesPerParticipant: 10,
+                isMinimumEntriesFixed: true,
+                minimumEntries: 15,
+                maximumEntriesPerParticipant: 15,
                 protocolFeeBp: 500,
                 feeTokenAddress: address(0),
                 prizes: prizes,
