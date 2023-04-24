@@ -22,7 +22,6 @@ contract Raffle_Cancel_Test is TestHelpers {
         vm.stopPrank();
     }
 
-    // TODO: How do we prevent a user from creating a raffle with deposited NFTs from another raffle?
     function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user2) {
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
 
