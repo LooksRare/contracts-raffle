@@ -605,9 +605,15 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
-        isCurrencyAllowed[currency] = isAllowed;
-        emit CurrencyStatusUpdated(currency, isAllowed);
+    function updateCurrenciesStatus(address[] calldata currencies, bool isAllowed) external onlyOwner {
+        uint256 count = currencies.length;
+        for (uint256 i; i < count; ) {
+            isCurrencyAllowed[currencies[i]] = isAllowed;
+            unchecked {
+                ++i;
+            }
+        }
+        emit CurrenciesStatusUpdated(currencies, isAllowed);
     }
 
     /**

@@ -33,8 +33,10 @@ contract CreateRaffle is Script {
 
         Raffle raffle = Raffle(0x963dDfE86F27b8ba84265098c048B568945cdda1);
 
-        raffle.updateCurrencyStatus(address(0), true);
-        raffle.updateCurrencyStatus(0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC, true);
+        address[] memory currencies = new address[](2);
+        currencies[0] = address(0);
+        currencies[1] = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
+        raffle.updateCurrenciesStatus(currencies, true);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});

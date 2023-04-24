@@ -46,10 +46,12 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
 
-        vm.startPrank(owner);
-        looksRareRaffle.updateCurrencyStatus(address(0), true);
-        looksRareRaffle.updateCurrencyStatus(address(mockERC20), true);
-        vm.stopPrank();
+        address[] memory currencies = new address[](2);
+        currencies[0] = address(0);
+        currencies[1] = address(mockERC20);
+
+        vm.prank(owner);
+        looksRareRaffle.updateCurrenciesStatus(currencies, true);
     }
 
     function _baseCreateRaffleParams(address erc20, address erc721)

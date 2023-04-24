@@ -162,7 +162,7 @@ interface IRaffle {
     }
 
     event CallbackGasLimitUpdated(uint32 callbackGasLimit);
-    event CurrencyStatusUpdated(address currency, bool isAllowed);
+    event CurrenciesStatusUpdated(address[] currencies, bool isAllowed);
     event EntryRefunded(uint256 raffleId, address buyer, uint208 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
     event FeesClaimed(uint256 raffleId, uint256 amount);
@@ -278,12 +278,12 @@ interface IRaffle {
     function setProtocolFeeRecipient(address protocolFeeRecipient) external;
 
     /**
-     * @notice This function allows the owner to update the status of a currency.
-     * @param currency Currency address (address(0) for ETH)
-     * @param isAllowed Whether the currency should be allowed for trading
+     * @notice This function allows the owner to update currency statuses.
+     * @param currencies Currency addresses (address(0) for ETH)
+     * @param isAllowed Whether the currencies should be allowed for trading
      * @dev Only callable by owner.
      */
-    function updateCurrencyStatus(address currency, bool isAllowed) external;
+    function updateCurrenciesStatus(address[] calldata currencies, bool isAllowed) external;
 
     /**
      * @notice Toggle the contract's paused status. Only callable by contract owner.

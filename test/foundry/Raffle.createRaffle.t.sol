@@ -260,8 +260,11 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     }
 
     function test_createRaffle_RevertIf_InvalidCurrency() public {
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(mockERC20);
+
         vm.prank(owner);
-        looksRareRaffle.updateCurrencyStatus(address(mockERC20), false);
+        looksRareRaffle.updateCurrenciesStatus(currencies, false);
 
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.feeTokenAddress = address(mockERC20);

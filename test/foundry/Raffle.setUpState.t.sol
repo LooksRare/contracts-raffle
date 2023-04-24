@@ -10,7 +10,7 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_SetUpState_Test is TestHelpers {
-    event CurrencyStatusUpdated(address currency, bool isAllowed);
+    event CurrenciesStatusUpdated(address[] currency, bool isAllowed);
 
     function setUp() public {
         _deployRaffle();
@@ -23,17 +23,23 @@ contract Raffle_SetUpState_Test is TestHelpers {
         assertFalse(looksRareRaffle.paused());
     }
 
-    function test_updateCurrencyStatus() public asPrankedUser(owner) {
+    function test_updateCurrenciesStatus() public asPrankedUser(owner) {
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(0);
+
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit CurrencyStatusUpdated(address(0), false);
+        emit CurrenciesStatusUpdated(currencies, false);
 
         assertTrue(looksRareRaffle.isCurrencyAllowed(address(0)));
-        looksRareRaffle.updateCurrencyStatus(address(0), false);
+        looksRareRaffle.updateCurrenciesStatus(currencies, false);
         assertFalse(looksRareRaffle.isCurrencyAllowed(address(0)));
     }
 
-    function test_updateCurrencyStatus_RevertIf_NotOwner() public {
+    function test_updateCurrenciesStatus_RevertIf_NotOwner() public {
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(0);
+
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareRaffle.updateCurrencyStatus(address(0), false);
+        looksRareRaffle.updateCurrenciesStatus(currencies, false);
     }
 }
