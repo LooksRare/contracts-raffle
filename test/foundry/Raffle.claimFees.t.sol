@@ -50,6 +50,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
         emit FeesClaimed(1, 2.54125 ether);
 
+        vm.prank(user1);
         looksRareRaffle.claimFees(1);
 
         (, , , , , , , , , claimableFees) = looksRareRaffle.raffles(1);
@@ -68,9 +69,35 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0);
     }
 
+    function test_claimFees_ContractOwnerCanAlsoCallTheFunction() public {
+        _transitionRaffleStatusToDrawing();
+        _fulfillRandomWords();
+
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit RaffleStatusUpdated(1, IRaffle.RaffleStatus.Complete);
+
+        vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
+        emit FeesClaimed(1, 2.54125 ether);
+
+        vm.prank(owner);
+        looksRareRaffle.claimFees(1);
+    }
+
     function test_claimFees_RevertIf_InvalidStatus() public {
         _transitionRaffleStatusToDrawing();
         vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.claimFees(1);
+    }
+
+    function test_claimFees_RevertIf_InvalidCaller() public {
+        _transitionRaffleStatusToDrawing();
+        _fulfillRandomWords();
+
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        vm.expectRevert(IRaffle.InvalidCaller.selector);
         looksRareRaffle.claimFees(1);
     }
 }

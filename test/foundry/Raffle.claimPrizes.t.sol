@@ -47,6 +47,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         _fulfillRandomWords();
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        vm.prank(user1);
         looksRareRaffle.claimFees(1);
 
         _assertPrizesClaimedEventsEmitted();
@@ -234,7 +235,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
     }
 
-    function test_claimPrizes_RevertIf_NotWinner() public {
+    function test_claimPrizes_RevertIf_InvalidCaller() public {
         _transitionRaffleStatusToDrawing();
 
         _fulfillRandomWords();
@@ -250,7 +251,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
             vm.prank(address(42));
-            vm.expectRevert(IRaffle.NotWinner.selector);
+            vm.expectRevert(IRaffle.InvalidCaller.selector);
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
         }
     }

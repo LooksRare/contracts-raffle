@@ -239,7 +239,7 @@ contract Raffle is
         }
 
         if (msg.sender != raffle.owner) {
-            revert NotRaffleOwner();
+            revert InvalidCaller();
         }
 
         Prize[] storage prizes = raffle.prizes;
@@ -482,6 +482,13 @@ contract Raffle is
             revert InvalidStatus();
         }
 
+        address raffleOwner = raffle.owner;
+        if (msg.sender != raffleOwner) {
+            if (msg.sender != owner) {
+                revert InvalidCaller();
+            }
+        }
+
         uint208 claimableFees = raffle.claimableFees;
         uint208 protocolFees = (claimableFees * uint208(raffle.protocolFeeBp)) / uint208(ONE_HUNDRED_PERCENT_BP);
         claimableFees -= protocolFees;
@@ -490,7 +497,7 @@ contract Raffle is
         raffle.claimableFees = 0;
 
         address feeTokenAddress = raffle.feeTokenAddress;
-        _transferFungibleTokens(feeTokenAddress, raffle.owner, claimableFees);
+        _transferFungibleTokens(feeTokenAddress, raffleOwner, claimableFees);
 
         if (protocolFees != 0) {
             protocolFeeRecipientClaimableFees[feeTokenAddress] += protocolFees;
@@ -862,7 +869,7 @@ contract Raffle is
                 revert PrizeAlreadyClaimed();
             }
             if (winner.participant != msg.sender) {
-                revert NotWinner();
+                revert InvalidCaller();
             }
             winner.claimed = true;
 

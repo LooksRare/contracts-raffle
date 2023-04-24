@@ -101,8 +101,8 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         }
     }
 
-    function test_depositPrizes_RevertIf_NotRaffleOwner() public asPrankedUser(user2) {
-        vm.expectRevert(IRaffle.NotRaffleOwner.selector);
+    function test_depositPrizes_RevertIf_InvalidCaller() public asPrankedUser(user2) {
+        vm.expectRevert(IRaffle.InvalidCaller.selector);
         looksRareRaffle.depositPrizes(1);
     }
 

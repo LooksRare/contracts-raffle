@@ -178,6 +178,7 @@ interface IRaffle {
     error DrawExpirationTimeNotReached();
     error InsufficientNativeTokensSupplied();
     error InvalidCallbackGasLimit();
+    error InvalidCaller();
     error InvalidCurrency();
     error InvalidCutoffTime();
     error InvalidIndex();
@@ -190,8 +191,6 @@ interface IRaffle {
     error InvalidWinnersCount();
     error MaximumEntriesPerParticipantReached();
     error MaximumEntriesReached();
-    error NotRaffleOwner();
-    error NotWinner();
     error PrizeAlreadyClaimed();
     error RandomnessRequestAlreadyExists();
     error RandomnessRequestDoesNotExist();
