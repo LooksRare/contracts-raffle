@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
+import {ProtocolFeeRecipient} from "@looksrare/contracts-exchange-v2/contracts/ProtocolFeeRecipient.sol";
+
 import {AssertionHelpers} from "./AssertionHelpers.sol";
 import {TestParameters} from "./TestParameters.sol";
 
@@ -16,6 +18,7 @@ import {MockWETH} from "./mock/MockWETH.sol";
 
 abstract contract TestHelpers is AssertionHelpers, TestParameters {
     Raffle internal looksRareRaffle;
+    ProtocolFeeRecipient internal protocolFeeRecipient;
     MockERC20 internal mockERC20;
     MockERC721 internal mockERC721;
 
@@ -33,13 +36,15 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     function _deployRaffle() internal {
         MockWETH weth = new MockWETH();
 
+        protocolFeeRecipient = new ProtocolFeeRecipient(address(weth), address(69_420));
+
         looksRareRaffle = new Raffle(
             address(weth),
             KEY_HASH,
             SUBSCRIPTION_ID,
             VRF_COORDINATOR,
             owner,
-            PROTOCOL_FEE_RECIPIENT,
+            address(protocolFeeRecipient),
             500
         );
 

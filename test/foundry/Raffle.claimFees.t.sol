@@ -41,7 +41,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         assertEq(claimableFees, 2.675 ether);
         uint256 raffleOwnerBalance = user1.balance;
 
-        assertEq(PROTOCOL_FEE_RECIPIENT.balance, 0);
+        assertEq(address(protocolFeeRecipient).balance, 0);
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0);
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
@@ -63,7 +63,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         looksRareRaffle.claimProtocolFees(address(0));
 
         // After the raffle fees are claimed, we can receive the protocol fees.
-        assertEq(PROTOCOL_FEE_RECIPIENT.balance, 0.13375 ether);
+        assertEq(address(protocolFeeRecipient).balance, 0.13375 ether);
         assertEq(address(looksRareRaffle).balance, 0);
         assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(0)), 0);
     }

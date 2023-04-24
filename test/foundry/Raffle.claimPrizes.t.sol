@@ -132,7 +132,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         _fulfillRandomWords();
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        uint256 requestIdTwo = 108392438658618723438648115145292582477374264027476206043327064348457204807342;
+        uint256 requestIdTwo = 85515638196678878690676495157441001314050408446307572596225226339745087437433;
         uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(requestIdTwo, randomWords);
