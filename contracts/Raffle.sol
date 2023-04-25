@@ -425,7 +425,7 @@ contract Raffle is
 
             raffle.winners.push(winners[i]);
 
-            randomWord = uint256(keccak256(abi.encode(randomWord)));
+            randomWord = uint256(keccak256(abi.encodePacked(randomWord)));
 
             unchecked {
                 ++i;
