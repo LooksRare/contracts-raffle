@@ -152,13 +152,13 @@ interface IRaffle {
     /**
      * @param exists Whether the request exists.
      * @param raffleId The id of the raffle.
-     * @param randomWords The random words returned by Chainlink VRF.
-     *                    If randomWords.length == 0, then the request is still pending.
+     * @param randomWord The random words returned by Chainlink VRF.
+     *                   If randomWord == 0, then the request is still pending.
      */
     struct RandomnessRequest {
         bool exists;
         uint256 raffleId;
-        uint256[] randomWords;
+        uint256 randomWord;
     }
 
     event CallbackGasLimitUpdated(uint32 callbackGasLimit);
@@ -317,10 +317,4 @@ interface IRaffle {
      * @return entries The entries entered for the raffle.
      */
     function getEntries(uint256 raffleId) external view returns (Entry[] memory);
-
-    /**
-     * @notice Gets the random words returned by Chainlink for a randomness request.
-     * @param requestId The request id returned by Chainlink.
-     */
-    function getRandomWords(uint256 requestId) external view returns (uint256[] memory);
 }
