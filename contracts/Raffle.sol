@@ -360,7 +360,7 @@ contract Raffle is
             if (raffle.status == RaffleStatus.Drawing) {
                 RaffleStatus status = RaffleStatus.RandomnessFulfilled;
                 raffle.status = status;
-                randomnessRequests[_requestId].randomWord = _randomWords[0];
+                randomnessRequests[_requestId].randomWord = uint248(_randomWords[0]);
                 emit RaffleStatusUpdated(raffleId, status);
             }
         }

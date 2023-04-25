@@ -157,8 +157,8 @@ interface IRaffle {
      */
     struct RandomnessRequest {
         bool exists;
+        uint248 randomWord;
         uint256 raffleId;
-        uint256 randomWord;
     }
 
     event CallbackGasLimitUpdated(uint32 callbackGasLimit);

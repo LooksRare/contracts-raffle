@@ -37,7 +37,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         _fulfillRandomWords();
 
-        (bool exists, uint256 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(
+        (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(
             FULFILL_RANDOM_WORDS_REQUEST_ID
         );
         assertTrue(exists);
@@ -55,7 +55,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(invalidRequestId, _randomWords);
 
-        (bool exists, uint256 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(invalidRequestId);
+        (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(invalidRequestId);
         assertFalse(exists);
         assertEq(raffleId, 0);
         assertEq(randomWord, 0);
@@ -77,7 +77,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
             _randomWordsTwo
         );
 
-        (bool exists, uint256 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(
+        (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(
             FULFILL_RANDOM_WORDS_REQUEST_ID
         );
         assertTrue(exists);
