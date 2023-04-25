@@ -381,7 +381,6 @@ contract Raffle is
 
         raffle.status = RaffleStatus.Drawn;
 
-        uint256 randomWord = randomnessRequest.randomWord;
         Prize[] storage prizes = raffle.prizes;
         uint256 prizesCount = prizes.length;
         uint256 winnersCount = prizes[prizesCount - 1].cumulativeWinnersCount;
@@ -409,6 +408,8 @@ contract Raffle is
                 ++i;
             }
         }
+
+        uint256 randomWord = randomnessRequest.randomWord;
 
         for (uint256 i; i < winnersCount; ) {
             uint256 winningEntry = randomWord % (currentEntryIndex + 1);
