@@ -395,6 +395,24 @@ contract Raffle is
 
         uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
 
+        uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
+        for (uint256 i; i < entriesCount; ) {
+            currentEntryIndexArray[i] = entries[i].currentEntryIndex;
+            unchecked {
+                ++i;
+            }
+        }
+
+        Prize[] storage prizes = raffle.prizes;
+        uint256 prizesCount = prizes.length;
+        uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
+        for (uint256 i; i < prizesCount; ) {
+            cumulativeWinnersCountArray[i] = prizes[i].cumulativeWinnersCount;
+            unchecked {
+                ++i;
+            }
+        }
+
         for (uint256 i; i < winnersCount; ) {
             uint256 winningEntry = randomWords[i] % (currentEntryIndex + 1);
             (winningEntry, winningEntriesBitmap) = _incrementWinningEntryUntilThereIsNotADuplicate(
@@ -403,23 +421,6 @@ contract Raffle is
                 winningEntriesBitmap
             );
 
-            uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
-            for (uint256 j; j < entriesCount; ) {
-                currentEntryIndexArray[j] = entries[j].currentEntryIndex;
-                unchecked {
-                    ++j;
-                }
-            }
-
-            Prize[] storage prizes = raffle.prizes;
-            uint256 prizesCount = prizes.length;
-            uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
-            for (uint256 j; j < prizesCount; ) {
-                cumulativeWinnersCountArray[j] = prizes[j].cumulativeWinnersCount;
-                unchecked {
-                    ++j;
-                }
-            }
             winners[i].participant = entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant;
             winners[i].entryIndex = uint40(winningEntry);
             winners[i].prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
