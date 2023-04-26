@@ -116,19 +116,24 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         prizes[6].winnersCount = 100;
     }
 
-    function _generateRandomWordsForRaffleWith11Winners() internal pure returns (uint256[] memory randomWords) {
-        randomWords = new uint256[](11);
-        randomWords[0] = 5_000; // 5000 % 107 + 1 = 79
-        randomWords[1] = 69_42; // 6942 % 107 + 1 = 95
-        randomWords[2] = 777; // 777 % 107 + 1 = 29
-        randomWords[3] = 55; // 55 % 107 + 1 = 56
-        randomWords[4] = 123; // 123 % 107 + 1 = 17
-        randomWords[5] = 99; // 99 % 107 + 1 = 100
-        randomWords[6] = 9_981; // 9981 % 107 + 1 = 31
-        randomWords[7] = 888; // 888 % 107 + 1 = 33
-        randomWords[8] = 168; // 168 % 107 + 1 = 62
-        randomWords[9] = 4_670; // 4670 % 107 + 1 = 70
-        randomWords[10] = 3_14159; // 314159 % 107 + 1 = 8
+    function _generateRandomWordForRaffle() internal pure returns (uint256[] memory randomWords) {
+        randomWords = new uint256[](1);
+        randomWords[0] = 3_14159;
+    }
+
+    function _expected11Winners() internal pure returns (address[] memory winners) {
+        winners = new address[](11);
+        winners[0] = address(8);
+        winners[1] = address(64);
+        winners[2] = address(67);
+        winners[3] = address(57);
+        winners[4] = address(48);
+        winners[5] = address(61);
+        winners[6] = address(103);
+        winners[7] = address(98);
+        winners[8] = address(4);
+        winners[9] = address(72);
+        winners[10] = address(27);
     }
 
     function _mintStandardRafflePrizesToRaffleOwnerAndApprove() internal {
@@ -170,7 +175,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _fulfillRandomWords() internal {
-        uint256[] memory randomWords = _generateRandomWordsForRaffleWith11Winners();
+        uint256[] memory randomWords = _generateRandomWordForRaffle();
 
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);

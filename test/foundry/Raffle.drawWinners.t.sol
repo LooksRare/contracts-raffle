@@ -57,10 +57,13 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
         }
 
-        (bool exists, uint256 raffleId) = looksRareRaffle.randomnessRequests(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(
+            FULFILL_RANDOM_WORDS_REQUEST_ID
+        );
 
         assertTrue(exists);
         assertEq(raffleId, 1);
+        assertEq(randomWord, 0);
 
         (, IRaffle.RaffleStatus status, , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(1);
         assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Drawing));
@@ -102,7 +105,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
                     uint64(1_122),
                     uint16(3),
                     500_000,
-                    uint32(106)
+                    uint32(1)
                 )
             )
         );

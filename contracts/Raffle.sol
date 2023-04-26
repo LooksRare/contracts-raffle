@@ -358,13 +358,10 @@ contract Raffle is
             Raffle storage raffle = raffles[raffleId];
 
             if (raffle.status == RaffleStatus.Drawing) {
-                Prize[] storage prizes = raffle.prizes;
-                if (_randomWords.length == prizes[prizes.length - 1].cumulativeWinnersCount) {
-                    RaffleStatus status = RaffleStatus.RandomnessFulfilled;
-                    raffle.status = status;
-                    randomnessRequests[_requestId].randomWords = _randomWords;
-                    emit RaffleStatusUpdated(raffleId, status);
-                }
+                RaffleStatus status = RaffleStatus.RandomnessFulfilled;
+                raffle.status = status;
+                randomnessRequests[_requestId].randomWord = uint248(_randomWords[0]);
+                emit RaffleStatusUpdated(raffleId, status);
             }
         }
     }
@@ -384,8 +381,9 @@ contract Raffle is
 
         raffle.status = RaffleStatus.Drawn;
 
-        uint256[] memory randomWords = randomnessRequest.randomWords;
-        uint256 winnersCount = randomWords.length;
+        Prize[] storage prizes = raffle.prizes;
+        uint256 prizesCount = prizes.length;
+        uint256 winnersCount = prizes[prizesCount - 1].cumulativeWinnersCount;
 
         Winner[] memory winners = new Winner[](winnersCount);
 
@@ -403,8 +401,6 @@ contract Raffle is
             }
         }
 
-        Prize[] storage prizes = raffle.prizes;
-        uint256 prizesCount = prizes.length;
         uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
         for (uint256 i; i < prizesCount; ) {
             cumulativeWinnersCountArray[i] = prizes[i].cumulativeWinnersCount;
@@ -413,8 +409,10 @@ contract Raffle is
             }
         }
 
+        uint256 randomWord = randomnessRequest.randomWord;
+
         for (uint256 i; i < winnersCount; ) {
-            uint256 winningEntry = randomWords[i] % (currentEntryIndex + 1);
+            uint256 winningEntry = randomWord % (currentEntryIndex + 1);
             (winningEntry, winningEntriesBitmap) = _incrementWinningEntryUntilThereIsNotADuplicate(
                 currentEntryIndex,
                 winningEntry,
@@ -426,6 +424,8 @@ contract Raffle is
             winners[i].prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
 
             raffle.winners.push(winners[i]);
+
+            randomWord = uint256(keccak256(abi.encodePacked(randomWord)));
 
             unchecked {
                 ++i;
@@ -629,13 +629,6 @@ contract Raffle is
         returns (PricingOption[PRICING_OPTIONS_PER_RAFFLE] memory pricingOptions)
     {
         pricingOptions = raffles[raffleId].pricingOptions;
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function getRandomWords(uint256 requestId) external view returns (uint256[] memory randomWords) {
-        randomWords = randomnessRequests[requestId].randomWords;
     }
 
     /**
@@ -871,16 +864,12 @@ contract Raffle is
         raffle.status = RaffleStatus.Drawing;
         raffle.drawnAt = uint40(block.timestamp);
 
-        Prize[] storage prizes = raffle.prizes;
-        uint256 prizesCount = prizes.length;
-        uint32 winnersCount = uint32(prizes[prizesCount - 1].cumulativeWinnersCount);
-
         uint256 requestId = VRF_COORDINATOR.requestRandomWords(
             KEY_HASH,
             SUBSCRIPTION_ID,
             REQUEST_CONFIRMATIONS,
             callbackGasLimit,
-            winnersCount
+            uint32(1)
         );
 
         if (randomnessRequests[requestId].exists) {
