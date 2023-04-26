@@ -105,11 +105,6 @@ contract Raffle is
     mapping(uint256 => RandomnessRequest) public randomnessRequests;
 
     /**
-     * @notice The callback gas limit for fulfillRandomWords.
-     */
-    uint32 public callbackGasLimit = 500_000;
-
-    /**
      * @notice The maximum protocol fee in basis points, which is 25%.
      */
     uint256 public constant MAXIMUM_PROTOCOL_FEE_BP = 2_500;
@@ -556,17 +551,6 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function setCallbackGasLimit(uint32 _callbackGasLimit) external onlyOwner {
-        if (_callbackGasLimit > 2_500_000) {
-            revert InvalidCallbackGasLimit();
-        }
-        callbackGasLimit = _callbackGasLimit;
-        emit CallbackGasLimitUpdated(_callbackGasLimit);
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
     function setProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {
         _setProtocolFeeRecipient(_protocolFeeRecipient);
     }
@@ -868,7 +852,7 @@ contract Raffle is
             KEY_HASH,
             SUBSCRIPTION_ID,
             REQUEST_CONFIRMATIONS,
-            callbackGasLimit,
+            uint32(500_000),
             uint32(1)
         );
 

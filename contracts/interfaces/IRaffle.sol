@@ -161,7 +161,6 @@ interface IRaffle {
         uint256 raffleId;
     }
 
-    event CallbackGasLimitUpdated(uint32 callbackGasLimit);
     event CurrenciesStatusUpdated(address[] currencies, bool isAllowed);
     event EntryRefunded(uint256 raffleId, address buyer, uint208 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
@@ -177,7 +176,6 @@ interface IRaffle {
     error CutoffTimeReached();
     error DrawExpirationTimeNotReached();
     error InsufficientNativeTokensSupplied();
-    error InvalidCallbackGasLimit();
     error InvalidCaller();
     error InvalidCurrency();
     error InvalidCutoffTime();
@@ -258,12 +256,6 @@ interface IRaffle {
      * @param currency The currency of the fees to be claimed.
      */
     function claimProtocolFees(address currency) external;
-
-    /**
-     * @notice Sets the callback gas limit for Chainlink. Only callable by contract owner.
-     * @param callbackGasLimit The callback gas limit.
-     */
-    function setCallbackGasLimit(uint32 callbackGasLimit) external;
 
     /**
      * @notice Sets the protocol fee in basis points. Only callable by contract owner.
