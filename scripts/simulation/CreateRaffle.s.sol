@@ -31,7 +31,7 @@ contract CreateRaffle is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(0x3B3D3CF2000ed76F0a268E4FC4DeA900A3410ace);
+        Raffle raffle = Raffle(0xA321A39ADd58E9dDe4aE7b4316DcDcA4a99A1513);
 
         address[] memory currencies = new address[](2);
         currencies[0] = address(0);

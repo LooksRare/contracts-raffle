@@ -22,7 +22,7 @@ contract ClaimFees is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = IRaffle(0x3B3D3CF2000ed76F0a268E4FC4DeA900A3410ace);
+        IRaffle raffle = IRaffle(0xA321A39ADd58E9dDe4aE7b4316DcDcA4a99A1513);
 
         raffle.claimFees(1);
 
