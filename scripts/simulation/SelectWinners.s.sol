@@ -22,7 +22,7 @@ contract SelectWinners is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = IRaffle(0xA321A39ADd58E9dDe4aE7b4316DcDcA4a99A1513);
+        IRaffle raffle = IRaffle(0xB0a43B88a814CD40155caf50Fb7aBD0f771663a0);
 
         uint256 requestId = 63782518079213451294665608781594247048257182247985383962686159275093895347290;
 
