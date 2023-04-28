@@ -51,9 +51,8 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         mockERC20 = new MockERC20();
         mockERC721 = new MockERC721();
 
-        address[] memory currencies = new address[](2);
-        currencies[0] = address(0);
-        currencies[1] = address(mockERC20);
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(mockERC20);
 
         vm.prank(owner);
         looksRareRaffle.updateCurrenciesStatus(currencies, true);

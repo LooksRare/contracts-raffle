@@ -175,8 +175,10 @@ contract Raffle is
         }
 
         address feeTokenAddress = params.feeTokenAddress;
-        if (!isCurrencyAllowed[feeTokenAddress]) {
-            revert InvalidCurrency();
+        if (feeTokenAddress != address(0)) {
+            if (!isCurrencyAllowed[feeTokenAddress]) {
+                revert InvalidCurrency();
+            }
         }
 
         raffleId = ++rafflesCount;
@@ -702,8 +704,7 @@ contract Raffle is
                 revert InvalidPrize();
             }
         } else {
-            // ETH or ERC-20
-            if (uint8(prize.prizeType) > 1) {
+            if (prize.prizeType == TokenType.ERC20) {
                 if (!isCurrencyAllowed[prize.prizeAddress]) {
                     revert InvalidCurrency();
                 }
