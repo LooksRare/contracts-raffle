@@ -270,6 +270,19 @@ contract Raffle is
     }
 
     /**
+     * @dev This function is required in order for the contract to receive ERC-1155 tokens.
+     */
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes calldata
+    ) external pure returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /**
      * @inheritdoc IRaffle
      */
     function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
