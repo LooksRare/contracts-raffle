@@ -374,6 +374,7 @@ contract Raffle is
 
             if (raffle.status == RaffleStatus.Drawing) {
                 raffle.status = RaffleStatus.RandomnessFulfilled;
+                // We ignore the most significant byte to pack the random word with `exists`
                 randomnessRequests[_requestId].randomWord = uint248(_randomWords[0]);
                 emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
             }
