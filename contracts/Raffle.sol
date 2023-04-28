@@ -394,8 +394,6 @@ contract Raffle is
         uint256 prizesCount = prizes.length;
         uint256 winnersCount = prizes[prizesCount - 1].cumulativeWinnersCount;
 
-        Winner[] memory winners = new Winner[](winnersCount);
-
         Entry[] memory entries = raffle.entries;
         uint256 entriesCount = entries.length;
         uint256 currentEntryIndex = uint256(entries[entriesCount - 1].currentEntryIndex);
@@ -428,11 +426,14 @@ contract Raffle is
                 winningEntriesBitmap
             );
 
-            winners[i].participant = entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant;
-            winners[i].entryIndex = uint40(winningEntry);
-            winners[i].prizeIndex = uint8(cumulativeWinnersCountArray.findUpperBound(i + 1));
-
-            raffle.winners.push(winners[i]);
+            raffle.winners.push(
+                Winner({
+                    participant: entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant,
+                    claimed: false,
+                    prizeIndex: uint8(cumulativeWinnersCountArray.findUpperBound(i + 1)),
+                    entryIndex: uint40(winningEntry)
+                })
+            );
 
             randomWord = uint256(keccak256(abi.encodePacked(randomWord)));
 
