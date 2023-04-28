@@ -14,6 +14,8 @@ import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2
 
 import {Arrays} from "./libraries/Arrays.sol";
 
+import {WinningEntrySearchLogic} from "./WinningEntrySearchLogic.sol";
+
 import "./interfaces/IRaffle.sol";
 
 /**
@@ -30,7 +32,8 @@ contract Raffle is
     VRFConsumerBaseV2,
     OwnableTwoSteps,
     PackableReentrancyGuard,
-    Pausable
+    Pausable,
+    WinningEntrySearchLogic
 {
     using Arrays for uint256[];
 
@@ -714,37 +717,6 @@ contract Raffle is
                 revert InvalidPrize();
             }
         }
-    }
-
-    /**
-     * @param currentEntryIndex The current entry index.
-     * @param winningEntry The winning entry.
-     * @param winningEntriesBitmap The bitmap of winning entries.
-     */
-    function _incrementWinningEntryUntilThereIsNotADuplicate(
-        uint256 currentEntryIndex,
-        uint256 winningEntry,
-        uint256[] memory winningEntriesBitmap
-    ) private pure returns (uint256, uint256[] memory) {
-        uint256 bucket = winningEntry >> 8;
-        uint256 mask = 1 << (winningEntry & 0xff);
-        while (winningEntriesBitmap[bucket] & mask != 0) {
-            if (winningEntry == currentEntryIndex) {
-                bucket = 0;
-                winningEntry = 0;
-            } else {
-                winningEntry += 1;
-                if (winningEntry % 256 == 0) {
-                    bucket += 1;
-                }
-            }
-
-            mask = 1 << (winningEntry & 0xff);
-        }
-
-        winningEntriesBitmap[bucket] |= mask;
-
-        return (winningEntry, winningEntriesBitmap);
     }
 
     /**
