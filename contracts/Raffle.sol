@@ -185,6 +185,7 @@ contract Raffle is
             revert InvalidPrizesCount();
         }
 
+        Raffle storage raffle = raffles[raffleId];
         uint40 cumulativeWinnersCount;
         uint8 currentPrizeTier;
         for (uint256 i; i < prizesCount; ) {
@@ -197,7 +198,7 @@ contract Raffle is
             cumulativeWinnersCount += prize.winnersCount;
             prize.cumulativeWinnersCount = cumulativeWinnersCount;
             currentPrizeTier = prize.prizeTier;
-            raffles[raffleId].prizes.push(prize);
+            raffle.prizes.push(prize);
 
             unchecked {
                 ++i;
@@ -211,14 +212,14 @@ contract Raffle is
 
         _validateAndSetPricingOptions(raffleId, params.pricingOptions);
 
-        raffles[raffleId].owner = msg.sender;
-        raffles[raffleId].status = RaffleStatus.Created;
-        raffles[raffleId].isMinimumEntriesFixed = params.isMinimumEntriesFixed;
-        raffles[raffleId].cutoffTime = cutoffTime;
-        raffles[raffleId].minimumEntries = minimumEntries;
-        raffles[raffleId].maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        raffles[raffleId].protocolFeeBp = params.protocolFeeBp;
-        raffles[raffleId].feeTokenAddress = feeTokenAddress;
+        raffle.owner = msg.sender;
+        raffle.status = RaffleStatus.Created;
+        raffle.isMinimumEntriesFixed = params.isMinimumEntriesFixed;
+        raffle.cutoffTime = cutoffTime;
+        raffle.minimumEntries = minimumEntries;
+        raffle.maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        raffle.protocolFeeBp = params.protocolFeeBp;
+        raffle.feeTokenAddress = feeTokenAddress;
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
     }
