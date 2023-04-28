@@ -169,7 +169,8 @@ contract Raffle is
             revert InvalidCutoffTime();
         }
 
-        if (params.protocolFeeBp != protocolFeeBp) {
+        uint16 agreedProtocolFeeBp = params.protocolFeeBp;
+        if (agreedProtocolFeeBp != protocolFeeBp) {
             revert InvalidProtocolFeeBp();
         }
 
@@ -218,7 +219,7 @@ contract Raffle is
         raffle.cutoffTime = cutoffTime;
         raffle.minimumEntries = minimumEntries;
         raffle.maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        raffle.protocolFeeBp = params.protocolFeeBp;
+        raffle.protocolFeeBp = agreedProtocolFeeBp;
         raffle.feeTokenAddress = feeTokenAddress;
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
