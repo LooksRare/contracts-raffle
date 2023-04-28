@@ -368,10 +368,9 @@ contract Raffle is
             Raffle storage raffle = raffles[raffleId];
 
             if (raffle.status == RaffleStatus.Drawing) {
-                RaffleStatus status = RaffleStatus.RandomnessFulfilled;
-                raffle.status = status;
+                raffle.status = RaffleStatus.RandomnessFulfilled;
                 randomnessRequests[_requestId].randomWord = uint248(_randomWords[0]);
-                emit RaffleStatusUpdated(raffleId, status);
+                emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
             }
         }
     }
