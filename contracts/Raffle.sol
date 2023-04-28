@@ -672,12 +672,14 @@ contract Raffle is
                 }
             } else {
                 PricingOption memory lastPricingOption = pricingOptions[i - 1];
+                uint208 lastPrice = lastPricingOption.price;
+                uint40 lastEntriesCount = lastPricingOption.entriesCount;
 
                 if (
                     price % entriesCount != 0 ||
-                    entriesCount <= lastPricingOption.entriesCount ||
-                    price <= lastPricingOption.price ||
-                    price / entriesCount > lastPricingOption.price / lastPricingOption.entriesCount
+                    entriesCount <= lastEntriesCount ||
+                    price <= lastPrice ||
+                    price / entriesCount > lastPrice / lastEntriesCount
                 ) {
                     revert InvalidPricingOption();
                 }
