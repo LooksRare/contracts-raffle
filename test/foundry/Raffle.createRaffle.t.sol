@@ -258,7 +258,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
-    function test_createRaffle_RevertIf_InvalidCurrency() public {
+    function test_createRaffle_RevertIf_InvalidCurrency_Fee() public {
         address[] memory currencies = new address[](1);
         currencies[0] = address(mockERC20);
 
@@ -270,5 +270,16 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
         vm.expectRevert(IRaffle.InvalidCurrency.selector);
         looksRareRaffle.createRaffle(params);
+    }
+
+    function test_createRaffle_RevertIf_InvalidCurrency_Prize() public {
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(mockERC20);
+
+        vm.prank(owner);
+        looksRareRaffle.updateCurrenciesStatus(currencies, false);
+
+        vm.expectRevert(IRaffle.InvalidCurrency.selector);
+        looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
     }
 }
