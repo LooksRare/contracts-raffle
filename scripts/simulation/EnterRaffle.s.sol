@@ -20,7 +20,7 @@ contract EnterRaffle is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = IRaffle(0xB0a43B88a814CD40155caf50Fb7aBD0f771663a0);
+        IRaffle raffle = IRaffle(0xCBD1922cD0789365ebCa9464073b678019869630);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
         entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
