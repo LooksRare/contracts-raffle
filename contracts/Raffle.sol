@@ -184,7 +184,9 @@ contract Raffle is
             }
         }
 
-        raffleId = ++rafflesCount;
+        unchecked {
+            raffleId = ++rafflesCount;
+        }
 
         uint256 prizesCount = params.prizes.length;
         if (prizesCount == 0 || prizesCount > MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE) {
