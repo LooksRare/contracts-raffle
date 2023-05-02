@@ -33,13 +33,17 @@ library Arrays {
             if (array[mid] > element) {
                 high = mid;
             } else {
-                low = mid + 1;
+                unchecked {
+                    low = mid + 1;
+                }
             }
         }
 
         // At this point `low` is the exclusive upper bound. We will return the inclusive upper bound.
         if (low > 0 && array[low - 1] == element) {
-            return low - 1;
+            unchecked {
+                return low - 1;
+            }
         } else {
             return low;
         }

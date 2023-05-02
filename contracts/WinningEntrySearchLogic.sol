@@ -26,7 +26,9 @@ contract WinningEntrySearchLogic {
             } else {
                 winningEntry += 1;
                 if (winningEntry % 256 == 0) {
-                    bucket += 1;
+                    unchecked {
+                        bucket += 1;
+                    }
                 }
             }
 

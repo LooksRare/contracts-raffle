@@ -168,7 +168,7 @@ contract Raffle is
      */
     function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId) {
         uint40 cutoffTime = params.cutoffTime;
-        if (block.timestamp + ONE_DAY > cutoffTime || cutoffTime > block.timestamp + ONE_WEEK) {
+        if (_unsafeAdd(block.timestamp, ONE_DAY) > cutoffTime || cutoffTime > _unsafeAdd(block.timestamp, ONE_WEEK)) {
             revert InvalidCutoffTime();
         }
 
@@ -333,10 +333,10 @@ contract Raffle is
             uint40 currentEntryIndex;
             uint256 raffleEntriesCount = raffle.entries.length;
             if (raffleEntriesCount == 0) {
-                currentEntryIndex = pricingOption.entriesCount - 1;
+                currentEntryIndex = uint40(_unsafeSubtract(pricingOption.entriesCount, 1));
             } else {
                 currentEntryIndex =
-                    raffle.entries[raffleEntriesCount - 1].currentEntryIndex +
+                    raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex +
                     pricingOption.entriesCount;
             }
 
@@ -353,7 +353,7 @@ contract Raffle is
 
             emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
 
-            if (currentEntryIndex >= raffle.minimumEntries - 1) {
+            if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);
             }
 
@@ -438,7 +438,7 @@ contract Raffle is
                 Winner({
                     participant: entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant,
                     claimed: false,
-                    prizeIndex: uint8(cumulativeWinnersCountArray.findUpperBound(i + 1)),
+                    prizeIndex: uint8(cumulativeWinnersCountArray.findUpperBound(_unsafeAdd(i, 1))),
                     entryIndex: uint40(winningEntry)
                 })
             );
@@ -489,7 +489,9 @@ contract Raffle is
 
         uint208 claimableFees = raffle.claimableFees;
         uint208 protocolFees = (claimableFees * uint208(raffle.protocolFeeBp)) / uint208(ONE_HUNDRED_PERCENT_BP);
-        claimableFees -= protocolFees;
+        unchecked {
+            claimableFees -= protocolFees;
+        }
 
         raffle.status = RaffleStatus.Complete;
         raffle.claimableFees = 0;
@@ -679,7 +681,7 @@ contract Raffle is
                     revert InvalidPricingOption();
                 }
             } else {
-                PricingOption memory lastPricingOption = pricingOptions[i - 1];
+                PricingOption memory lastPricingOption = pricingOptions[_unsafeSubtract(i, 1)];
                 uint208 lastPrice = lastPricingOption.price;
                 uint40 lastEntriesCount = lastPricingOption.entriesCount;
 
@@ -886,7 +888,24 @@ contract Raffle is
         if (expectedEthValue > msg.value) {
             revert InsufficientNativeTokensSupplied();
         } else if (msg.value > expectedEthValue) {
-            _transferETHAndWrapIfFailWithGasLimit(WETH, msg.sender, msg.value - expectedEthValue, gasleft());
+            _transferETHAndWrapIfFailWithGasLimit(
+                WETH,
+                msg.sender,
+                _unsafeSubtract(msg.value, expectedEthValue),
+                gasleft()
+            );
+        }
+    }
+
+    function _unsafeAdd(uint256 a, uint256 b) private pure returns (uint256) {
+        unchecked {
+            return a + b;
+        }
+    }
+
+    function _unsafeSubtract(uint256 a, uint256 b) private pure returns (uint256) {
+        unchecked {
+            return a - b;
         }
     }
 }
