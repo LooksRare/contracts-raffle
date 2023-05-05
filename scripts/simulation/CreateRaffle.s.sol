@@ -8,8 +8,6 @@ import {Script} from "../../lib/forge-std/src/Script.sol";
 import {Raffle} from "../../contracts/Raffle.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
-import {IERC20} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC20.sol";
-
 interface ITestERC721 {
     function mint(address to, uint256 amount) external;
 
@@ -18,24 +16,26 @@ interface ITestERC721 {
     function totalSupply() external returns (uint256);
 }
 
+interface ITestERC20 {
+    function approve(address operator, uint256 amount) external;
+
+    function mint(address to, uint256 amount) external;
+}
+
 contract CreateRaffle is Script {
     error ChainIdInvalid(uint256 chainId);
 
     function run() external {
         uint256 chainId = block.chainid;
-        uint256 deployerPrivateKey = vm.envUint("GOERLI_KEY");
+        uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
 
-        if (chainId != 5) {
+        if (chainId != 5 && chainId != 11155111) {
             revert ChainIdInvalid(chainId);
         }
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(0xCBD1922cD0789365ebCa9464073b678019869630);
-
-        address[] memory currencies = new address[](1);
-        currencies[0] = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
-        raffle.updateCurrenciesStatus(currencies, true);
+        Raffle raffle = Raffle(0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
@@ -44,14 +44,20 @@ contract CreateRaffle is Script {
         pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.000075 ether});
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.000095 ether});
 
-        ITestERC721 nft = ITestERC721(0x77566D540d1E207dFf8DA205ed78750F9a1e7c55);
+        ITestERC721 nft = ITestERC721(0x61AAEcdbe9C2502a72fec63F2Ff510bE1b95DD97);
         uint256 totalSupply = nft.totalSupply();
         nft.mint(0xF332533bF5d0aC462DC8511067A8122b4DcE2B57, 6);
         nft.setApprovalForAll(address(raffle), true);
 
-        IERC20 looks = IERC20(0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC);
+        ITestERC20 looks = ITestERC20(0xa68c2CaA3D45fa6EBB95aA706c70f49D3356824E);
 
-        looks.approve(address(raffle), 3_000e18);
+        uint256 totalPrizeInLooks = 3_000e18;
+        looks.mint(0xF332533bF5d0aC462DC8511067A8122b4DcE2B57, totalPrizeInLooks);
+        looks.approve(address(raffle), totalPrizeInLooks);
+
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(looks);
+        raffle.updateCurrenciesStatus(currencies, true);
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
         for (uint256 i; i < 6; ) {

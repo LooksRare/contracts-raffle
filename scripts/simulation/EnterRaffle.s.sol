@@ -12,15 +12,15 @@ contract EnterRaffle is Script {
 
     function run() external {
         uint256 chainId = block.chainid;
-        uint256 deployerPrivateKey = vm.envUint("GOERLI_KEY");
+        uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
 
-        if (chainId != 5) {
+        if (chainId != 5 && chainId != 11155111) {
             revert ChainIdInvalid(chainId);
         }
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = IRaffle(0xCBD1922cD0789365ebCa9464073b678019869630);
+        IRaffle raffle = IRaffle(0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
         entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});

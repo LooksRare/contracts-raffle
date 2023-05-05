@@ -25,15 +25,15 @@ contract CreateRaffleWithERC1155Prizes is Script {
 
     function run() external {
         uint256 chainId = block.chainid;
-        uint256 deployerPrivateKey = vm.envUint("GOERLI_KEY");
+        uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
 
-        if (chainId != 5) {
+        if (chainId != 5 && chainId != 11155111) {
             revert ChainIdInvalid(chainId);
         }
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(0xCBD1922cD0789365ebCa9464073b678019869630);
+        Raffle raffle = Raffle(0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9);
 
         address[] memory currencies = new address[](1);
         currencies[0] = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
