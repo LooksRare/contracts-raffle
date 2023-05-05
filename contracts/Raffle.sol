@@ -110,7 +110,7 @@ contract Raffle is
     /**
      * @notice The maximum protocol fee in basis points, which is 25%.
      */
-    uint256 public constant MAXIMUM_PROTOCOL_FEE_BP = 2_500;
+    uint16 public constant MAXIMUM_PROTOCOL_FEE_BP = 2_500;
 
     /**
      * @notice The protocol fee recipient.
