@@ -441,6 +441,23 @@ contract Raffle_Invariants is TestHelpers {
     }
 
     /**
+     * Invariant A: Raffle contract ERC20 balance >= (∑ERC20 prizes deposited + ∑fees paid in ERC20) - (∑fees claimed in ERC20 + ∑fees refunded in ERC20 + ∑prizes returned in ERC20 + ∑prizes claimed in ERC20)
+     */
+
+    function invariant_A() public {
+        assertGe(
+            mockERC20.balanceOf(address(looksRareRaffle)),
+            handler.ghost_ERC20_prizesDepositedSum() +
+                handler.ghost_ERC20_feesCollectedSum() -
+                handler.ghost_ERC20_feesClaimedSum() -
+                handler.ghost_ERC20_feesRefundedSum() -
+                handler.ghost_ERC20_prizesReturnedSum() -
+                handler.ghost_ERC20_prizesClaimedSum() -
+                handler.ghost_ERC20_protocolFeesClaimedSum()
+        );
+    }
+
+    /**
      * Invariant B: Raffle contract ETH balance >= (∑ETH prizes deposited + ∑fees paid in ETH) - (∑fees claimed in ETH + ∑fees refunded in ETH + ∑prizes returned in ETH + ∑prizes claimed in ETH)
      */
 
