@@ -221,15 +221,13 @@ contract Raffle is
         _validateAndSetPricingOptions(raffleId, params.pricingOptions);
 
         raffle.owner = msg.sender;
-        raffle.status = RaffleStatus.Created;
         raffle.isMinimumEntriesFixed = params.isMinimumEntriesFixed;
         raffle.cutoffTime = cutoffTime;
         raffle.minimumEntries = minimumEntries;
         raffle.maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
         raffle.protocolFeeBp = agreedProtocolFeeBp;
         raffle.feeTokenAddress = feeTokenAddress;
-
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Created);
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Created);
     }
 
     /**
@@ -274,8 +272,7 @@ contract Raffle is
 
         _validateExpectedEthValueOrRefund(expectedEthValue);
 
-        raffle.status = RaffleStatus.Open;
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Open);
     }
 
     /**
@@ -375,10 +372,9 @@ contract Raffle is
             Raffle storage raffle = raffles[raffleId];
 
             if (raffle.status == RaffleStatus.Drawing) {
-                raffle.status = RaffleStatus.RandomnessFulfilled;
+                _setRaffleStatus(raffle, raffleId, RaffleStatus.RandomnessFulfilled);
                 // We ignore the most significant byte to pack the random word with `exists`
                 randomnessRequests[_requestId].randomWord = uint248(_randomWords[0]);
-                emit RaffleStatusUpdated(raffleId, RaffleStatus.RandomnessFulfilled);
             }
         }
     }
@@ -396,7 +392,7 @@ contract Raffle is
         Raffle storage raffle = raffles[raffleId];
         _validateRaffleStatus(raffle, RaffleStatus.RandomnessFulfilled);
 
-        raffle.status = RaffleStatus.Drawn;
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Drawn);
 
         Prize[] storage prizes = raffle.prizes;
         uint256 prizesCount = prizes.length;
@@ -449,8 +445,6 @@ contract Raffle is
                 ++i;
             }
         }
-
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawn);
     }
 
     /**
@@ -493,7 +487,8 @@ contract Raffle is
             claimableFees -= protocolFees;
         }
 
-        raffle.status = RaffleStatus.Complete;
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Complete);
+
         raffle.claimableFees = 0;
 
         address feeTokenAddress = raffle.feeTokenAddress;
@@ -503,7 +498,6 @@ contract Raffle is
             protocolFeeRecipientClaimableFees[feeTokenAddress] += protocolFees;
         }
 
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Complete);
         emit FeesClaimed(raffleId, claimableFees);
     }
 
@@ -512,9 +506,7 @@ contract Raffle is
      */
     function cancel(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
-
-        RaffleStatus status = raffle.status;
-        bool isOpen = status == RaffleStatus.Open;
+        bool isOpen = raffle.status == RaffleStatus.Open;
 
         if (isOpen) {
             if (raffle.cutoffTime > block.timestamp) {
@@ -524,7 +516,7 @@ contract Raffle is
             _validateRaffleStatus(raffle, RaffleStatus.Created);
         }
 
-        _cancel(raffleId, raffle, isOpen);
+        _setRaffleStatus(raffle, raffleId, isOpen ? RaffleStatus.Refundable : RaffleStatus.Cancelled);
     }
 
     /**
@@ -539,11 +531,33 @@ contract Raffle is
             revert DrawExpirationTimeNotReached();
         }
 
-        _cancel(raffleId, raffle, true);
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Refundable);
     }
 
     /**
      * @inheritdoc IRaffle
+     */
+    function withdrawPrizes(uint256 raffleId) external nonReentrant whenNotPaused {
+        Raffle storage raffle = raffles[raffleId];
+        _validateRaffleStatus(raffle, RaffleStatus.Refundable);
+
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Cancelled);
+
+        uint256 prizesCount = raffle.prizes.length;
+        address raffleOwner = raffle.owner;
+        for (uint256 i; i < prizesCount; ) {
+            Prize storage prize = raffle.prizes[i];
+            _transferPrize({prize: prize, recipient: raffleOwner, multiplier: uint256(prize.winnersCount)});
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     * @dev Refundable and Cancelled are the only statuses that allow refunds.
      */
     function claimRefund(uint256[] calldata raffleIds) external nonReentrant whenNotPaused {
         uint256 count = raffleIds.length;
@@ -552,7 +566,9 @@ contract Raffle is
             uint256 raffleId = raffleIds[i];
             Raffle storage raffle = raffles[raffleId];
 
-            _validateRaffleStatus(raffle, RaffleStatus.Cancelled);
+            if (raffle.status < RaffleStatus.Refundable) {
+                revert InvalidStatus();
+            }
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
 
@@ -769,33 +785,6 @@ contract Raffle is
     }
 
     /**
-     * @param raffleId The ID of the raffle to cancel.
-     * @param raffle The raffle to cancel.
-     * @param shouldWithdrawPrizes Whether to withdraw the prizes to the raffle owner.
-     */
-    function _cancel(
-        uint256 raffleId,
-        Raffle storage raffle,
-        bool shouldWithdrawPrizes
-    ) private {
-        raffle.status = RaffleStatus.Cancelled;
-
-        if (shouldWithdrawPrizes) {
-            uint256 prizesCount = raffle.prizes.length;
-            for (uint256 i; i < prizesCount; ) {
-                Prize storage prize = raffle.prizes[i];
-                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: uint256(prize.winnersCount)});
-
-                unchecked {
-                    ++i;
-                }
-            }
-        }
-
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
-    }
-
-    /**
      * @param claimPrizesCalldata The calldata for claiming prizes.
      */
     function _claimPrizesPerRaffle(ClaimPrizesCalldata calldata claimPrizesCalldata) private {
@@ -840,7 +829,7 @@ contract Raffle is
      * @param raffle The raffle to draw winners for.
      */
     function _drawWinners(uint256 raffleId, Raffle storage raffle) private {
-        raffle.status = RaffleStatus.Drawing;
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Drawing);
         raffle.drawnAt = uint40(block.timestamp);
 
         uint256 requestId = VRF_COORDINATOR.requestRandomWords(
@@ -858,7 +847,6 @@ contract Raffle is
         randomnessRequests[requestId].exists = true;
         randomnessRequests[requestId].raffleId = raffleId;
 
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Drawing);
         emit RandomnessRequested(raffleId, requestId);
     }
 
@@ -895,6 +883,20 @@ contract Raffle is
                 gasleft()
             );
         }
+    }
+
+    /**
+     * @param raffle The raffle to set the status of.
+     * @param raffleId The ID of the raffle to set the status of.
+     * @param status The status to set.
+     */
+    function _setRaffleStatus(
+        Raffle storage raffle,
+        uint256 raffleId,
+        RaffleStatus status
+    ) private {
+        raffle.status = status;
+        emit RaffleStatusUpdated(raffleId, status);
     }
 
     function _unsafeAdd(uint256 a, uint256 b) private pure returns (uint256) {

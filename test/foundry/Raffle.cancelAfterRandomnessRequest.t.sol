@@ -27,7 +27,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest() public {
         _transitionRaffleStatusToDrawing();
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Refundable);
 
         (, , , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(1);
         vm.warp(drawnAt + 86_400 + 1);
@@ -35,13 +35,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         vm.prank(owner);
         looksRareRaffle.cancelAfterRandomnessRequest(1);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
-
-        assertEq(mockERC721.balanceOf(user1), 6);
-        for (uint256 i; i < 6; i++) {
-            assertEq(mockERC721.ownerOf(i), user1);
-        }
-        assertEq(mockERC20.balanceOf(user1), 100_000 ether);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Refundable);
     }
 
     function test_cancelAfterRandomnessRequest_RevertIf_NotOwner() public {

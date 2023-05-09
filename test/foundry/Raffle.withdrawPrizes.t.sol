@@ -8,7 +8,7 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-contract Raffle_Cancel_Test is TestHelpers {
+contract Raffle_WithdrawPrizes_Test is TestHelpers {
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_983);
 
@@ -22,38 +22,32 @@ contract Raffle_Cancel_Test is TestHelpers {
         vm.stopPrank();
     }
 
-    function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user2) {
-        looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
-
-        assertRaffleStatusUpdatedEventEmitted(2, IRaffle.RaffleStatus.Cancelled);
-
-        looksRareRaffle.cancel(2);
-
-        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Cancelled);
-    }
-
-    function test_cancel_RaffleStatusIsOpen() public {
+    function test_withdrawPrizes() public {
         _enterRaffles();
         vm.warp(block.timestamp + 86_400 + 1);
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Refundable);
-
         looksRareRaffle.cancel(1);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Refundable);
-    }
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Cancelled);
 
-    function test_cancel_RevertIf_InvalidStatus() public {
-        _transitionRaffleStatusToDrawing();
+        looksRareRaffle.withdrawPrizes(1);
+
+        assertEq(mockERC721.balanceOf(user1), 6);
+        for (uint256 i; i < 6; i++) {
+            assertEq(mockERC721.ownerOf(i), user1);
+        }
+        assertEq(mockERC20.balanceOf(user1), 100_000 ether);
+
+        // Second withdraw reverts
         vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.cancel(1);
+        looksRareRaffle.withdrawPrizes(1);
     }
 
-    function test_cancel_RevertIf_CutoffTimeNotReached() public {
-        _enterRaffles();
-        vm.warp(block.timestamp + 86_399);
-        vm.expectRevert(IRaffle.CutoffTimeNotReached.selector);
-        looksRareRaffle.cancel(1);
+    function test_withdrawPrizes_RevertIf_InvalidStatus() public asPrankedUser(user1) {
+        looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
+        looksRareRaffle.cancel(2);
+        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        looksRareRaffle.withdrawPrizes(2);
     }
 
     function _enterRaffles() private {
