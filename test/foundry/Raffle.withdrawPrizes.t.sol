@@ -43,10 +43,11 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
         looksRareRaffle.withdrawPrizes(1);
     }
 
-    function test_withdrawPrizes_RevertIf_InvalidStatus() public {
-        _transitionRaffleStatusToDrawing();
+    function test_withdrawPrizes_RevertIf_InvalidStatus() public asPrankedUser(user1) {
+        looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
+        looksRareRaffle.cancel(2);
         vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.cancel(1);
+        looksRareRaffle.withdrawPrizes(2);
     }
 
     function _enterRaffles() private {
