@@ -506,8 +506,9 @@ contract Raffle is
      */
     function cancel(uint256 raffleId) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
+        bool isOpen = raffle.status == RaffleStatus.Open;
 
-        if (raffle.status == RaffleStatus.Open) {
+        if (isOpen) {
             if (raffle.cutoffTime > block.timestamp) {
                 revert CutoffTimeNotReached();
             }
@@ -515,7 +516,7 @@ contract Raffle is
             _validateRaffleStatus(raffle, RaffleStatus.Created);
         }
 
-        _setRaffleStatus(raffle, raffleId, RaffleStatus.Refundable);
+        _setRaffleStatus(raffle, raffleId, isOpen ? RaffleStatus.Refundable : RaffleStatus.Cancelled);
     }
 
     /**

@@ -25,11 +25,11 @@ contract Raffle_Cancel_Test is TestHelpers {
     function test_cancel_RaffleStatusIsCreated() public asPrankedUser(user2) {
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
 
-        assertRaffleStatusUpdatedEventEmitted(2, IRaffle.RaffleStatus.Refundable);
+        assertRaffleStatusUpdatedEventEmitted(2, IRaffle.RaffleStatus.Cancelled);
 
         looksRareRaffle.cancel(2);
 
-        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Refundable);
+        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Cancelled);
     }
 
     function test_cancel_RaffleStatusIsOpen() public {
