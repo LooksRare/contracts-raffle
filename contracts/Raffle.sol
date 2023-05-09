@@ -556,6 +556,7 @@ contract Raffle is
 
     /**
      * @inheritdoc IRaffle
+     * @dev Refundable (7) and Cancelled (8) are the only statuses that allow refunds.
      */
     function claimRefund(uint256[] calldata raffleIds) external nonReentrant whenNotPaused {
         uint256 count = raffleIds.length;
