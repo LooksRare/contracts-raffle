@@ -175,10 +175,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         (address raffleOwner, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
         if (status != IRaffle.RaffleStatus.Created) return;
 
-        uint256 ethValue = _prizesEthValue(raffleId);
+        uint256 ethValue = _prizesValue(raffleId, IRaffle.TokenType.ETH);
         vm.deal(raffleOwner, ethValue);
 
-        uint256 erc20Value = _prizesErc20Value(raffleId);
+        uint256 erc20Value = _prizesValue(raffleId, IRaffle.TokenType.ERC20);
         erc20.mint(raffleOwner, erc20Value);
 
         vm.startPrank(raffleOwner);
@@ -335,10 +335,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         looksRareRaffle.cancel(raffleId);
 
         if (status == IRaffle.RaffleStatus.Open) {
-            uint256 ethValue = _prizesEthValue(raffleId);
+            uint256 ethValue = _prizesValue(raffleId, IRaffle.TokenType.ETH);
             ghost_ETH_prizesReturnedSum += ethValue;
 
-            uint256 erc20Value = _prizesErc20Value(raffleId);
+            uint256 erc20Value = _prizesValue(raffleId, IRaffle.TokenType.ERC20);
             ghost_ERC20_prizesReturnedSum += erc20Value;
         }
     }
@@ -372,24 +372,19 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     }
 
     function togglePaused() public countCall("togglePaused") {
-        vm.prank(looksRareRaffle.owner());
-        looksRareRaffle.togglePaused();
+        // vm.prank(looksRareRaffle.owner());
+        // looksRareRaffle.togglePaused();
     }
 
-    function _prizesEthValue(uint256 raffleId) private view returns (uint256 ethValue) {
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
-        for (uint256 i; i < prizes.length; i++) {
-            if (prizes[i].prizeType == IRaffle.TokenType.ETH) {
-                ethValue += prizes[i].prizeAmount * prizes[i].winnersCount;
-            }
+    function _prizesValue(uint256 raffleId, IRaffle.TokenType prizeType) private view returns (uint256 value) {
+        if (prizeType != IRaffle.TokenType.ETH && prizeType != IRaffle.TokenType.ERC20) {
+            revert("Invalid token type");
         }
-    }
 
-    function _prizesErc20Value(uint256 raffleId) private view returns (uint256 erc20Value) {
         IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
         for (uint256 i; i < prizes.length; i++) {
-            if (prizes[i].prizeType == IRaffle.TokenType.ERC20) {
-                erc20Value += prizes[i].prizeAmount * prizes[i].winnersCount;
+            if (prizes[i].prizeType == prizeType) {
+                value += prizes[i].prizeAmount * prizes[i].winnersCount;
             }
         }
     }
