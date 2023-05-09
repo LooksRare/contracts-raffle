@@ -399,6 +399,11 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         vm.prank(looksRareRaffle.owner());
         looksRareRaffle.cancelAfterRandomnessRequest(raffleId);
+
+        if (status == IRaffle.RaffleStatus.Open) {
+            ghost_ETH_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ETH);
+            ghost_ERC20_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC20);
+        }
     }
 
     function setProtocolFeeBp(uint16 protocolFeeBp) public countCall("setProtocolFeeBp") {
