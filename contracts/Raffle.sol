@@ -557,7 +557,7 @@ contract Raffle is
 
     /**
      * @inheritdoc IRaffle
-     * @dev Refundable (7) and Cancelled (8) are the only statuses that allow refunds.
+     * @dev Refundable and Cancelled are the only statuses that allow refunds.
      */
     function claimRefund(uint256[] calldata raffleIds) external nonReentrant whenNotPaused {
         uint256 count = raffleIds.length;
@@ -566,7 +566,7 @@ contract Raffle is
             uint256 raffleId = raffleIds[i];
             Raffle storage raffle = raffles[raffleId];
 
-            if (uint8(raffle.status) < 7) {
+            if (raffle.status < RaffleStatus.Refundable) {
                 revert InvalidStatus();
             }
 
