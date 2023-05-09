@@ -119,31 +119,39 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     }
 
     function createRaffle(uint256 seed) public useActor(seed) countCall("createRaffle") {
-        uint256 erc721TotalSupply = erc721.totalSupply();
-        erc721.batchMint(currentActor, erc721TotalSupply, 6);
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
-        for (uint256 i; i < 6; i++) {
-            prizes[i].prizeType = IRaffle.TokenType.ERC721;
-            prizes[i].prizeAddress = address(erc721);
-            prizes[i].prizeId = erc721TotalSupply + i;
-            prizes[i].prizeAmount = 1;
-            prizes[i].winnersCount = 1;
 
-            if (i != 0) {
-                prizes[i].prizeTier = 1;
+        uint40 minimumEntries;
+
+        for (uint256 i; i < prizes.length; i++) {
+            prizes[i].prizeTier = uint8(i);
+
+            if (seed % 4 == 0) {
+                prizes[i].prizeType = IRaffle.TokenType.ETH;
+                prizes[i].prizeAddress = ETH;
+                prizes[i].prizeAmount = 1 ether;
+                prizes[i].winnersCount = 10;
+                minimumEntries += 10;
+            } else if (seed % 4 == 1) {
+                prizes[i].prizeType = IRaffle.TokenType.ERC20;
+                prizes[i].prizeAddress = address(erc20);
+                prizes[i].prizeAmount = 1 ether;
+                prizes[i].winnersCount = 10;
+                minimumEntries += 10;
+                // } else if (seed % 4 == 2) {
+            } else {
+                uint256 tokenId = erc721.totalSupply();
+                erc721.mint(currentActor, tokenId);
+                prizes[i].prizeType = IRaffle.TokenType.ERC721;
+                prizes[i].prizeAddress = address(erc721);
+                prizes[i].prizeId = tokenId;
+                prizes[i].prizeAmount = 1;
+                prizes[i].winnersCount = 1;
+                minimumEntries += 1;
             }
         }
 
-        prizes[6].prizeTier = 2;
-        prizes[6].prizeAmount = 1 ether;
-        prizes[6].winnersCount = 100;
-        if (seed % 2 == 0) {
-            prizes[6].prizeType = IRaffle.TokenType.ETH;
-            prizes[6].prizeAddress = ETH;
-        } else {
-            prizes[6].prizeType = IRaffle.TokenType.ERC20;
-            prizes[6].prizeAddress = address(erc20);
-        }
+        minimumEntries = (minimumEntries * 10_500) / 10_000;
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
@@ -155,8 +163,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         IRaffle.CreateRaffleCalldata memory params = IRaffle.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
             isMinimumEntriesFixed: false,
-            minimumEntries: 107,
-            maximumEntriesPerParticipant: 200,
+            minimumEntries: minimumEntries,
+            maximumEntriesPerParticipant: pricingOptions[4].entriesCount,
             protocolFeeBp: looksRareRaffle.protocolFeeBp(),
             feeTokenAddress: uint256(keccak256(abi.encodePacked(seed))) % 2 == 0 ? ETH : address(erc20),
             prizes: prizes,
@@ -197,8 +205,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         uint256 raffleId = (seed % rafflesCount) + 1;
 
-        (, IRaffle.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
+        (, IRaffle.RaffleStatus status, , uint40 cutoffTime, , , , address feeTokenAddress, , ) = looksRareRaffle
+            .raffles(raffleId);
         if (status != IRaffle.RaffleStatus.Open) return;
+        if (block.timestamp >= cutoffTime) return;
 
         uint256 pricingOptionIndex = seed % 5;
         IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(raffleId);
@@ -235,6 +245,12 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         }
         uint256 requestId = requestIdsReadyForWinnersSelection[readyCount - 1];
         requestIdsReadyForWinnersSelection.pop();
+
+        (, , uint256 raffleId) = looksRareRaffle.randomnessRequests(requestId);
+        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        // TODO: Allow fail
+        if (status != IRaffle.RaffleStatus.Drawing) return;
+
         looksRareRaffle.selectWinners(requestId);
     }
 
