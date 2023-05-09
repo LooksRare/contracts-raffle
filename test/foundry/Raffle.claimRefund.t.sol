@@ -29,7 +29,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         looksRareRaffle.cancel(1);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Refundable);
 
         uint256[] memory raffleIds = new uint256[](1);
         raffleIds[0] = 1;
@@ -57,8 +57,10 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         looksRareRaffle.cancel(1);
         looksRareRaffle.cancel(2);
 
+        looksRareRaffle.withdrawPrizes(1);
+
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
-        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Cancelled);
+        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Refundable);
 
         uint256[] memory raffleIds = new uint256[](2);
         raffleIds[0] = 1;

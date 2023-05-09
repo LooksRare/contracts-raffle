@@ -10,6 +10,7 @@ interface IRaffle {
         RandomnessFulfilled,
         Drawn,
         Complete,
+        Refundable,
         Cancelled
     }
 
@@ -244,6 +245,12 @@ interface IRaffle {
      * @param raffleId The id of the raffle.
      */
     function cancelAfterRandomnessRequest(uint256 raffleId) external;
+
+    /**
+     * @notice Withdraws the prizes for a raffle after it has been marked as refundable.
+     * @param raffleId The id of the raffle.
+     */
+    function withdrawPrizes(uint256 raffleId) external;
 
     /**
      * @notice Claims the refund for a cancelled raffle.

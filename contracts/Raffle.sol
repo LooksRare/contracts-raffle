@@ -513,10 +513,7 @@ contract Raffle is
     function cancel(uint256 raffleId) external nonReentrant {
         Raffle storage raffle = raffles[raffleId];
 
-        RaffleStatus status = raffle.status;
-        bool isOpen = status == RaffleStatus.Open;
-
-        if (isOpen) {
+        if (raffle.status == RaffleStatus.Open) {
             if (raffle.cutoffTime > block.timestamp) {
                 revert CutoffTimeNotReached();
             }
@@ -524,7 +521,8 @@ contract Raffle is
             _validateRaffleStatus(raffle, RaffleStatus.Created);
         }
 
-        _cancel(raffleId, raffle, isOpen);
+        raffle.status = RaffleStatus.Refundable;
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Refundable);
     }
 
     /**
@@ -539,7 +537,31 @@ contract Raffle is
             revert DrawExpirationTimeNotReached();
         }
 
-        _cancel(raffleId, raffle, true);
+        raffle.status = RaffleStatus.Refundable;
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Refundable);
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
+    function withdrawPrizes(uint256 raffleId) external nonReentrant {
+        Raffle storage raffle = raffles[raffleId];
+        _validateRaffleStatus(raffle, RaffleStatus.Refundable);
+
+        raffle.status = RaffleStatus.Cancelled;
+
+        uint256 prizesCount = raffle.prizes.length;
+        address raffleOwner = raffle.owner;
+        for (uint256 i; i < prizesCount; ) {
+            Prize storage prize = raffle.prizes[i];
+            _transferPrize({prize: prize, recipient: raffleOwner, multiplier: uint256(prize.winnersCount)});
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
     }
 
     /**
@@ -552,7 +574,9 @@ contract Raffle is
             uint256 raffleId = raffleIds[i];
             Raffle storage raffle = raffles[raffleId];
 
-            _validateRaffleStatus(raffle, RaffleStatus.Cancelled);
+            if (uint8(raffle.status) < 7) {
+                revert InvalidStatus();
+            }
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
 
@@ -766,33 +790,6 @@ contract Raffle is
         } else {
             _executeERC20DirectTransfer(currency, recipient, amount);
         }
-    }
-
-    /**
-     * @param raffleId The ID of the raffle to cancel.
-     * @param raffle The raffle to cancel.
-     * @param shouldWithdrawPrizes Whether to withdraw the prizes to the raffle owner.
-     */
-    function _cancel(
-        uint256 raffleId,
-        Raffle storage raffle,
-        bool shouldWithdrawPrizes
-    ) private {
-        raffle.status = RaffleStatus.Cancelled;
-
-        if (shouldWithdrawPrizes) {
-            uint256 prizesCount = raffle.prizes.length;
-            for (uint256 i; i < prizesCount; ) {
-                Prize storage prize = raffle.prizes[i];
-                _transferPrize({prize: prize, recipient: raffle.owner, multiplier: uint256(prize.winnersCount)});
-
-                unchecked {
-                    ++i;
-                }
-            }
-        }
-
-        emit RaffleStatusUpdated(raffleId, RaffleStatus.Cancelled);
     }
 
     /**
