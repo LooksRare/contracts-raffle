@@ -3,6 +3,8 @@ pragma solidity 0.8.17;
 
 // Scripting tool
 import {Script} from "../../lib/forge-std/src/Script.sol";
+import "forge-std/console2.sol";
+import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
 import {Raffle} from "../../contracts/Raffle.sol";
@@ -22,7 +24,7 @@ interface ITestERC20 {
     function mint(address to, uint256 amount) external;
 }
 
-contract CreateRaffle is Script {
+contract CreateRaffle is Script, SimulationBase {
     error ChainIdInvalid(uint256 chainId);
 
     function run() external {
@@ -35,7 +37,7 @@ contract CreateRaffle is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9);
+        Raffle raffle = Raffle(chainId == 5 ? GOERLI_RAFFLE : SEPOLIA_RAFFLE);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
@@ -44,15 +46,17 @@ contract CreateRaffle is Script {
         pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.000075 ether});
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.000095 ether});
 
-        ITestERC721 nft = ITestERC721(0x61AAEcdbe9C2502a72fec63F2Ff510bE1b95DD97);
+        ITestERC721 nft = ITestERC721(chainId == 5 ? GOERLI_ERC_721 : SEPOLIA_ERC_721);
         uint256 totalSupply = nft.totalSupply();
-        nft.mint(0xF332533bF5d0aC462DC8511067A8122b4DcE2B57, 6);
+        nft.mint(RAFFLE_OWNER, 6);
         nft.setApprovalForAll(address(raffle), true);
 
-        ITestERC20 looks = ITestERC20(0xa68c2CaA3D45fa6EBB95aA706c70f49D3356824E);
+        ITestERC20 looks = ITestERC20(getERC20(chainId));
 
         uint256 totalPrizeInLooks = 3_000e18;
-        looks.mint(0xF332533bF5d0aC462DC8511067A8122b4DcE2B57, totalPrizeInLooks);
+        if (chainId == 11155111) {
+            looks.mint(RAFFLE_OWNER, totalPrizeInLooks);
+        }
         looks.approve(address(raffle), totalPrizeInLooks);
 
         address[] memory currencies = new address[](1);

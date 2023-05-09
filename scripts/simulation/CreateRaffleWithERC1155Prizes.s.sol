@@ -3,12 +3,17 @@ pragma solidity 0.8.17;
 
 // Scripting tool
 import {Script} from "../../lib/forge-std/src/Script.sol";
+import "forge-std/console2.sol";
+import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
-import {Raffle} from "../../contracts/Raffle.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
-import {IERC20} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC20.sol";
+interface ITestERC20 {
+    function approve(address operator, uint256 amount) external;
+
+    function mint(address to, uint256 amount) external;
+}
 
 interface ITestERC1155 {
     function mint(
@@ -20,7 +25,7 @@ interface ITestERC1155 {
     function setApprovalForAll(address operator, bool approved) external;
 }
 
-contract CreateRaffleWithERC1155Prizes is Script {
+contract CreateRaffleWithERC1155Prizes is Script, SimulationBase {
     error ChainIdInvalid(uint256 chainId);
 
     function run() external {
@@ -33,11 +38,7 @@ contract CreateRaffleWithERC1155Prizes is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9);
-
-        address[] memory currencies = new address[](1);
-        currencies[0] = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
-        raffle.updateCurrenciesStatus(currencies, true);
+        IRaffle raffle = getRaffle(chainId);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
@@ -46,16 +47,20 @@ contract CreateRaffleWithERC1155Prizes is Script {
         pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.000075 ether});
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.000095 ether});
 
-        ITestERC1155 nft = ITestERC1155(0x58c3c2547084CC1C94130D6fd750A3877c7Ca5D2);
+        ITestERC1155 nft = ITestERC1155(getERC1155(chainId));
         nft.setApprovalForAll(address(raffle), true);
 
-        IERC20 looks = IERC20(0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC);
+        ITestERC20 looks = ITestERC20(getERC20(chainId));
+
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(looks);
+        raffle.updateCurrenciesStatus(currencies, true);
 
         looks.approve(address(raffle), 3_000e18);
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
         for (uint256 i; i < 6; ) {
-            nft.mint(0xF332533bF5d0aC462DC8511067A8122b4DcE2B57, i, 4);
+            nft.mint(RAFFLE_OWNER, i, 4);
 
             if (i != 0) {
                 prizes[i].prizeTier = 1;
