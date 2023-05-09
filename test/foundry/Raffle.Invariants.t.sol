@@ -158,7 +158,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             minimumEntries: 107,
             maximumEntriesPerParticipant: 200,
             protocolFeeBp: looksRareRaffle.protocolFeeBp(),
-            feeTokenAddress: ETH,
+            feeTokenAddress: uint256(keccak256(abi.encodePacked(seed))) % 2 == 0 ? ETH : address(erc20),
             prizes: prizes,
             pricingOptions: pricingOptions
         });
@@ -197,21 +197,26 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         uint256 raffleId = (seed % rafflesCount) + 1;
 
-        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        (, IRaffle.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
         if (status != IRaffle.RaffleStatus.Open) return;
 
         uint256 pricingOptionIndex = seed % 5;
         IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(raffleId);
         uint208 price = pricingOptions[pricingOptionIndex].price;
 
-        vm.deal(currentActor, price);
-
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
         entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex});
 
-        looksRareRaffle.enterRaffles{value: price}(entries);
-
-        ghost_ETH_feesCollectedSum += price;
+        if (feeTokenAddress == ETH) {
+            vm.deal(currentActor, price);
+            looksRareRaffle.enterRaffles{value: price}(entries);
+            ghost_ETH_feesCollectedSum += price;
+        } else if (feeTokenAddress == address(erc20)) {
+            erc20.mint(currentActor, price);
+            erc20.approve(address(looksRareRaffle), price);
+            looksRareRaffle.enterRaffles(entries);
+            ghost_ERC20_feesCollectedSum += price;
+        }
     }
 
     function fulfillRandomWords(uint256 randomWord) public countCall("fulfillRandomWords") {
@@ -248,7 +253,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             ,
             ,
             ,
-            ,
+            address feeTokenAddress,
             uint16 protocolFeeBp,
             uint208 claimableFees
         ) = looksRareRaffle.raffles(raffleId);
@@ -259,7 +264,13 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         // TODO: should claimFees return the claimed fees?
         uint256 protocolFees = (uint256(claimableFees) * uint256(protocolFeeBp)) / 10_000;
-        ghost_ETH_feesClaimedSum += (uint256(claimableFees) - protocolFees);
+        uint256 claimedSum = uint256(claimableFees) - protocolFees;
+
+        if (feeTokenAddress == ETH) {
+            ghost_ETH_feesClaimedSum += claimedSum;
+        } else if (feeTokenAddress == address(erc20)) {
+            ghost_ERC20_feesClaimedSum += claimedSum;
+        }
     }
 
     function claimPrizes(uint256 raffleId, uint256 seed) public countCall("claimPrizes") {
@@ -303,7 +314,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        (, IRaffle.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
         if (status != IRaffle.RaffleStatus.Cancelled) return;
 
         IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(raffleId);
@@ -318,7 +329,11 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         vm.prank(entry.participant);
         looksRareRaffle.claimRefund(raffleIds);
 
-        ghost_ETH_feesRefundedSum += amountPaid;
+        if (feeTokenAddress == ETH) {
+            ghost_ETH_feesRefundedSum += amountPaid;
+        } else if (feeTokenAddress == address(erc20)) {
+            ghost_ERC20_feesRefundedSum += amountPaid;
+        }
     }
 
     function cancel(uint256 raffleId) public countCall("cancel") {
@@ -343,11 +358,16 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         }
     }
 
-    function claimProtocolFees() public countCall("claimProtocolFees") {
-        uint256 claimableProtocolFees = looksRareRaffle.protocolFeeRecipientClaimableFees(address(0));
+    function claimProtocolFees(uint256 seed) public countCall("claimProtocolFees") {
+        address feeTokenAddress = seed % 2 == 0 ? ETH : address(erc20);
+        uint256 claimableProtocolFees = looksRareRaffle.protocolFeeRecipientClaimableFees(feeTokenAddress);
         vm.prank(looksRareRaffle.owner());
-        looksRareRaffle.claimProtocolFees(address(0));
-        ghost_ETH_protocolFeesClaimedSum += claimableProtocolFees;
+        looksRareRaffle.claimProtocolFees(feeTokenAddress);
+        if (feeTokenAddress == ETH) {
+            ghost_ETH_protocolFeesClaimedSum += claimableProtocolFees;
+        } else {
+            ghost_ERC20_protocolFeesClaimedSum += claimableProtocolFees;
+        }
     }
 
     function cancelAfterRandomnessRequest(uint256 raffleId) public countCall("cancelAfterRandomnessRequest") {
