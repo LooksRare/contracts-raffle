@@ -510,7 +510,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function cancel(uint256 raffleId) external nonReentrant {
+    function cancel(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
 
         RaffleStatus status = raffle.status;
