@@ -537,7 +537,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function withdrawPrizes(uint256 raffleId) external nonReentrant {
+    function withdrawPrizes(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
         _validateRaffleStatus(raffle, RaffleStatus.Refundable);
 
