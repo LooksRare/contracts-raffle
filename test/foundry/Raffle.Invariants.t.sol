@@ -9,6 +9,7 @@ import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC721} from "./mock/MockERC721.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
+import {MockERC1155} from "./mock/MockERC1155.sol";
 import {MockWETH} from "./mock/MockWETH.sol";
 import {MockVRFCoordinatorV2} from "./mock/MockVRFCoordinatorV2.sol";
 
@@ -22,6 +23,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     Raffle public looksRareRaffle;
     MockERC721 public erc721;
     MockERC20 public erc20;
+    MockERC1155 public erc1155;
     MockVRFCoordinatorV2 public vrfCoordinatorV2;
 
     address private constant VRF_COORDINATOR_V2 = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
@@ -42,6 +44,11 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     uint256 public ghost_ERC20_prizesReturnedSum;
     uint256 public ghost_ERC20_prizesClaimedSum;
     uint256 public ghost_ERC20_protocolFeesClaimedSum;
+
+    uint256 public erc1155TokenId = 69;
+    uint256 public ghost_ERC1155_prizesDepositedSum;
+    uint256 public ghost_ERC1155_prizesReturnedSum;
+    uint256 public ghost_ERC1155_prizesClaimedSum;
 
     address[100] internal actors;
     address internal currentActor;
@@ -68,8 +75,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Create raffle", calls["createRaffle"]);
         console2.log("Deposit prizes", calls["depositPrizes"]);
         console2.log("Enter raffles", calls["enterRaffles"]);
-        console2.log("Set protocol fee bp", calls["setProtocolFeeBp"]);
-        console2.log("Toggle paused", calls["togglePaused"]);
         console2.log("Fulfill random words", calls["fulfillRandomWords"]);
         console2.log("Select winners", calls["selectWinners"]);
         console2.log("Claim fees", calls["claimFees"]);
@@ -94,19 +99,25 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("ERC20 protocol fees claimed:", ghost_ERC20_protocolFeesClaimedSum);
         console2.log("ERC20 prizes returned:", ghost_ERC20_prizesReturnedSum);
         console2.log("ERC20 prizes claimed:", ghost_ERC20_prizesClaimedSum);
+
+        console2.log("ERC1155 prizes deposited:", ghost_ERC1155_prizesDepositedSum);
+        console2.log("ERC1155 prizes returned:", ghost_ERC1155_prizesReturnedSum);
+        console2.log("ERC1155 prizes claimed:", ghost_ERC1155_prizesClaimedSum);
     }
 
     constructor(
         Raffle _looksRareRaffle,
         MockVRFCoordinatorV2 _vrfCoordinatorV2,
         MockERC721 _erc721,
-        MockERC20 _erc20
+        MockERC20 _erc20,
+        MockERC1155 _erc1155
     ) {
         looksRareRaffle = _looksRareRaffle;
         vrfCoordinatorV2 = _vrfCoordinatorV2;
-        erc721 = _erc721;
 
+        erc721 = _erc721;
         erc20 = _erc20;
+        erc1155 = _erc1155;
 
         address[] memory currencies = new address[](1);
         currencies[0] = address(erc20);
@@ -138,8 +149,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
                 prizes[i].prizeAmount = 1 ether;
                 prizes[i].winnersCount = 10;
                 minimumEntries += 10;
-                // } else if (seed % 4 == 2) {
-            } else {
+            } else if (seed % 4 == 2) {
                 uint256 tokenId = erc721.totalSupply();
                 erc721.mint(currentActor, tokenId);
                 prizes[i].prizeType = IRaffle.TokenType.ERC721;
@@ -148,6 +158,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
                 prizes[i].prizeAmount = 1;
                 prizes[i].winnersCount = 1;
                 minimumEntries += 1;
+            } else {
+                erc1155.mint(currentActor, erc1155TokenId, 4);
+                prizes[i].prizeType = IRaffle.TokenType.ERC1155;
+                prizes[i].prizeAddress = address(erc1155);
+                prizes[i].prizeId = erc1155TokenId;
+                prizes[i].prizeAmount = 2;
+                prizes[i].winnersCount = 2;
+                minimumEntries += 2;
             }
         }
 
@@ -189,14 +207,18 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         uint256 erc20Value = _prizesValue(raffleId, IRaffle.TokenType.ERC20);
         erc20.mint(raffleOwner, erc20Value);
 
+        uint256 erc1155Value = _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
+
         vm.startPrank(raffleOwner);
         erc721.setApprovalForAll(address(looksRareRaffle), true);
         erc20.approve(address(looksRareRaffle), erc20Value);
+        erc1155.setApprovalForAll(address(looksRareRaffle), true);
         looksRareRaffle.depositPrizes{value: ethValue}(raffleId);
         vm.stopPrank();
 
         ghost_ETH_prizesDepositedSum += ethValue;
         ghost_ERC20_prizesDepositedSum += erc20Value;
+        ghost_ERC1155_prizesDepositedSum += erc1155Value;
     }
 
     function enterRaffles(uint256 seed) public useActor(seed) countCall("enterRaffles") {
@@ -321,6 +343,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             ghost_ETH_prizesClaimedSum += prize.prizeAmount;
         } else if (prize.prizeType == IRaffle.TokenType.ERC20) {
             ghost_ERC20_prizesClaimedSum += prize.prizeAmount;
+        } else if (prize.prizeType == IRaffle.TokenType.ERC1155) {
+            ghost_ERC1155_prizesClaimedSum += prize.prizeAmount;
         }
     }
 
@@ -371,6 +395,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
             uint256 erc20Value = _prizesValue(raffleId, IRaffle.TokenType.ERC20);
             ghost_ERC20_prizesReturnedSum += erc20Value;
+
+            uint256 erc1155Value = _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
+            ghost_ERC1155_prizesReturnedSum += erc1155Value;
         }
     }
 
@@ -403,22 +430,12 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         if (status == IRaffle.RaffleStatus.Open) {
             ghost_ETH_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ETH);
             ghost_ERC20_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC20);
+            ghost_ERC1155_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
         }
     }
 
-    function setProtocolFeeBp(uint16 protocolFeeBp) public countCall("setProtocolFeeBp") {
-        protocolFeeBp = uint16(bound(protocolFeeBp, 0, 2_500));
-        vm.prank(looksRareRaffle.owner());
-        looksRareRaffle.setProtocolFeeBp(protocolFeeBp);
-    }
-
-    function togglePaused() public countCall("togglePaused") {
-        // vm.prank(looksRareRaffle.owner());
-        // looksRareRaffle.togglePaused();
-    }
-
     function _prizesValue(uint256 raffleId, IRaffle.TokenType prizeType) private view returns (uint256 value) {
-        if (prizeType != IRaffle.TokenType.ETH && prizeType != IRaffle.TokenType.ERC20) {
+        if (prizeType == IRaffle.TokenType.ERC721) {
             revert("Invalid token type");
         }
 
@@ -453,10 +470,11 @@ contract Raffle_Invariants is TestHelpers {
 
         mockERC721 = new MockERC721();
         mockERC20 = new MockERC20();
+        MockERC1155 mockERC1155 = new MockERC1155();
 
         vrfCoordinatorV2.setRaffle(address(looksRareRaffle));
 
-        handler = new Handler(looksRareRaffle, vrfCoordinatorV2, mockERC721, mockERC20);
+        handler = new Handler(looksRareRaffle, vrfCoordinatorV2, mockERC721, mockERC20, mockERC1155);
         targetContract(address(handler));
         excludeContract(looksRareRaffle.protocolFeeRecipient());
     }
@@ -508,6 +526,30 @@ contract Raffle_Invariants is TestHelpers {
                     IRaffle.Prize memory prize = prizes[i];
                     if (prize.prizeType == IRaffle.TokenType.ERC721) {
                         assertEq(MockERC721(prize.prizeAddress).ownerOf(prize.prizeId), address(looksRareRaffle));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Invariant D: For each raffle with an ERC1155 as prizes collection.balanceOf(address(looksRareRaffle), tokenID) >= (∑collection/id prizes deposited) - (∑prizes returned in collection/id + ∑prizes claimed in collection/id)
+     */
+    function invariant_D() public {
+        uint256 rafflesCount = looksRareRaffle.rafflesCount();
+        for (uint256 raffleId; raffleId < rafflesCount; raffleId++) {
+            (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+            if (status >= IRaffle.RaffleStatus.Open && status <= IRaffle.RaffleStatus.RandomnessFulfilled) {
+                IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+                for (uint256 i; i < prizes.length; i++) {
+                    IRaffle.Prize memory prize = prizes[i];
+                    if (prize.prizeType == IRaffle.TokenType.ERC1155) {
+                        assertGe(
+                            MockERC1155(prize.prizeAddress).balanceOf(address(looksRareRaffle), prize.prizeId),
+                            handler.ghost_ERC1155_prizesDepositedSum() -
+                                handler.ghost_ERC1155_prizesReturnedSum() -
+                                handler.ghost_ERC1155_prizesClaimedSum()
+                        );
                     }
                 }
             }
