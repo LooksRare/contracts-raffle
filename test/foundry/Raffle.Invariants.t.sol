@@ -20,6 +20,8 @@ import {StdUtils} from "forge-std/StdUtils.sol";
 import {console2} from "forge-std/console2.sol";
 
 contract Handler is CommonBase, StdCheats, StdUtils {
+    bool public callsMustBeValid;
+
     Raffle public looksRareRaffle;
     MockERC721 public erc721;
     MockERC20 public erc20;
@@ -128,6 +130,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         for (uint256 i; i < 100; i++) {
             actors[i] = address(uint160(uint256(keccak256(abi.encodePacked(i)))));
         }
+
+        callsMustBeValid = vm.envBool("FOUNDRY_INVARIANT_FAIL_ON_REVERT");
     }
 
     function createRaffle(uint256 seed) public useActor(seed) countCall("createRaffle") {
@@ -198,7 +202,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(raffleId, 1, rafflesCount);
 
         (address raffleOwner, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Created) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Created) return;
 
         uint256 ethValue = _prizesValue(raffleId, IRaffle.TokenType.ETH);
         vm.deal(raffleOwner, ethValue);
@@ -228,8 +232,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         (, IRaffle.RaffleStatus status, , uint40 cutoffTime, , , , address feeTokenAddress, , ) = looksRareRaffle
             .raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Open) return;
-        if (block.timestamp >= cutoffTime) return;
+        if (callsMustBeValid) {
+            if (status != IRaffle.RaffleStatus.Open) return;
+            if (block.timestamp >= cutoffTime) return;
+        }
 
         uint256 pricingOptionIndex = seed % 5;
         IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(raffleId);
@@ -252,25 +258,29 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
     function fulfillRandomWords(uint256 randomWord) public countCall("fulfillRandomWords") {
         uint256 requestId = vrfCoordinatorV2.fulfillRandomWords(randomWord);
-        if (requestId == 0) {
-            return;
-        }
+        if (requestId == 0) return;
+
         requestIdsReadyForWinnersSelection.push(requestId);
     }
 
-    // TODO: Try with invalid request ID
-    function selectWinners() public countCall("selectWinners") {
-        uint256 readyCount = requestIdsReadyForWinnersSelection.length;
-        if (readyCount == 0) {
-            return;
-        }
-        uint256 requestId = requestIdsReadyForWinnersSelection[readyCount - 1];
-        requestIdsReadyForWinnersSelection.pop();
+    function selectWinners(uint256 seed) public countCall("selectWinners") {
+        uint256 requestId;
+        if (seed % 2 == 0) {
+            uint256 readyCount = requestIdsReadyForWinnersSelection.length;
+            if (readyCount == 0) return;
 
-        (, , uint256 raffleId) = looksRareRaffle.randomnessRequests(requestId);
-        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        // TODO: Allow fail
-        if (status != IRaffle.RaffleStatus.Drawing) return;
+            requestId = requestIdsReadyForWinnersSelection[readyCount - 1];
+            requestIdsReadyForWinnersSelection.pop();
+        } else {
+            // Try with invalid requestId
+            requestId = uint256(keccak256(abi.encodePacked(seed)));
+        }
+
+        if (callsMustBeValid) {
+            (, , uint256 raffleId) = looksRareRaffle.randomnessRequests(requestId);
+            (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+            if (status != IRaffle.RaffleStatus.Drawing) return;
+        }
 
         looksRareRaffle.selectWinners(requestId);
     }
@@ -294,7 +304,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             uint16 protocolFeeBp,
             uint208 claimableFees
         ) = looksRareRaffle.raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Drawn) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawn) return;
 
         vm.prank(raffleOwner);
         looksRareRaffle.claimFees(raffleId);
@@ -317,13 +327,13 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(raffleId, 1, rafflesCount);
 
         (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Drawn && status != IRaffle.RaffleStatus.Complete) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawn && status != IRaffle.RaffleStatus.Complete) return;
 
         IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
         uint256 winnerIndex = seed % winners.length;
         IRaffle.Winner memory winner = winners[winnerIndex];
 
-        if (winner.claimed) return;
+        if (callsMustBeValid && winner.claimed) return;
 
         uint256[] memory winnerIndices = new uint256[](1);
         winnerIndices[0] = winnerIndex;
@@ -354,7 +364,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(raffleId, 1, rafflesCount);
 
         (, IRaffle.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Cancelled) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Cancelled) return;
 
         IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(raffleId);
         if (entries.length == 0) return;
@@ -382,7 +392,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(raffleId, 1, rafflesCount);
 
         (, IRaffle.RaffleStatus status, , uint40 cutoffTime, , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Created && status != IRaffle.RaffleStatus.Open) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Created && status != IRaffle.RaffleStatus.Open) return;
 
         vm.warp(cutoffTime + 1);
 
@@ -408,7 +418,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(raffleId, 1, rafflesCount);
 
         (, IRaffle.RaffleStatus status, , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Drawing) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawing) return;
 
         vm.warp(drawnAt + 1 days + 1 seconds);
 
@@ -423,7 +433,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(raffleId, 1, rafflesCount);
 
         (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (status != IRaffle.RaffleStatus.Refundable) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Refundable) return;
 
         vm.prank(looksRareRaffle.owner());
         looksRareRaffle.withdrawPrizes(raffleId);
