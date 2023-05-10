@@ -274,8 +274,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         }
 
         if (feeTokenAddress == ETH) {
-            vm.deal(currentActor, price);
-            looksRareRaffle.enterRaffles{value: price}(entries);
+            // Pseudorandomly add 1 wei to test refund, not using seed because stack too deep :(
+            vm.deal(currentActor, price + (block.timestamp % 2));
+            looksRareRaffle.enterRaffles{value: price + (block.timestamp % 2)}(entries);
             ghost_ETH_feesCollectedSum += price;
         } else if (feeTokenAddress == address(erc20)) {
             erc20.mint(currentActor, price);
