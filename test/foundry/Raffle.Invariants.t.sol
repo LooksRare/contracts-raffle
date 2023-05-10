@@ -181,15 +181,17 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.75 ether});
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.95 ether});
 
-        bool isSeedHashEven = uint256(keccak256(abi.encodePacked(seed))) % 2 == 0;
+        if (minimumEntries < pricingOptions[4].entriesCount) {
+            minimumEntries = pricingOptions[4].entriesCount;
+        }
 
         IRaffle.CreateRaffleCalldata memory params = IRaffle.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
-            isMinimumEntriesFixed: isSeedHashEven,
+            isMinimumEntriesFixed: uint256(keccak256(abi.encodePacked(keccak256(abi.encodePacked(seed))))) % 2 == 0,
             minimumEntries: minimumEntries,
             maximumEntriesPerParticipant: pricingOptions[4].entriesCount,
             protocolFeeBp: looksRareRaffle.protocolFeeBp(),
-            feeTokenAddress: isSeedHashEven ? ETH : address(erc20),
+            feeTokenAddress: uint256(keccak256(abi.encodePacked(seed))) % 2 == 0 ? ETH : address(erc20),
             prizes: prizes,
             pricingOptions: pricingOptions
         });
@@ -258,10 +260,17 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         if (callsMustBeValid) {
             (, uint40 entriesCount, ) = looksRareRaffle.rafflesParticipantsStats(raffleId, currentActor);
-            uint40 newEntriesCount = entriesCount + pricingOptions[pricingOptionIndex].entriesCount;
+            uint40 pricingOptionEntriesCount = pricingOptions[pricingOptionIndex].entriesCount;
 
-            if (newEntriesCount > maximumEntriesPerParticipant) return;
-            if (isMinimumEntriesFixed && newEntriesCount > minimumEntries) return;
+            if (entriesCount + pricingOptionEntriesCount > maximumEntriesPerParticipant) return;
+
+            if (isMinimumEntriesFixed) {
+                IRaffle.Entry[] memory currentEntries = looksRareRaffle.getEntries(raffleId);
+                if (currentEntries.length != 0) {
+                    uint40 currentEntryIndex = currentEntries[currentEntries.length - 1].currentEntryIndex;
+                    if (currentEntryIndex + pricingOptionEntriesCount >= minimumEntries) return;
+                }
+            }
         }
 
         if (feeTokenAddress == ETH) {
