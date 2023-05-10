@@ -405,7 +405,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         uint256[] memory raffleIds = new uint256[](1);
         raffleIds[0] = raffleId;
 
-        vm.prank(entry.participant);
+        address caller = (callsMustBeValid || seed % 2 == 0) ? entry.participant : actors[bound(seed, 0, 99)];
+        vm.prank(caller);
         looksRareRaffle.claimRefund(raffleIds);
 
         if (feeTokenAddress == ETH) {
