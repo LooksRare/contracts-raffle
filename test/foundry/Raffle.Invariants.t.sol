@@ -305,8 +305,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         looksRareRaffle.selectWinners(requestId);
     }
 
-    // TODO: try with invalid owner/raffleId
-    function claimFees(uint256 raffleId) public countCall("claimFees") {
+    // TODO: try with invalid raffleId
+    function claimFees(uint256 raffleId, uint256 seed) public countCall("claimFees") {
         uint256 rafflesCount = looksRareRaffle.rafflesCount();
         if (rafflesCount == 0) return;
 
@@ -326,7 +326,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         ) = looksRareRaffle.raffles(raffleId);
         if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawn) return;
 
-        vm.prank(raffleOwner);
+        address caller = (callsMustBeValid || seed % 2 == 0) ? raffleOwner : actors[bound(seed, 0, 99)];
+        vm.prank(caller);
         looksRareRaffle.claimFees(raffleId);
 
         uint256 protocolFees = (uint256(claimableFees) * uint256(protocolFeeBp)) / 10_000;
