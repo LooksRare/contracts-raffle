@@ -315,7 +315,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         looksRareRaffle.selectWinners(requestId);
     }
 
-    // TODO: try with invalid raffleId
     function claimFees(uint256 raffleId, uint256 seed) public countCall("claimFees") {
         uint256 rafflesCount = looksRareRaffle.rafflesCount();
         if (rafflesCount == 0) return;
