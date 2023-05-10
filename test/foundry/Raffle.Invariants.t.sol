@@ -83,6 +83,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Cancel", calls["cancel"]);
         console2.log("Cancel after randomness request", calls["cancelAfterRandomnessRequest"]);
         console2.log("Claim refund", calls["claimRefund"]);
+        console2.log("Withdraw prizes", calls["withdrawPrizes"]);
 
         console2.log("ETH prizes deposited:", ghost_ETH_prizesDepositedSum);
         console2.log("ETH fees collected:", ghost_ETH_feesCollectedSum);
@@ -388,17 +389,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         vm.warp(cutoffTime + 1);
 
         looksRareRaffle.cancel(raffleId);
-
-        if (status == IRaffle.RaffleStatus.Open) {
-            uint256 ethValue = _prizesValue(raffleId, IRaffle.TokenType.ETH);
-            ghost_ETH_prizesReturnedSum += ethValue;
-
-            uint256 erc20Value = _prizesValue(raffleId, IRaffle.TokenType.ERC20);
-            ghost_ERC20_prizesReturnedSum += erc20Value;
-
-            uint256 erc1155Value = _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
-            ghost_ERC1155_prizesReturnedSum += erc1155Value;
-        }
     }
 
     function claimProtocolFees(uint256 seed) public countCall("claimProtocolFees") {
@@ -426,12 +416,23 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         vm.prank(looksRareRaffle.owner());
         looksRareRaffle.cancelAfterRandomnessRequest(raffleId);
+    }
 
-        if (status == IRaffle.RaffleStatus.Open) {
-            ghost_ETH_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ETH);
-            ghost_ERC20_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC20);
-            ghost_ERC1155_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
-        }
+    function withdrawPrizes(uint256 raffleId) public countCall("withdrawPrizes") {
+        uint256 rafflesCount = looksRareRaffle.rafflesCount();
+        if (rafflesCount == 0) return;
+
+        bound(raffleId, 1, rafflesCount);
+
+        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        if (status != IRaffle.RaffleStatus.Refundable) return;
+
+        vm.prank(looksRareRaffle.owner());
+        looksRareRaffle.withdrawPrizes(raffleId);
+
+        ghost_ETH_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ETH);
+        ghost_ERC20_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC20);
+        ghost_ERC1155_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
     }
 
     function _prizesValue(uint256 raffleId, IRaffle.TokenType prizeType) private view returns (uint256 value) {
