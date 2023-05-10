@@ -371,7 +371,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         claimPrizesCalldata[0].raffleId = raffleId;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
-        vm.prank(winner.participant);
+        address caller = (callsMustBeValid || seed % 2 == 0) ? winner.participant : actors[bound(seed, 0, 99)];
+        vm.prank(caller);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
         IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
