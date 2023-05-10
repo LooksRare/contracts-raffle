@@ -28,15 +28,15 @@ contract Deployment is Script {
         address vrfCoordinator;
         address owner;
         address protocolFeeRecipient;
-        uint16 protocolFeeBp = 500;
+        uint16 protocolFeeBp = 0;
 
         if (chainId == 1) {
             weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
             deployerPrivateKey = vm.envUint("MAINNET_KEY");
             keyHash = hex"8af398995b04c28e9951adb9721ef74c74f93e6a478f39e7e0777be13527e7ef";
-            subscriptionId = 0;
+            subscriptionId = 734;
             vrfCoordinator = 0x271682DEB8C4E0901D1a1550aD2e64D568E69909;
-            owner = 0xBfb6669Ef4C4c71ae6E722526B1B8d7d9ff9a019;
+            owner = 0xB5a9e5a319c7fDa551a30BE592c77394bF935c6f;
             protocolFeeRecipient = 0x1838De7d4e4e42c8eB7b204A91e28E9fad14F536;
         } else if (chainId == 5) {
             weth = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
