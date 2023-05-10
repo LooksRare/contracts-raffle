@@ -86,7 +86,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Cancel after randomness request", calls["cancelAfterRandomnessRequest"]);
         console2.log("Claim refund", calls["claimRefund"]);
         console2.log("Withdraw prizes", calls["withdrawPrizes"]);
+        console2.log("-------------------");
 
+        console2.log("Token flow summary:");
+        console2.log("-------------------");
         console2.log("ETH prizes deposited:", ghost_ETH_prizesDepositedSum);
         console2.log("ETH fees collected:", ghost_ETH_feesCollectedSum);
         console2.log("ETH fees claimed:", ghost_ETH_feesClaimedSum);
@@ -106,6 +109,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("ERC1155 prizes deposited:", ghost_ERC1155_prizesDepositedSum);
         console2.log("ERC1155 prizes returned:", ghost_ERC1155_prizesReturnedSum);
         console2.log("ERC1155 prizes claimed:", ghost_ERC1155_prizesClaimedSum);
+        console2.log("-------------------");
     }
 
     constructor(
