@@ -143,13 +143,11 @@ contract Handler is CommonBase, StdCheats, StdUtils {
                 prizes[i].prizeAddress = ETH;
                 prizes[i].prizeAmount = 1 ether;
                 prizes[i].winnersCount = 10;
-                minimumEntries += 10;
             } else if (seed % 4 == 1) {
                 prizes[i].prizeType = IRaffle.TokenType.ERC20;
                 prizes[i].prizeAddress = address(erc20);
                 prizes[i].prizeAmount = 1 ether;
                 prizes[i].winnersCount = 10;
-                minimumEntries += 10;
             } else if (seed % 4 == 2) {
                 uint256 tokenId = erc721.totalSupply();
                 erc721.mint(currentActor, tokenId);
@@ -158,7 +156,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
                 prizes[i].prizeId = tokenId;
                 prizes[i].prizeAmount = 1;
                 prizes[i].winnersCount = 1;
-                minimumEntries += 1;
             } else {
                 erc1155.mint(currentActor, erc1155TokenId, 4);
                 prizes[i].prizeType = IRaffle.TokenType.ERC1155;
@@ -166,8 +163,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
                 prizes[i].prizeId = erc1155TokenId;
                 prizes[i].prizeAmount = 2;
                 prizes[i].winnersCount = 2;
-                minimumEntries += 2;
             }
+
+            minimumEntries += prizes[i].winnersCount;
         }
 
         minimumEntries = (minimumEntries * 10_500) / 10_000;
