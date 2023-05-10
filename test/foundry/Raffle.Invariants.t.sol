@@ -181,13 +181,15 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.75 ether});
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.95 ether});
 
+        bool isSeedHashEven = uint256(keccak256(abi.encodePacked(seed))) % 2 == 0;
+
         IRaffle.CreateRaffleCalldata memory params = IRaffle.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
-            isMinimumEntriesFixed: false,
+            isMinimumEntriesFixed: isSeedHashEven,
             minimumEntries: minimumEntries,
             maximumEntriesPerParticipant: pricingOptions[4].entriesCount,
             protocolFeeBp: looksRareRaffle.protocolFeeBp(),
-            feeTokenAddress: uint256(keccak256(abi.encodePacked(seed))) % 2 == 0 ? ETH : address(erc20),
+            feeTokenAddress: isSeedHashEven ? ETH : address(erc20),
             prizes: prizes,
             pricingOptions: pricingOptions
         });
@@ -230,8 +232,18 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         uint256 raffleId = (seed % rafflesCount) + 1;
 
-        (, IRaffle.RaffleStatus status, , uint40 cutoffTime, , , , address feeTokenAddress, , ) = looksRareRaffle
-            .raffles(raffleId);
+        (
+            ,
+            IRaffle.RaffleStatus status,
+            bool isMinimumEntriesFixed,
+            uint40 cutoffTime,
+            ,
+            uint40 minimumEntries,
+            uint40 maximumEntriesPerParticipant,
+            address feeTokenAddress,
+            ,
+
+        ) = looksRareRaffle.raffles(raffleId);
         if (callsMustBeValid) {
             if (status != IRaffle.RaffleStatus.Open) return;
             if (block.timestamp >= cutoffTime) return;
@@ -243,6 +255,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
         entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex});
+
+        if (callsMustBeValid) {
+            (, uint40 entriesCount, ) = looksRareRaffle.rafflesParticipantsStats(raffleId, currentActor);
+            uint40 newEntriesCount = entriesCount + pricingOptions[pricingOptionIndex].entriesCount;
+
+            if (newEntriesCount > maximumEntriesPerParticipant) return;
+            if (isMinimumEntriesFixed && newEntriesCount > minimumEntries) return;
+        }
 
         if (feeTokenAddress == ETH) {
             vm.deal(currentActor, price);
