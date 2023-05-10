@@ -77,7 +77,7 @@ contract Raffle is
     uint256 public constant MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE = 20;
 
     /**
-     * @notice According to Chainlink, realistically the maximum number of random words is 125.
+     * @notice The maximum number of winners per raffle.
      */
     uint40 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
 
