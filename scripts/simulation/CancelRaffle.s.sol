@@ -11,7 +11,6 @@ import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
 contract CancelRaffle is Script, SimulationBase {
     function run() external {
-        uint256 chainId = block.chainid;
         uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
