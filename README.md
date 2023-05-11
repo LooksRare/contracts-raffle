@@ -37,8 +37,12 @@ Each raffle consists of the following states:
 7. `Complete`
    After the raffle creator claims the fees accumulated from selling raffle tickets, the raffle is considered `Complete`.
 
-8. `Cancelled`
-   If the raffle is still in the `Created` state (no prizes were deposited) or is not able to sell out at least the specified minimum entries, then the raffle can be cancelled. Once the raffle is cancelled, the raffle creator can withdraw the prizes deposited (if any) and the ticket buyers can withdraw the fees spent (if any).
+8. `Refundable`
+   If the raffle is still in the `Created` state (no prizes were deposited) or is not able to sell out at least the specified minimum entries, then the raffle can be cancelled. The raffle can be transitioned to `Refundable` state if there are deposited prizes. The raffle creator can withdraw the prizes and the ticket buyers can withdraw the fees spent (if any).
+
+9. `Cancelled`
+   A raffle can transition from `Refundable` to `Cancelled` by having the raffle creator withdrawing the prizes or it can transition from `Created` to `Cancelled` directly if the prizes were never deposited.
+   Ticket buyers can still withdraw the fees spent.
 
 ### Protocol fees
 
