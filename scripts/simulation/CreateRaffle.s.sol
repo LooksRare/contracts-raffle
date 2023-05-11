@@ -26,11 +26,12 @@ interface ITestERC20 {
 
 contract CreateRaffle is Script, SimulationBase {
     function run() external {
+        uint256 chainId = block.chainid;
         uint256 deployerPrivateKey = chainId == 1 ? vm.envUint("MAINNET_KEY") : vm.envUint("TESTNET_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = getRaffle(chainId);
+        IRaffle raffle = getRaffle(chainId);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
@@ -41,8 +42,13 @@ contract CreateRaffle is Script, SimulationBase {
 
         ITestERC721 nft = ITestERC721(getERC721(chainId));
         uint256 totalSupply = nft.totalSupply();
-        nft.mint(RAFFLE_OWNER, 6);
+        nft.mint(RAFFLE_OWNER, 1);
         nft.setApprovalForAll(address(raffle), true);
+
+        ITestERC721 nftB = ITestERC721(GOERLI_ERC_721_B);
+        uint256 totalSupplyB = nftB.totalSupply();
+        nftB.mint(RAFFLE_OWNER, 5);
+        nftB.setApprovalForAll(address(raffle), true);
 
         ITestERC20 looks = ITestERC20(getERC20(chainId));
 
@@ -57,14 +63,19 @@ contract CreateRaffle is Script, SimulationBase {
         raffle.updateCurrenciesStatus(currencies, true);
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
-        for (uint256 i; i < 6; ) {
-            if (i != 0) {
-                prizes[i].prizeTier = 1;
-            }
 
+        prizes[0].prizeTier = 0;
+        prizes[0].prizeType = IRaffle.TokenType.ERC721;
+        prizes[0].prizeAddress = address(nft);
+        prizes[0].prizeId = totalSupply;
+        prizes[0].prizeAmount = 1;
+        prizes[0].winnersCount = 1;
+
+        for (uint256 i = 1; i < 6; ) {
+            prizes[i].prizeTier = 1;
             prizes[i].prizeType = IRaffle.TokenType.ERC721;
-            prizes[i].prizeAddress = address(nft);
-            prizes[i].prizeId = totalSupply + i;
+            prizes[i].prizeAddress = address(nftB);
+            prizes[i].prizeId = totalSupplyB + (i - 1);
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
 
@@ -84,7 +95,7 @@ contract CreateRaffle is Script, SimulationBase {
                 isMinimumEntriesFixed: true,
                 minimumEntries: 15,
                 maximumEntriesPerParticipant: 15,
-                protocolFeeBp: 0,
+                protocolFeeBp: 500,
                 feeTokenAddress: address(0),
                 prizes: prizes,
                 pricingOptions: pricingOptions

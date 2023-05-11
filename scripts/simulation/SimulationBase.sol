@@ -14,6 +14,7 @@ contract SimulationBase {
     address public constant SEPOLIA_RAFFLE = 0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9;
 
     address public constant GOERLI_ERC_721 = 0x77566D540d1E207dFf8DA205ed78750F9a1e7c55;
+    address public constant GOERLI_ERC_721_B = 0x6019EaF9d6004582248b8F6C5b668675Ce6D22fe;
     address public constant GOERLI_ERC_20 = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
     address public constant GOERLI_ERC_1155 = 0x58c3c2547084CC1C94130D6fd750A3877c7Ca5D2;
     address public constant GOERLI_RAFFLE = 0xC5F7FCde87e30Aa339d3d61B4fe3c1C261f6EEe2;
