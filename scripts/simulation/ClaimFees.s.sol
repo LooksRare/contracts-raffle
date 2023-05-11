@@ -10,15 +10,8 @@ import {SimulationBase} from "./SimulationBase.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
 contract ClaimFees is Script, SimulationBase {
-    error ChainIdInvalid(uint256 chainId);
-
     function run() external {
-        uint256 chainId = block.chainid;
         uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
-
-        if (chainId != 5 && chainId != 11155111) {
-            revert ChainIdInvalid(chainId);
-        }
 
         vm.startBroadcast(deployerPrivateKey);
 

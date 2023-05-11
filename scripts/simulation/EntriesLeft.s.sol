@@ -11,8 +11,6 @@ import {Raffle} from "../../contracts/Raffle.sol";
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
 contract EntriesLeft is Script, SimulationBase {
-    error ChainIdInvalid(uint256 chainId);
-
     function run() external view {
         IRaffle raffle = getRaffle(block.chainid);
         IRaffle.Entry[] memory entries = raffle.getEntries(0);

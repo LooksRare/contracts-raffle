@@ -25,19 +25,12 @@ interface ITestERC20 {
 }
 
 contract CreateRaffle is Script, SimulationBase {
-    error ChainIdInvalid(uint256 chainId);
-
     function run() external {
-        uint256 chainId = block.chainid;
-        uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
-
-        if (chainId != 5 && chainId != 11155111) {
-            revert ChainIdInvalid(chainId);
-        }
+        uint256 deployerPrivateKey = chainId == 1 ? vm.envUint("MAINNET_KEY") : vm.envUint("TESTNET_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Raffle raffle = Raffle(chainId == 5 ? GOERLI_RAFFLE : SEPOLIA_RAFFLE);
+        Raffle raffle = getRaffle(chainId);
 
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
@@ -46,14 +39,14 @@ contract CreateRaffle is Script, SimulationBase {
         pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.000075 ether});
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.000095 ether});
 
-        ITestERC721 nft = ITestERC721(chainId == 5 ? GOERLI_ERC_721 : SEPOLIA_ERC_721);
+        ITestERC721 nft = ITestERC721(getERC721(chainId));
         uint256 totalSupply = nft.totalSupply();
         nft.mint(RAFFLE_OWNER, 6);
         nft.setApprovalForAll(address(raffle), true);
 
         ITestERC20 looks = ITestERC20(getERC20(chainId));
 
-        uint256 totalPrizeInLooks = 3_000e18;
+        uint256 totalPrizeInLooks = 3 ether;
         if (chainId == 11155111) {
             looks.mint(RAFFLE_OWNER, totalPrizeInLooks);
         }
@@ -82,7 +75,7 @@ contract CreateRaffle is Script, SimulationBase {
         prizes[6].prizeTier = 2;
         prizes[6].prizeType = IRaffle.TokenType.ERC20;
         prizes[6].prizeAddress = address(looks);
-        prizes[6].prizeAmount = 1_000e18;
+        prizes[6].prizeAmount = 1 ether;
         prizes[6].winnersCount = 3;
 
         uint256 raffleId = raffle.createRaffle(
@@ -91,7 +84,7 @@ contract CreateRaffle is Script, SimulationBase {
                 isMinimumEntriesFixed: true,
                 minimumEntries: 15,
                 maximumEntriesPerParticipant: 15,
-                protocolFeeBp: 500,
+                protocolFeeBp: 0,
                 feeTokenAddress: address(0),
                 prizes: prizes,
                 pricingOptions: pricingOptions
