@@ -9,6 +9,14 @@ This project contains the smart contracts used for LooksRare's raffle protocol. 
 allows anyone to create a raffle with multiple prizes and winners. The fees must be paid in ETH or ERC-20, while
 the prizes can be ERC-721, ERC-1155, ETH or ERC-20.
 
+## Deployments
+
+| Network  | Raffle                                                                                                                             |
+| :------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| Ethereum | [0x0000000000009703EcD0fFEa3143fc9096DE91B0](https://etherscan.io/address/0x0000000000009703EcD0fFEa3143fc9096DE91B0#code)         |
+| Goerli   | [0xC5F7FCde87e30Aa339d3d61B4fe3c1C261f6EEe2](https://goerli.etherscan.io/address/0xC5F7FCde87e30Aa339d3d61B4fe3c1C261f6EEe2#code)  |
+| Sepolia  | [0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9](https://sepolia.etherscan.io/address/0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9#code) |
+
 ### Raffle states
 
 Each raffle consists of the following states:
