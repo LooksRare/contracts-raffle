@@ -58,9 +58,11 @@ contract CreateRaffle is Script, SimulationBase {
         }
         looks.approve(address(raffle), totalPrizeInLooks);
 
-        address[] memory currencies = new address[](1);
-        currencies[0] = address(looks);
-        raffle.updateCurrenciesStatus(currencies, true);
+        if (chainId != 1) {
+            address[] memory currencies = new address[](1);
+            currencies[0] = address(looks);
+            raffle.updateCurrenciesStatus(currencies, true);
+        }
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
 
