@@ -27,7 +27,7 @@ interface ITestERC20 {
 contract CreateRaffle is Script, SimulationBase {
     function run() external {
         uint256 chainId = block.chainid;
-        uint256 deployerPrivateKey = chainId == 1 ? vm.envUint("MAINNET_KEY") : vm.envUint("TESTNET_KEY");
+        uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -58,11 +58,9 @@ contract CreateRaffle is Script, SimulationBase {
         }
         looks.approve(address(raffle), totalPrizeInLooks);
 
-        if (chainId != 1) {
-            address[] memory currencies = new address[](1);
-            currencies[0] = address(looks);
-            raffle.updateCurrenciesStatus(currencies, true);
-        }
+        address[] memory currencies = new address[](1);
+        currencies[0] = address(looks);
+        raffle.updateCurrenciesStatus(currencies, true);
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
 
