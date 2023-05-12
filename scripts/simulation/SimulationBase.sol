@@ -5,8 +5,8 @@ pragma solidity 0.8.17;
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
 contract SimulationBase {
-    address public constant MAINNET_ERC_721 = 0x0000000000000000000000000000000000000000;
-    address public constant MAINNET_ERC_721_B = 0x0000000000000000000000000000000000000000;
+    address public constant MAINNET_ERC_721 = 0xee726929543222D755145B1063c38eFba87bE601;
+    address public constant MAINNET_ERC_721_B = 0xa589d2bb4FE9B371291C7Ef177A6076Ed1Fb2de8;
     address public constant MAINNET_ERC_20 = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
     address public constant MAINNET_RAFFLE = 0x0000000000009703EcD0fFEa3143fc9096DE91B0;
 
