@@ -35,15 +35,15 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.000095 ether});
 
         ITestERC721 nft = ITestERC721(getERC721(chainId));
-        nft.setApprovalForAll(address(raffle), true);
+        // nft.setApprovalForAll(address(raffle), true);
 
         ITestERC721 nftB = ITestERC721(getERC721B(chainId));
-        nftB.setApprovalForAll(address(raffle), true);
+        // nftB.setApprovalForAll(address(raffle), true);
 
         ITestERC20 looks = ITestERC20(getERC20(chainId));
 
-        uint256 totalPrizeInLooks = 3 ether;
-        looks.approve(address(raffle), 10_000 ether);
+        // uint256 totalPrizeInLooks = 3 ether;
+        // looks.approve(address(raffle), totalPrizeInLooks);
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
 
