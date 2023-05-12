@@ -45,7 +45,7 @@ contract CreateRaffle is Script, SimulationBase {
         nft.mint(RAFFLE_OWNER, 1);
         nft.setApprovalForAll(address(raffle), true);
 
-        ITestERC721 nftB = ITestERC721(GOERLI_ERC_721_B);
+        ITestERC721 nftB = ITestERC721(getERC721B(chainId));
         uint256 totalSupplyB = nftB.totalSupply();
         nftB.mint(RAFFLE_OWNER, 5);
         nftB.setApprovalForAll(address(raffle), true);

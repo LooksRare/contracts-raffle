@@ -5,6 +5,8 @@ pragma solidity 0.8.17;
 import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 
 contract SimulationBase {
+    address public constant MAINNET_ERC_721 = 0x0000000000000000000000000000000000000000;
+    address public constant MAINNET_ERC_721_B = 0x0000000000000000000000000000000000000000;
     address public constant MAINNET_ERC_20 = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
     address public constant MAINNET_RAFFLE = 0x0000000000009703EcD0fFEa3143fc9096DE91B0;
 
@@ -46,7 +48,25 @@ contract SimulationBase {
     }
 
     function getERC721(uint256 chainId) internal pure returns (address) {
-        return chainId == 5 ? GOERLI_ERC_721 : SEPOLIA_ERC_721;
+        if (chainId == 1) {
+            return MAINNET_ERC_721;
+        } else if (chainId == 5) {
+            return GOERLI_ERC_721;
+        } else if (chainId == 11155111) {
+            return SEPOLIA_ERC_721;
+        } else {
+            revert("Invalid chainId");
+        }
+    }
+
+    function getERC721B(uint256 chainId) internal pure returns (address) {
+        if (chainId == 1) {
+            return MAINNET_ERC_721_B;
+        } else if (chainId == 5) {
+            return GOERLI_ERC_721_B;
+        } else {
+            revert("Invalid chainId");
+        }
     }
 
     function getERC1155(uint256 chainId) internal pure returns (address) {
