@@ -17,6 +17,14 @@ task("accounts", "Prints the list of accounts", async (_args, hre) => {
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
+    mainnet: {
+      url: "https://rpc.ankr.com/eth",
+      chainId: 1,
+    },
+    goerli: {
+      url: "https://rpc.ankr.com/eth_goerli",
+      chainId: 5,
+    },
     hardhat: {
       allowUnlimitedContractSize: false,
       hardfork: "berlin", // Berlin is used (temporarily) to avoid issues with coverage
@@ -33,12 +41,8 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.14",
+        version: "0.8.17",
         settings: { optimizer: { enabled: true, runs: 888888 } },
-      },
-      {
-        version: "0.4.18",
-        settings: { optimizer: { enabled: true, runs: 999 } },
       },
     ],
   },
