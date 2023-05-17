@@ -64,7 +64,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                 IRaffle.createRaffle,
                 (
                     IRaffle.CreateRaffleCalldata({
-                        cutoffTime: uint40(block.timestamp + 1 days + 5 minutes),
+                        cutoffTime: uint40(block.timestamp + 1 days + 10 minutes),
                         isMinimumEntriesFixed: true,
                         minimumEntries: 150_000,
                         maximumEntriesPerParticipant: 7_500,
