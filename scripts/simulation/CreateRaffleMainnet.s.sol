@@ -72,7 +72,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                         cutoffTime: uint40(block.timestamp + 1 days + 10 minutes),
                         isMinimumEntriesFixed: true,
                         minimumEntries: 69_000,
-                        maximumEntriesPerParticipant: 3_450,
+                        maximumEntriesPerParticipant: 14_000,
                         protocolFeeBp: 0,
                         feeTokenAddress: address(0),
                         prizes: prizes,
