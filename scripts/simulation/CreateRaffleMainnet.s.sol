@@ -62,7 +62,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         prizes[11].prizeType = IRaffle.TokenType.ERC20;
         prizes[11].prizeAddress = address(looks);
         prizes[11].prizeAmount = 500e18;
-        prizes[11].winnersCount = 100;
+        prizes[11].winnersCount = 99;
 
         console2.logBytes(
             abi.encodeCall(
