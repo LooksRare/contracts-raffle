@@ -41,7 +41,6 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        _assertPrizesClaimedEventsEmitted();
         _claimPrizes();
         _assertPrizesTransferred();
     }
@@ -55,7 +54,6 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         vm.prank(user1);
         looksRareRaffle.claimFees(1);
 
-        _assertPrizesClaimedEventsEmitted();
         _claimPrizes();
         _assertPrizesTransferred();
     }
@@ -184,17 +182,11 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
             claimPrizesCalldata[0].raffleId = 1;
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
-            vm.prank(winners[i].participant);
-            looksRareRaffle.claimPrizes(claimPrizesCalldata);
-        }
-    }
-
-    function _assertPrizesClaimedEventsEmitted() private {
-        for (uint256 i; i < 11; i++) {
-            uint256[] memory winnerIndices = new uint256[](1);
-            winnerIndices[0] = i;
             expectEmitCheckAll();
             emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
+
+            vm.prank(winners[i].participant);
+            looksRareRaffle.claimPrizes(claimPrizesCalldata);
         }
     }
 
