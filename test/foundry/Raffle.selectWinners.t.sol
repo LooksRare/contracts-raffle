@@ -35,10 +35,10 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         uint256 winnersCount = 11;
         uint256[] memory randomWords = _generateRandomWordForRaffle();
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
-
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -84,10 +84,10 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         uint256[] memory randomWords = new uint256[](1);
         randomWords[0] = randomWord;
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
-
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
