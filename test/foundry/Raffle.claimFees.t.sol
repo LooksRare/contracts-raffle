@@ -14,7 +14,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
     event FeesClaimed(uint256 raffleId, uint256 amount);
 
     function setUp() public {
-        vm.createSelectFork("sepolia", 3_269_983);
+        _forkSepolia();
 
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();

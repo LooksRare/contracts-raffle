@@ -12,7 +12,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
 
     function setUp() public {
-        vm.createSelectFork("sepolia", 3_269_983);
+        _forkSepolia();
 
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();

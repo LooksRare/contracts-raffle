@@ -33,6 +33,10 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         vm.stopPrank();
     }
 
+    function _forkSepolia() internal {
+        vm.createSelectFork("sepolia", 3_269_983);
+    }
+
     function _deployRaffle() internal {
         MockWETH weth = new MockWETH();
 

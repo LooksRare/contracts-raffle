@@ -16,7 +16,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         76894510284611345647476587488494855240041797425274913275941122182751455536258;
 
     function setUp() public {
-        vm.createSelectFork("sepolia", 3_269_983);
+        _forkSepolia();
 
         _deployRaffle();
         _mintRafflePrizesToRaffleOwnerAndApprove();

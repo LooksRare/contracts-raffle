@@ -19,7 +19,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         22312676670263361250730028184513909939120948083819476558283140717547656761522;
 
     function setUp() public {
-        vm.createSelectFork("sepolia", 3_269_983);
+        _forkSepolia();
 
         mockERC1155 = new MockERC1155();
 

@@ -12,7 +12,7 @@ import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2
 
 contract Raffle_FulfillRandomWords_Test is TestHelpers {
     function setUp() public {
-        vm.createSelectFork("sepolia", 3_269_983);
+        _forkSepolia();
 
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();

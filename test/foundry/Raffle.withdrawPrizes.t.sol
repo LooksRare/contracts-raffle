@@ -10,7 +10,7 @@ import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_WithdrawPrizes_Test is TestHelpers {
     function setUp() public {
-        vm.createSelectFork("sepolia", 3_269_983);
+        _forkSepolia();
 
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
