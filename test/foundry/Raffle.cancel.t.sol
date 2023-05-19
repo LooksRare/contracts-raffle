@@ -33,7 +33,7 @@ contract Raffle_Cancel_Test is TestHelpers {
     }
 
     function test_cancel_RaffleStatusIsOpen() public {
-        _enterRaffles();
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
         vm.warp(block.timestamp + 86_400 + 1);
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Refundable);
@@ -50,24 +50,9 @@ contract Raffle_Cancel_Test is TestHelpers {
     }
 
     function test_cancel_RevertIf_CutoffTimeNotReached() public {
-        _enterRaffles();
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
         vm.warp(block.timestamp + 86_399);
         vm.expectRevert(IRaffle.CutoffTimeNotReached.selector);
         looksRareRaffle.cancel(1);
-    }
-
-    function _enterRaffles() private {
-        // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 116; i++) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-        }
     }
 }

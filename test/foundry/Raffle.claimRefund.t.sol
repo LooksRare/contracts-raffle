@@ -23,7 +23,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     }
 
     function test_claimRefund() public {
-        _enterRaffles(1);
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -49,8 +49,8 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         looksRareRaffle.depositPrizes(2);
         vm.stopPrank();
 
-        _enterRaffles(1);
-        _enterRaffles(2);
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(2);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -69,9 +69,9 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     }
 
     function test_claimRefund_RevertIf_InvalidStatus() public {
-        _enterRaffles(1);
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
 
-        for (uint256 i = 10; i < 109; i++) {
+        for (uint256 i = 10; i < 116; i++) {
             address participant = address(uint160(i + 1));
 
             uint256[] memory raffleIds = new uint256[](1);
@@ -84,7 +84,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     }
 
     function test_claimRefund_RevertIf_AlreadyRefunded() public {
-        _enterRaffles(1);
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -94,7 +94,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         raffleIds[0] = 1;
         _validClaimRefunds(raffleIds);
 
-        for (uint256 i = 10; i < 109; i++) {
+        for (uint256 i = 10; i < 116; i++) {
             address participant = address(uint160(i + 1));
 
             vm.expectRevert(IRaffle.AlreadyRefunded.selector);
@@ -103,24 +103,9 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         }
     }
 
-    function _enterRaffles(uint256 raffleId) private {
-        // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 109; i++) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-        }
-    }
-
     function _validClaimRefunds(uint256[] memory raffleIds) private {
         uint256 rafflesCount = raffleIds.length;
-        for (uint256 i = 10; i < 109; i++) {
+        for (uint256 i = 10; i < 116; i++) {
             address participant = address(uint160(i + 1));
 
             vm.prank(participant);

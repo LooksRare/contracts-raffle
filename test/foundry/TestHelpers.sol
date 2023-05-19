@@ -167,6 +167,22 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         }
     }
 
+    function _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(uint256 raffleId) internal {
+        // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
+        for (uint256 i = 10; i < 116; i++) {
+            address participant = address(uint160(i + 1));
+
+            uint256 price = 0.025 ether;
+            vm.deal(participant, price);
+
+            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+            entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
+
+            vm.prank(participant);
+            looksRareRaffle.enterRaffles{value: price}(entries);
+        }
+    }
+
     function _transitionRaffleStatusToDrawing() internal {
         _subscribeRaffleToVRF();
         _enterRafflesWithSingleEntryUpToMinimumEntries();
