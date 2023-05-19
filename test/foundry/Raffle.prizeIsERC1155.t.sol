@@ -87,10 +87,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         vm.prank(participant);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
-        assertEq(mockERC721.balanceOf(participant), 6);
-        for (uint256 i; i < 6; i++) {
-            assertEq(mockERC721.ownerOf(i), participant);
-        }
+        assertERC721Balance(mockERC721, participant, 6);
 
         assertEq(mockERC1155.balanceOf(participant, 69), 10);
 
@@ -154,10 +151,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         vm.prank(participant);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
-        assertEq(mockERC721.balanceOf(participant), 12);
-        for (uint256 i; i < 12; i++) {
-            assertEq(mockERC721.ownerOf(i), participant);
-        }
+        assertERC721Balance(mockERC721, participant, 12);
 
         assertEq(mockERC1155.balanceOf(participant, 69), 20);
 

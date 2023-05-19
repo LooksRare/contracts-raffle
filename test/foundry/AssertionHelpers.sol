@@ -36,4 +36,15 @@ abstract contract AssertionHelpers is Test {
     function expectEmitCheckAll() internal {
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
     }
+
+    function assertERC721Balance(
+        MockERC721 mockERC721,
+        address participant,
+        uint256 count
+    ) internal {
+        assertEq(mockERC721.balanceOf(participant), count);
+        for (uint256 i; i < count; i++) {
+            assertEq(mockERC721.ownerOf(i), participant);
+        }
+    }
 }

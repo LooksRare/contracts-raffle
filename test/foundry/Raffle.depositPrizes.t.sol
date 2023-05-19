@@ -21,10 +21,7 @@ contract Raffle_DepositPrizes_Test is TestHelpers {
         looksRareRaffle.depositPrizes(1);
 
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
-        assertEq(mockERC721.balanceOf(address(looksRareRaffle)), 6);
-        for (uint256 i; i < 6; i++) {
-            assertEq(mockERC721.ownerOf(i), address(looksRareRaffle));
-        }
+        assertERC721Balance(mockERC721, address(looksRareRaffle), 6);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
     }

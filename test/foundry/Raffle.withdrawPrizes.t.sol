@@ -32,10 +32,7 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
 
         looksRareRaffle.withdrawPrizes(1);
 
-        assertEq(mockERC721.balanceOf(user1), 6);
-        for (uint256 i; i < 6; i++) {
-            assertEq(mockERC721.ownerOf(i), user1);
-        }
+        assertERC721Balance(mockERC721, user1, 6);
         assertEq(mockERC20.balanceOf(user1), 100_000 ether);
 
         // Second withdraw reverts
