@@ -11,6 +11,7 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 contract Raffle_DrawWinners_Test is TestHelpers {
+    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
     event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
     function setUp() public {
@@ -31,20 +32,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
         IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
 
-        _expectChainlinkCall();
-
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawing);
-
-        expectEmitCheckAll();
-        emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
-
-        for (uint256 i; i < 10; i++) {
-            (, IRaffle.RaffleStatus currentStatus, , , , , , , , ) = looksRareRaffle.raffles(1);
-
-            if (currentStatus == IRaffle.RaffleStatus.Drawing) {
-                break;
-            }
-
+        for (uint256 i; i < 5; i++) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 1 ether);
@@ -53,8 +41,23 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             uint256 pricingOptionIndex = i % 5;
             entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex});
 
+            uint208 price = pricingOptions[pricingOptionIndex].price;
+
+            expectEmitCheckAll();
+            emit EntrySold(1, participant, pricingOptions[pricingOptionIndex].entriesCount, price);
+
+            // 1 + 10 + 25 + 50 = 86, adding another 100 will trigger the draw
+            if (pricingOptionIndex == 4) {
+                assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawing);
+
+                _expectChainlinkCall();
+
+                expectEmitCheckAll();
+                emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
+            }
+
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
+            looksRareRaffle.enterRaffles{value: price}(entries);
         }
 
         (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(
