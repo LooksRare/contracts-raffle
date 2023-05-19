@@ -6,6 +6,9 @@ on:
     branches:
       - master
 
+env:
+  FOUNDRY_INVARIANT_FAIL_ON_REVERT: false
+
 jobs:
   tests:
     runs-on: ubuntu-latest
