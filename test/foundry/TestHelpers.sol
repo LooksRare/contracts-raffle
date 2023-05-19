@@ -22,9 +22,9 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     MockERC20 internal mockERC20;
     MockERC721 internal mockERC721;
 
-    address public user1 = address(1);
-    address public user2 = address(2);
-    address public user3 = address(3);
+    address public user1 = address(11);
+    address public user2 = address(12);
+    address public user3 = address(13);
     address public owner = address(69);
 
     modifier asPrankedUser(address user) {
