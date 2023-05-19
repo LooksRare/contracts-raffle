@@ -13,17 +13,21 @@ contract EnterRaffle is Script, SimulationBase {
     error ChainIdInvalid(uint256 chainId);
 
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
+        uint256 deployerPrivateKey = vm.envUint("OPERATION_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
 
         IRaffle raffle = getRaffle(block.chainid);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1});
+        uint256 count = 0;
+        uint256 raffleId = 0;
+        uint256 price = 0;
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](count);
+        for (uint256 i; i < count; i++) {
+            entries[i] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
+        }
 
-        raffle.enterRaffles{value: 0.000022 ether + 0.0000025 ether}(entries);
+        raffle.enterRaffles{value: price * count}(entries);
 
         vm.stopBroadcast();
     }
