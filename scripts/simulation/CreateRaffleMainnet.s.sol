@@ -24,7 +24,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
         address bayc = 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D;
-        address onOne = 0x3bf2922f4520a8BA0c2eFC3D2a1539678DaD5e9D;
+        address beanz = 0x306b1ea3ecdf94aB739F1910bbda052Ed4A9f949;
         address looks = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](12);
@@ -32,14 +32,14 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         prizes[0].prizeTier = 0;
         prizes[0].prizeType = IRaffle.TokenType.ERC721;
         prizes[0].prizeAddress = bayc;
-        prizes[0].prizeId = 4847;
+        prizes[0].prizeId = 9910;
         prizes[0].prizeAmount = 1;
         prizes[0].winnersCount = 1;
 
         for (uint256 i = 1; i < 11; ) {
             prizes[i].prizeTier = 1;
             prizes[i].prizeType = IRaffle.TokenType.ERC721;
-            prizes[i].prizeAddress = onOne;
+            prizes[i].prizeAddress = beanz;
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
 
@@ -47,21 +47,21 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                 ++i;
             }
         }
-        prizes[1].prizeId = 1857;
-        prizes[2].prizeId = 5391;
-        prizes[3].prizeId = 4770;
-        prizes[4].prizeId = 5791;
-        prizes[5].prizeId = 5601;
-        prizes[6].prizeId = 4960;
-        prizes[7].prizeId = 570;
-        prizes[8].prizeId = 4377;
-        prizes[9].prizeId = 7419;
-        prizes[10].prizeId = 4518;
+        prizes[1].prizeId = 4847;
+        prizes[2].prizeId = 5170;
+        prizes[3].prizeId = 7220;
+        prizes[4].prizeId = 8052;
+        prizes[5].prizeId = 9012;
+        prizes[6].prizeId = 12392;
+        prizes[7].prizeId = 13799;
+        prizes[8].prizeId = 13518;
+        prizes[9].prizeId = 14440;
+        prizes[10].prizeId = 18038;
 
         prizes[11].prizeTier = 2;
         prizes[11].prizeType = IRaffle.TokenType.ERC20;
         prizes[11].prizeAddress = address(looks);
-        prizes[11].prizeAmount = 500e18;
+        prizes[11].prizeAmount = 1_000e18;
         prizes[11].winnersCount = 99;
 
         console2.logBytes(
@@ -69,7 +69,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                 IRaffle.createRaffle,
                 (
                     IRaffle.CreateRaffleCalldata({
-                        cutoffTime: uint40(block.timestamp + 1 days + 10 minutes),
+                        cutoffTime: uint40(block.timestamp + 40 hours),
                         isMinimumEntriesFixed: true,
                         minimumEntries: 69_000,
                         maximumEntriesPerParticipant: 14_000,
