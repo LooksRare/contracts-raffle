@@ -13,8 +13,6 @@ import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2
 contract Raffle_PrizeIsERC1155_Test is TestHelpers {
     MockERC1155 private mockERC1155;
 
-    event PrizesClaimed(uint256 raffleId, uint256[] winnerIndices);
-
     uint256 private constant CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID =
         22312676670263361250730028184513909939120948083819476558283140717547656761522;
 
@@ -41,7 +39,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        _claimPrizes();
+        _claimPrizes(1);
         _assertPrizesTransferred();
     }
 
@@ -54,7 +52,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         vm.prank(user1);
         looksRareRaffle.claimFees(1);
 
-        _claimPrizes();
+        _claimPrizes(1);
         _assertPrizesTransferred();
     }
 
@@ -168,26 +166,6 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
 
         winners = looksRareRaffle.getWinners(2);
         assertAllWinnersClaimed(winners);
-    }
-
-    function _claimPrizes() private {
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
-        for (uint256 i; i < 11; i++) {
-            assertFalse(winners[i].claimed);
-
-            uint256[] memory winnerIndices = new uint256[](1);
-            winnerIndices[0] = i;
-
-            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
-            claimPrizesCalldata[0].raffleId = 1;
-            claimPrizesCalldata[0].winnerIndices = winnerIndices;
-
-            expectEmitCheckAll();
-            emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
-
-            vm.prank(winners[i].participant);
-            looksRareRaffle.claimPrizes(claimPrizesCalldata);
-        }
     }
 
     function _assertPrizesTransferred() private {

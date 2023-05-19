@@ -201,4 +201,24 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
         vm.store(raffle, slot, bytes32(value));
     }
+
+    function _claimPrizes(uint256 raffleId) internal {
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
+        for (uint256 i; i < winners.length; i++) {
+            assertFalse(winners[i].claimed);
+
+            uint256[] memory winnerIndices = new uint256[](1);
+            winnerIndices[0] = i;
+
+            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+            claimPrizesCalldata[0].raffleId = raffleId;
+            claimPrizesCalldata[0].winnerIndices = winnerIndices;
+
+            expectEmitCheckAll();
+            emit PrizesClaimed({raffleId: raffleId, winnerIndices: winnerIndices});
+
+            vm.prank(winners[i].participant);
+            looksRareRaffle.claimPrizes(claimPrizesCalldata);
+        }
+    }
 }
