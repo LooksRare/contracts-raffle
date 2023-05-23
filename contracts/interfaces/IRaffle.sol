@@ -117,10 +117,12 @@ interface IRaffle {
     /**
      * @param raffleId The id of the raffle.
      * @param pricingOptionIndex The index of the selected pricing option.
+     * @param count The number of entries to be purchased.
      */
     struct EntryCalldata {
         uint256 raffleId;
         uint256 pricingOptionIndex;
+        uint256 count;
     }
 
     /**

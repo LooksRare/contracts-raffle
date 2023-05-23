@@ -45,7 +45,7 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
             deal(address(feeToken), participant, price);
 
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
 
             vm.startPrank(participant);
             feeToken.approve(address(looksRareRaffle), price);

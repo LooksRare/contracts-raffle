@@ -67,7 +67,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
             uint256 pricingOptionIndex = userIndex % 5;
             IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex});
+            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);

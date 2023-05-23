@@ -361,7 +361,8 @@ contract Raffle is
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
 
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
-                pricingOption.entriesCount;
+                pricingOption.entriesCount *
+                uint40(entry.count);
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
@@ -370,9 +371,14 @@ contract Raffle is
             uint208 price = pricingOption.price;
 
             if (raffle.feeTokenAddress == address(0)) {
-                expectedEthValue += price;
+                expectedEthValue += price * uint208(entry.count);
             } else {
-                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), price);
+                _executeERC20TransferFrom(
+                    raffle.feeTokenAddress,
+                    msg.sender,
+                    address(this),
+                    price * uint208(entry.count)
+                );
             }
 
             uint40 currentEntryIndex;

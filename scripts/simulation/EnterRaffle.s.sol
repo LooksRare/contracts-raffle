@@ -24,7 +24,7 @@ contract EnterRaffle is Script, SimulationBase {
         uint256 price = 0;
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](count);
         for (uint256 i; i < count; i++) {
-            entries[i] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
+            entries[i] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0, count: 1});
         }
 
         raffle.enterRaffles{value: price * count}(entries);
