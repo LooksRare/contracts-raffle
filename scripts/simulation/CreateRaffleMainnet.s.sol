@@ -13,9 +13,7 @@ import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
 import "forge-std/console2.sol";
 
 contract CreateRaffleMainnet is Script, SimulationBase {
-    function run() external {
-        IRaffle raffle = getRaffle(1);
-
+    function run() external view {
         IRaffle.PricingOption[5] memory pricingOptions;
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.00125 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 20, price: 0.024 ether});
@@ -24,7 +22,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
         address bayc = 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D;
-        address on1 = 0x306b1ea3ecdf94aB739F1910bbda052Ed4A9f949;
+        address on1 = 0x3bf2922f4520a8BA0c2eFC3D2a1539678DaD5e9D;
         address beanz = 0x306b1ea3ecdf94aB739F1910bbda052Ed4A9f949;
 
         IRaffle.Prize[] memory prizes = new IRaffle.Prize[](16);
