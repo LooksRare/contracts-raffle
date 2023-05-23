@@ -377,9 +377,14 @@ contract Raffle is
             uint208 price = pricingOption.price * uint208(multiplier);
 
             if (raffle.feeTokenAddress == address(0)) {
-                expectedEthValue += price;
+                expectedEthValue += price * uint208(entry.count);
             } else {
-                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), price);
+                _executeERC20TransferFrom(
+                    raffle.feeTokenAddress,
+                    msg.sender,
+                    address(this),
+                    price * uint208(entry.count)
+                );
             }
 
             uint40 currentEntryIndex;
