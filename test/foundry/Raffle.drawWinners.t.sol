@@ -20,11 +20,8 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         _createStandardRaffle();
-
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_drawWinners() public {

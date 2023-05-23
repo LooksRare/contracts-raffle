@@ -21,10 +21,8 @@ contract Raffle_ClaimFees_Test is TestHelpers {
 
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_claimFees() public {

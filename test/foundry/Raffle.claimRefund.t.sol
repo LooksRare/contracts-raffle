@@ -15,11 +15,8 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         _createStandardRaffle();
-
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_claimRefund() public {
@@ -39,15 +36,12 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     function test_claimRefund_MultipleRaffles() public {
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.startPrank(user1);
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < params.prizes.length; i++) {
             params.prizes[i].prizeId = i + 6;
         }
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-
-        looksRareRaffle.depositPrizes(2);
-        vm.stopPrank();
 
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(2);
