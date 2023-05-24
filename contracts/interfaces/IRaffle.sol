@@ -173,7 +173,6 @@ interface IRaffle {
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
     event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
-    error AlreadyRefunded();
     error CutoffTimeNotReached();
     error CutoffTimeReached();
     error DrawExpirationTimeNotReached();
@@ -192,7 +191,7 @@ interface IRaffle {
     error InvalidWinnersCount();
     error MaximumEntriesPerParticipantReached();
     error MaximumEntriesReached();
-    error PrizeAlreadyClaimed();
+    error NothingToClaim();
     error RandomnessRequestAlreadyExists();
     error RandomnessRequestDoesNotExist();
 

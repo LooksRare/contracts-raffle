@@ -634,12 +634,16 @@ contract Raffle is
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
 
             if (stats.refunded) {
-                revert AlreadyRefunded();
+                revert NothingToClaim();
+            }
+
+            uint208 amountPaid = stats.amountPaid;
+
+            if (amountPaid == 0) {
+                revert NothingToClaim();
             }
 
             stats.refunded = true;
-
-            uint208 amountPaid = stats.amountPaid;
             _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
 
             emit EntryRefunded(raffleId, msg.sender, amountPaid);
@@ -869,7 +873,7 @@ contract Raffle is
 
             Winner storage winner = winners[winnerIndex];
             if (winner.claimed) {
-                revert PrizeAlreadyClaimed();
+                revert NothingToClaim();
             }
             _validateCaller(winner.participant);
             winner.claimed = true;

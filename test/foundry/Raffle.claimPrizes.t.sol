@@ -172,7 +172,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
     }
 
-    function test_claimPrizes_RevertIf_PrizeAlreadyClaimed() public {
+    function test_claimPrizes_RevertIf_NothingToClaim() public {
         _transitionRaffleStatusToDrawing();
 
         _fulfillRandomWords();
@@ -195,7 +195,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
             vm.prank(winners[i].participant);
-            vm.expectRevert(IRaffle.PrizeAlreadyClaimed.selector);
+            vm.expectRevert(IRaffle.NothingToClaim.selector);
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
         }
     }

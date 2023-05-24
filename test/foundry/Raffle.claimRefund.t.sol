@@ -53,6 +53,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         raffleIds[0] = 1;
 
         vm.prank(user3);
+        vm.expectRevert(IRaffle.NothingToClaim.selector);
         looksRareRaffle.claimRefund(raffleIds);
         assertEq(user3.balance, 0);
 
@@ -109,7 +110,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         }
     }
 
-    function test_claimRefund_RevertIf_AlreadyRefunded() public {
+    function test_claimRefund_RevertIf_NothingToClaim() public {
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
 
         vm.warp(block.timestamp + 86_400 + 1);
@@ -123,7 +124,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         for (uint256 i = 10; i < 116; i++) {
             address participant = address(uint160(i + 1));
 
-            vm.expectRevert(IRaffle.AlreadyRefunded.selector);
+            vm.expectRevert(IRaffle.NothingToClaim.selector);
             vm.prank(participant);
             looksRareRaffle.claimRefund(raffleIds);
         }
