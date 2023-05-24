@@ -8,7 +8,6 @@ on:
 
 env:
   FOUNDRY_INVARIANT_FAIL_ON_REVERT: false
-  FOUNDRY_PROFILE: true
 
 jobs:
   tests:
@@ -44,3 +43,5 @@ jobs:
         run: yarn test
       - name: Run Solidity/Forge tests
         run: forge test
+        env:
+          FOUNDRY_PROFILE: local
