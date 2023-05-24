@@ -43,6 +43,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(entriesCount, 1);
         assertFalse(refunded);
 
+        (, , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
+        assertEq(claimableFees, price);
+
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
     }
 
@@ -76,6 +79,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(entriesCount, 120);
         assertFalse(refunded);
 
+        (, , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
+        assertEq(claimableFees, price);
+
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawing);
     }
 
@@ -100,6 +106,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(amountPaid, price);
         assertEq(entriesCount, 1);
         assertFalse(refunded);
+
+        (, , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
+        assertEq(claimableFees, price);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
     }
