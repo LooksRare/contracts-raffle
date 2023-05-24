@@ -124,6 +124,17 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         looksRareRaffle.enterRaffles{value: price}(entries);
     }
 
+    function test_enterRaffles_RevertIf_InvalidCount() public asPrankedUser(user2) {
+        uint208 price = 0.025 ether;
+        vm.deal(user2, price);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 0});
+
+        vm.expectRevert(IRaffle.InvalidCount.selector);
+        looksRareRaffle.enterRaffles{value: price}(entries);
+    }
+
     function test_enterRaffles_RevertIf_InvalidStatus() public {
         uint208 price = 0.025 ether;
         vm.deal(user2, price);

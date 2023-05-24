@@ -122,7 +122,7 @@ interface IRaffle {
     struct EntryCalldata {
         uint256 raffleId;
         uint256 pricingOptionIndex;
-        uint256 count;
+        uint40 count;
     }
 
     /**
@@ -179,6 +179,7 @@ interface IRaffle {
     error DrawExpirationTimeNotReached();
     error InsufficientNativeTokensSupplied();
     error InvalidCaller();
+    error InvalidCount();
     error InvalidCurrency();
     error InvalidCutoffTime();
     error InvalidIndex();

@@ -358,9 +358,13 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
+            if (entry.count == 0) {
+                revert InvalidCount();
+            }
+
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
 
-            uint40 entriesCount = pricingOption.entriesCount * uint40(entry.count);
+            uint40 entriesCount = pricingOption.entriesCount * entry.count;
 
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
                 entriesCount;
