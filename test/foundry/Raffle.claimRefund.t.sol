@@ -33,6 +33,38 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         _validClaimRefunds(raffleIds);
     }
 
+    function test_claimRefund_DelegatedRecipient() public {
+        uint256 price = 0.025 ether;
+        vm.deal(user2, price);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
+
+        vm.prank(user2);
+        looksRareRaffle.enterRaffles{value: price}(entries, user3);
+
+        vm.warp(block.timestamp + 86_400 + 1);
+
+        looksRareRaffle.cancel(1);
+
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Refundable);
+
+        uint256[] memory raffleIds = new uint256[](1);
+        raffleIds[0] = 1;
+
+        vm.prank(user3);
+        looksRareRaffle.claimRefund(raffleIds);
+        assertEq(user3.balance, 0);
+
+        assertEq(address(looksRareRaffle).balance, 0.025 ether);
+
+        vm.prank(user2);
+        looksRareRaffle.claimRefund(raffleIds);
+        assertEq(user2.balance, 0.025 ether);
+
+        assertEq(address(looksRareRaffle).balance, 0);
+    }
+
     function test_claimRefund_MultipleRaffles() public {
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
