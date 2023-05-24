@@ -173,7 +173,6 @@ interface IRaffle {
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
     event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
-    error AlreadyRefunded();
     error CutoffTimeNotReached();
     error CutoffTimeReached();
     error DrawExpirationTimeNotReached();
@@ -192,7 +191,7 @@ interface IRaffle {
     error InvalidWinnersCount();
     error MaximumEntriesPerParticipantReached();
     error MaximumEntriesReached();
-    error PrizeAlreadyClaimed();
+    error NothingToClaim();
     error RandomnessRequestAlreadyExists();
     error RandomnessRequestDoesNotExist();
 
@@ -206,8 +205,9 @@ interface IRaffle {
     /**
      * @notice Enters a raffle or multiple raffles.
      * @param entries The entries to be made.
+     * @param recipient The entries' recipient address.
      */
-    function enterRaffles(EntryCalldata[] calldata entries) external payable;
+    function enterRaffles(EntryCalldata[] calldata entries, address recipient) external payable;
 
     /**
      * @notice Select the winners for a raffle based on the random words returned by Chainlink.

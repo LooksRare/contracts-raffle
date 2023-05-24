@@ -54,7 +54,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             }
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: price}(entries);
+            looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         }
 
         (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(
@@ -88,11 +88,11 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
 
         vm.expectRevert(IRaffle.RandomnessRequestAlreadyExists.selector);
         vm.prank(user3);
-        looksRareRaffle.enterRaffles{value: price}(entries);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
     }
 
     function _expectChainlinkCall() private {

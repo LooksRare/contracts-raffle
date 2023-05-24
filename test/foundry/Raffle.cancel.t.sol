@@ -19,7 +19,7 @@ contract Raffle_Cancel_Test is TestHelpers {
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
     }
 
-    function test_cancel_RaffleStatusIsOpen() public {
+    function test_cancel() public {
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
         vm.warp(block.timestamp + 86_400 + 1);
 

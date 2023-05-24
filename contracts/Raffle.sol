@@ -338,11 +338,21 @@ contract Raffle is
 
     /**
      * @inheritdoc IRaffle
+     * @notice If it is a delegated recipient, the amount paid should still be accrued to the payer.
+     *         If a raffle is cancelled, the payer should be refunded and not the recipient.
      */
-    function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
-        uint256 count = entries.length;
+    function enterRaffles(EntryCalldata[] calldata entries, address recipient)
+        external
+        payable
+        nonReentrant
+        whenNotPaused
+    {
+        if (recipient == address(0)) {
+            recipient = msg.sender;
+        }
+
         uint208 expectedEthValue;
-        for (uint256 i; i < count; ) {
+        for (uint256 i; i < entries.length; ) {
             EntryCalldata calldata entry = entries[i];
 
             if (entry.pricingOptionIndex >= PRICING_OPTIONS_PER_RAFFLE) {
@@ -367,12 +377,12 @@ contract Raffle is
 
             uint40 entriesCount = pricingOption.entriesCount * multiplier;
 
-            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
+            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
                 entriesCount;
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
-            rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
+            rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
 
             uint208 price = pricingOption.price * uint208(multiplier);
 
@@ -398,12 +408,12 @@ contract Raffle is
                 }
             }
 
-            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
+            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
             raffle.claimableFees += price;
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
 
-            emit EntrySold(raffleId, msg.sender, entriesCount, price);
+            emit EntrySold(raffleId, recipient, entriesCount, price);
 
             if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);
@@ -624,12 +634,16 @@ contract Raffle is
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
 
             if (stats.refunded) {
-                revert AlreadyRefunded();
+                revert NothingToClaim();
+            }
+
+            uint208 amountPaid = stats.amountPaid;
+
+            if (amountPaid == 0) {
+                revert NothingToClaim();
             }
 
             stats.refunded = true;
-
-            uint208 amountPaid = stats.amountPaid;
             _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
 
             emit EntryRefunded(raffleId, msg.sender, amountPaid);
@@ -859,7 +873,7 @@ contract Raffle is
 
             Winner storage winner = winners[winnerIndex];
             if (winner.claimed) {
-                revert PrizeAlreadyClaimed();
+                revert NothingToClaim();
             }
             _validateCaller(winner.participant);
             winner.claimed = true;

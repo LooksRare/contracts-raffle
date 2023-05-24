@@ -271,12 +271,12 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         if (feeTokenAddress == ETH) {
             // Pseudorandomly add 1 wei to test refund, not using seed because stack too deep :(
             vm.deal(currentActor, price + (block.timestamp % 2));
-            looksRareRaffle.enterRaffles{value: price + (block.timestamp % 2)}(entries);
+            looksRareRaffle.enterRaffles{value: price + (block.timestamp % 2)}(entries, address(0));
             ghost_ETH_feesCollectedSum += price;
         } else if (feeTokenAddress == address(erc20)) {
             erc20.mint(currentActor, price);
             erc20.approve(address(looksRareRaffle), price);
-            looksRareRaffle.enterRaffles(entries);
+            looksRareRaffle.enterRaffles(entries, address(0));
             ghost_ERC20_feesCollectedSum += price;
         }
     }
