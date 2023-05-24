@@ -246,9 +246,7 @@ contract Raffle is
 
         address feeTokenAddress = params.feeTokenAddress;
         if (feeTokenAddress != address(0)) {
-            if (!isCurrencyAllowed[feeTokenAddress]) {
-                revert InvalidCurrency();
-            }
+            _validateCurrency(feeTokenAddress);
         }
 
         uint256 prizesCount = params.prizes.length;
@@ -793,9 +791,7 @@ contract Raffle is
             }
         } else {
             if (prize.prizeType == TokenType.ERC20) {
-                if (!isCurrencyAllowed[prize.prizeAddress]) {
-                    revert InvalidCurrency();
-                }
+                _validateCurrency(prize.prizeAddress);
             }
 
             if (prize.prizeAmount == 0 || prize.winnersCount == 0) {
@@ -930,6 +926,15 @@ contract Raffle is
     function _validateCaller(address caller) private view {
         if (msg.sender != caller) {
             revert InvalidCaller();
+        }
+    }
+
+    /**
+     * @param currency The currency to validate.
+     */
+    function _validateCurrency(address currency) private view {
+        if (!isCurrencyAllowed[currency]) {
+            revert InvalidCurrency();
         }
     }
 
