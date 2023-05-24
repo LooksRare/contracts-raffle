@@ -251,7 +251,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         uint208 price = pricingOptions[pricingOptionIndex].price;
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex});
+        entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex, count: 1});
 
         if (callsMustBeValid) {
             (, uint40 entriesCount, ) = looksRareRaffle.rafflesParticipantsStats(raffleId, currentActor);

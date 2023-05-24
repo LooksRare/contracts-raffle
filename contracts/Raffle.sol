@@ -340,9 +340,9 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
-        uint256 entriesCount = entries.length;
+        uint256 count = entries.length;
         uint208 expectedEthValue;
-        for (uint256 i; i < entriesCount; ) {
+        for (uint256 i; i < count; ) {
             EntryCalldata calldata entry = entries[i];
 
             if (entry.pricingOptionIndex >= PRICING_OPTIONS_PER_RAFFLE) {
@@ -358,16 +358,23 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
+            uint40 multiplier = entry.count;
+            if (multiplier == 0) {
+                revert InvalidCount();
+            }
+
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
 
+            uint40 entriesCount = pricingOption.entriesCount * multiplier;
+
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
-                pricingOption.entriesCount;
+                entriesCount;
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
             rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
-            uint208 price = pricingOption.price;
+            uint208 price = pricingOption.price * uint208(multiplier);
 
             if (raffle.feeTokenAddress == address(0)) {
                 expectedEthValue += price;
@@ -378,11 +385,11 @@ contract Raffle is
             uint40 currentEntryIndex;
             uint256 raffleEntriesCount = raffle.entries.length;
             if (raffleEntriesCount == 0) {
-                currentEntryIndex = uint40(_unsafeSubtract(pricingOption.entriesCount, 1));
+                currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
             } else {
                 currentEntryIndex =
                     raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex +
-                    pricingOption.entriesCount;
+                    entriesCount;
             }
 
             if (raffle.isMinimumEntriesFixed) {
@@ -396,7 +403,7 @@ contract Raffle is
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
 
-            emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
+            emit EntrySold(raffleId, msg.sender, entriesCount, price);
 
             if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);

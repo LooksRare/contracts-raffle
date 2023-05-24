@@ -8,6 +8,7 @@ on:
 
 env:
   FOUNDRY_INVARIANT_FAIL_ON_REVERT: false
+  FOUNDRY_PROFILE: true
 
 jobs:
   tests:

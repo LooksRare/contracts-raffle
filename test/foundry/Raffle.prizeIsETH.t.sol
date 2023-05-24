@@ -58,8 +58,8 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         vm.deal(participant, price);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
         looksRareRaffle.enterRaffles{value: price}(entries);
@@ -108,10 +108,10 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         vm.deal(participant, price);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](4);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4});
-        entries[2] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1});
-        entries[3] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
+        entries[2] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[3] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
         looksRareRaffle.enterRaffles{value: price}(entries);
