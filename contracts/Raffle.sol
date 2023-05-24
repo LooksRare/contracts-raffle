@@ -338,6 +338,8 @@ contract Raffle is
 
     /**
      * @inheritdoc IRaffle
+     * @notice If it is a delegated recipient, the amount paid should still be accrued to the payer.
+     *         If a raffle is cancelled, the payer should be refunded and not the recipient.
      */
     function enterRaffles(EntryCalldata[] calldata entries, address recipient)
         external
