@@ -402,7 +402,12 @@ contract Raffle is
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
 
-            emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount, price);
+            emit EntrySold(
+                raffleId,
+                msg.sender,
+                pricingOption.entriesCount * uint40(entry.count),
+                price * uint208(entry.count)
+            );
 
             if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);

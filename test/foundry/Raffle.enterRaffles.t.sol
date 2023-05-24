@@ -49,15 +49,15 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
     function test_enterRaffles_Multiple() public {
         _subscribeRaffleToVRF();
 
-        uint208 price = 1.17 ether;
+        uint208 price = 1.39 ether;
         vm.deal(user2, price);
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 2});
         entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
 
         expectEmitCheckAll();
-        emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 10, price: 0.22 ether});
+        emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 20, price: 0.44 ether});
 
         expectEmitCheckAll();
         emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 100, price: 0.95 ether});
