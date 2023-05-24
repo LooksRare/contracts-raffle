@@ -358,13 +358,14 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
-            if (entry.count == 0) {
+            uint40 multiplier = entry.count;
+            if (multiplier == 0) {
                 revert InvalidCount();
             }
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
 
-            uint40 entriesCount = pricingOption.entriesCount * entry.count;
+            uint40 entriesCount = pricingOption.entriesCount * multiplier;
 
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
                 entriesCount;
@@ -373,7 +374,7 @@ contract Raffle is
             }
             rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
-            uint208 price = pricingOption.price * uint208(entry.count);
+            uint208 price = pricingOption.price * uint208(multiplier);
 
             if (raffle.feeTokenAddress == address(0)) {
                 expectedEthValue += price;
