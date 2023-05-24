@@ -16,7 +16,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
     function run() external {
         IRaffle raffle = getRaffle(1);
 
-        IRaffle.PricingOption[5] memory pricingOptions;
+        IRaffle.PricingOption[] memory pricingOptions = new IRaffle.PricingOption[](5);
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.00125 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 20, price: 0.024 ether});
         pricingOptions[2] = IRaffle.PricingOption({entriesCount: 100, price: 0.11 ether});

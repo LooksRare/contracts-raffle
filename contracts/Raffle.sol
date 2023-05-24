@@ -193,9 +193,9 @@ contract Raffle is
     mapping(address => uint256) public protocolFeeRecipientClaimableFees;
 
     /**
-     * @notice The number of pricing options per raffle.
+     * @notice The maximum number of pricing options per raffle.
      */
-    uint256 public constant PRICING_OPTIONS_PER_RAFFLE = 5;
+    uint256 public constant MAX_PRICING_OPTIONS_PER_RAFFLE = 5;
 
     /**
      * @param _weth The WETH address
@@ -355,7 +355,7 @@ contract Raffle is
         for (uint256 i; i < entries.length; ) {
             EntryCalldata calldata entry = entries[i];
 
-            if (entry.pricingOptionIndex >= PRICING_OPTIONS_PER_RAFFLE) {
+            if (entry.pricingOptionIndex >= MAX_PRICING_OPTIONS_PER_RAFFLE) {
                 revert InvalidIndex();
             }
 
@@ -713,11 +713,7 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function getPricingOptions(uint256 raffleId)
-        external
-        view
-        returns (PricingOption[PRICING_OPTIONS_PER_RAFFLE] memory pricingOptions)
-    {
+    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[] memory pricingOptions) {
         pricingOptions = raffles[raffleId].pricingOptions;
     }
 
@@ -747,11 +743,14 @@ contract Raffle is
      * @param raffleId The ID of the raffle.
      * @param pricingOptions The pricing options for the raffle.
      */
-    function _validateAndSetPricingOptions(
-        uint256 raffleId,
-        PricingOption[PRICING_OPTIONS_PER_RAFFLE] calldata pricingOptions
-    ) private {
-        for (uint256 i; i < PRICING_OPTIONS_PER_RAFFLE; ) {
+    function _validateAndSetPricingOptions(uint256 raffleId, PricingOption[] calldata pricingOptions) private {
+        uint256 count = pricingOptions.length;
+
+        if (count == 0 || count > MAX_PRICING_OPTIONS_PER_RAFFLE) {
+            revert InvalidPricingOptionsCount();
+        }
+
+        for (uint256 i; i < count; ) {
             PricingOption memory pricingOption = pricingOptions[i];
 
             uint40 entriesCount = pricingOption.entriesCount;
@@ -776,7 +775,7 @@ contract Raffle is
                 }
             }
 
-            raffles[raffleId].pricingOptions[i] = pricingOption;
+            raffles[raffleId].pricingOptions.push(pricingOption);
 
             unchecked {
                 ++i;

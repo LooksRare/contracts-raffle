@@ -27,7 +27,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
     function test_drawWinners() public {
         _subscribeRaffleToVRF();
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.PricingOption[] memory pricingOptions = _generateStandardPricings();
 
         for (uint256 i; i < 5; i++) {
             address participant = address(uint160(i + 1));
@@ -73,7 +73,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
     function test_drawWinners_RevertIf_RandomnessRequestAlreadyExists() public {
         _subscribeRaffleToVRF();
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.PricingOption[] memory pricingOptions = _generateStandardPricings();
 
         _expectChainlinkCall();
 

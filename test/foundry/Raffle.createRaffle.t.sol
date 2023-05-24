@@ -71,7 +71,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(prizes[6].winnersCount, 100);
         assertEq(prizes[6].cumulativeWinnersCount, 106);
 
-        IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(1);
+        IRaffle.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(1);
 
         assertEq(pricingOptions[0].entriesCount, 1);
         assertEq(pricingOptions[1].entriesCount, 10);
@@ -235,6 +235,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
+    // TODO: test ERC1155 prizes
     function test_createRaffle_RevertIf_PrizeIsERC1155_InvalidPrizeAmount() public {}
 
     function test_createRaffle_RevertIf_PrizeIsERC1155_InvalidWinnersCount() public {}
@@ -277,6 +278,22 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         mockERC20.approve(address(looksRareRaffle), 105_000e18);
 
         vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
+        looksRareRaffle.createRaffle(params);
+    }
+
+    function test_createRaffle_RevertIf_NoPricingOptions() public asPrankedUser(user1) {
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions = new IRaffle.PricingOption[](0);
+
+        vm.expectRevert(IRaffle.InvalidPricingOptionsCount.selector);
+        looksRareRaffle.createRaffle(params);
+    }
+
+    function test_createRaffle_RevertIf_TooManyPricingOptions() public asPrankedUser(user1) {
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions = new IRaffle.PricingOption[](6);
+
+        vm.expectRevert(IRaffle.InvalidPricingOptionsCount.selector);
         looksRareRaffle.createRaffle(params);
     }
 

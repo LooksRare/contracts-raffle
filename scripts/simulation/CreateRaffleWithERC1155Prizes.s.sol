@@ -35,7 +35,7 @@ contract CreateRaffleWithERC1155Prizes is Script, SimulationBase {
 
         IRaffle raffle = getRaffle(chainId);
 
-        IRaffle.PricingOption[5] memory pricingOptions;
+        IRaffle.PricingOption[] memory pricingOptions = new IRaffle.PricingOption[](5);
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.000022 ether});
         pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.00005 ether});

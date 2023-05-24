@@ -97,7 +97,7 @@ interface IRaffle {
         address feeTokenAddress;
         uint16 protocolFeeBp;
         uint208 claimableFees;
-        PricingOption[5] pricingOptions;
+        PricingOption[] pricingOptions;
         Prize[] prizes;
         Entry[] entries;
         Winner[] winners;
@@ -143,7 +143,7 @@ interface IRaffle {
         uint16 protocolFeeBp;
         address feeTokenAddress;
         Prize[] prizes;
-        PricingOption[5] pricingOptions;
+        PricingOption[] pricingOptions;
     }
 
     struct ClaimPrizesCalldata {
@@ -183,6 +183,7 @@ interface IRaffle {
     error InvalidCutoffTime();
     error InvalidIndex();
     error InvalidPricingOption();
+    error InvalidPricingOptionsCount();
     error InvalidPrize();
     error InvalidPrizesCount();
     error InvalidProtocolFeeBp();
@@ -297,7 +298,7 @@ interface IRaffle {
      * @param raffleId The id of the raffle.
      * @return pricingOptions The pricing options for the raffle.
      */
-    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[5] memory);
+    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[] memory);
 
     /**
      * @notice Gets the prizes for a raffle.
