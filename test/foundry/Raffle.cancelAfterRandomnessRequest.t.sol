@@ -17,11 +17,8 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
-
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_cancelAfterRandomnessRequest() public {

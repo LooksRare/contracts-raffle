@@ -21,10 +21,8 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_claimPrizes_StatusIsDrawn() public {
@@ -102,10 +100,8 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         prizes[6].winnersCount = 5;
         params.prizes = prizes;
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(2);
-        vm.stopPrank();
 
         _subscribeRaffleToVRF();
 

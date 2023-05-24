@@ -75,7 +75,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Call summary:");
         console2.log("-------------------");
         console2.log("Create raffle", calls["createRaffle"]);
-        console2.log("Deposit prizes", calls["depositPrizes"]);
         console2.log("Enter raffles", calls["enterRaffles"]);
         console2.log("Fulfill random words", calls["fulfillRandomWords"]);
         console2.log("Select winners", calls["selectWinners"]);
@@ -143,6 +142,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         uint40 minimumEntries;
 
+        uint256 ethValue;
+        uint256 erc20Value;
+        uint256 erc1155Value;
+
         for (uint256 i; i < prizes.length; i++) {
             prizes[i].prizeTier = uint8(i);
 
@@ -151,11 +154,15 @@ contract Handler is CommonBase, StdCheats, StdUtils {
                 prizes[i].prizeAddress = ETH;
                 prizes[i].prizeAmount = 1 ether;
                 prizes[i].winnersCount = 10;
+
+                ethValue += 10 ether;
             } else if (seed % 4 == 1) {
                 prizes[i].prizeType = IRaffle.TokenType.ERC20;
                 prizes[i].prizeAddress = address(erc20);
                 prizes[i].prizeAmount = 1 ether;
                 prizes[i].winnersCount = 10;
+
+                erc20Value += 10 ether;
             } else if (seed % 4 == 2) {
                 uint256 tokenId = erc721.totalSupply();
                 erc721.mint(currentActor, tokenId);
@@ -171,10 +178,15 @@ contract Handler is CommonBase, StdCheats, StdUtils {
                 prizes[i].prizeId = erc1155TokenId;
                 prizes[i].prizeAmount = 2;
                 prizes[i].winnersCount = 2;
+
+                erc1155Value += 4;
             }
 
             minimumEntries += prizes[i].winnersCount;
         }
+
+        vm.deal(currentActor, ethValue);
+        erc20.mint(currentActor, erc20Value);
 
         minimumEntries = (minimumEntries * 10_500) / 10_000;
 
@@ -189,6 +201,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             minimumEntries = pricingOptions[4].entriesCount;
         }
 
+        erc721.setApprovalForAll(address(looksRareRaffle), true);
+        erc20.approve(address(looksRareRaffle), erc20Value);
+        erc1155.setApprovalForAll(address(looksRareRaffle), true);
+
         IRaffle.CreateRaffleCalldata memory params = IRaffle.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
             isMinimumEntriesFixed: uint256(keccak256(abi.encodePacked(keccak256(abi.encodePacked(seed))))) % 2 == 0,
@@ -200,32 +216,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             pricingOptions: pricingOptions
         });
 
-        looksRareRaffle.createRaffle(params);
-    }
-
-    function depositPrizes(uint256 raffleId) public countCall("depositPrizes") {
-        uint256 rafflesCount = looksRareRaffle.rafflesCount();
-        if (rafflesCount == 0) return;
-
-        bound(raffleId, 1, rafflesCount);
-
-        (address raffleOwner, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Created) return;
-
-        uint256 ethValue = _prizesValue(raffleId, IRaffle.TokenType.ETH);
-        vm.deal(raffleOwner, ethValue);
-
-        uint256 erc20Value = _prizesValue(raffleId, IRaffle.TokenType.ERC20);
-        erc20.mint(raffleOwner, erc20Value);
-
-        uint256 erc1155Value = _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
-
-        vm.startPrank(raffleOwner);
-        erc721.setApprovalForAll(address(looksRareRaffle), true);
-        erc20.approve(address(looksRareRaffle), erc20Value);
-        erc1155.setApprovalForAll(address(looksRareRaffle), true);
-        looksRareRaffle.depositPrizes{value: ethValue}(raffleId);
-        vm.stopPrank();
+        looksRareRaffle.createRaffle{value: ethValue}(params);
 
         ghost_ETH_prizesDepositedSum += ethValue;
         ghost_ERC20_prizesDepositedSum += erc20Value;
@@ -427,7 +418,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(raffleId, 1, rafflesCount);
 
         (, IRaffle.RaffleStatus status, , uint40 cutoffTime, , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Created && status != IRaffle.RaffleStatus.Open) return;
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Open) return;
 
         vm.warp(cutoffTime + 1);
 

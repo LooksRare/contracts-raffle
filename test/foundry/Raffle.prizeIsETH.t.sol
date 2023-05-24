@@ -21,10 +21,8 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
 
         IRaffle.CreateRaffleCalldata memory params = _createRaffleParamsWithETHAsPrize();
 
-        vm.startPrank(user1);
-        looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes{value: 5 ether}(1);
-        vm.stopPrank();
+        vm.prank(user1);
+        looksRareRaffle.createRaffle{value: 5 ether}(params);
     }
 
     function test_claimPrizes_StatusIsDrawn() public {
@@ -99,10 +97,8 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         }
 
         vm.deal(user1, 5 ether);
-        vm.startPrank(user1);
-        looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes{value: 5 ether}(2);
-        vm.stopPrank();
+        vm.prank(user1);
+        looksRareRaffle.createRaffle{value: 5 ether}(params);
 
         _subscribeRaffleToVRF();
 

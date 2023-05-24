@@ -17,11 +17,8 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         _createStandardRaffle();
-
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_enterRaffles() public asPrankedUser(user2) {
@@ -129,14 +126,6 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.prank(user2);
         vm.expectRevert(IRaffle.InvalidStatus.selector);
         looksRareRaffle.enterRaffles{value: price}(entries);
-
-        // Raffle is not open
-        vm.prank(user1);
-        _createStandardRaffle();
-
-        vm.prank(user2);
-        vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.enterRaffles{value: price}(entries);
     }
 
     function test_enterRaffles_RevertIf_InvalidStatus_StubAllStatuses() public {
@@ -147,7 +136,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
 
         for (uint8 status; status <= uint8(IRaffle.RaffleStatus.Cancelled); status++) {
-            if (status != 2) {
+            if (status != 1) {
                 _stubRaffleStatus(raffleId, status);
                 vm.prank(user2);
                 vm.expectRevert(IRaffle.InvalidStatus.selector);
@@ -210,8 +199,6 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         }
         params.isMinimumEntriesFixed = true;
         looksRareRaffle.createRaffle(params);
-
-        looksRareRaffle.depositPrizes(2);
 
         vm.stopPrank();
 

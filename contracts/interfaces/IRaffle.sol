@@ -4,7 +4,6 @@ pragma solidity 0.8.17;
 interface IRaffle {
     enum RaffleStatus {
         None,
-        Created,
         Open,
         Drawing,
         RandomnessFulfilled,
@@ -199,13 +198,7 @@ interface IRaffle {
      * @param params The parameters of the raffle.
      * @return raffleId The id of the newly created raffle.
      */
-    function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId);
-
-    /**
-     * @notice Deposits prizes for a raffle.
-     * @param raffleId The id of the raffle.
-     */
-    function depositPrizes(uint256 raffleId) external payable;
+    function createRaffle(CreateRaffleCalldata calldata params) external payable returns (uint256 raffleId);
 
     /**
      * @notice Enters a raffle or multiple raffles.

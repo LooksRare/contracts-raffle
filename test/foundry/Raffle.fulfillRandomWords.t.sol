@@ -22,11 +22,8 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         params.prizes[6].winnersCount = 5;
         params.maximumEntriesPerParticipant = 100;
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
 
         _subscribeRaffleToVRF();
         _enterRafflesWithSingleEntryUpToMinimumEntries();

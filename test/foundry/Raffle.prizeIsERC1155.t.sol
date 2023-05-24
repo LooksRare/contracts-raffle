@@ -26,10 +26,8 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
 
         IRaffle.CreateRaffleCalldata memory params = _createRaffleParamsWithERC1155AsPrize();
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_claimPrizes_StatusIsDrawn() public {
@@ -103,10 +101,8 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
             params.prizes[i].prizeId = i + 6;
         }
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(2);
-        vm.stopPrank();
 
         _subscribeRaffleToVRF();
 

@@ -226,11 +226,14 @@ contract Raffle is
 
     /**
      * @inheritdoc IRaffle
-     * @dev This function can still be called when the contract is paused because the raffle creator
-     *      would not be able to deposit prizes and open the raffle anyway. The restriction to disallow
-     *      raffles creation when the contract is paused will be enforced in the frontend.
      */
-    function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId) {
+    function createRaffle(CreateRaffleCalldata calldata params)
+        external
+        payable
+        nonReentrant
+        whenNotPaused
+        returns (uint256 raffleId)
+    {
         uint40 cutoffTime = params.cutoffTime;
         if (_unsafeAdd(block.timestamp, ONE_DAY) > cutoffTime || cutoffTime > _unsafeAdd(block.timestamp, ONE_WEEK)) {
             revert InvalidCutoffTime();
@@ -258,6 +261,7 @@ contract Raffle is
         }
 
         Raffle storage raffle = raffles[raffleId];
+        uint256 expectedEthValue;
         uint40 cumulativeWinnersCount;
         uint8 currentPrizeTier;
         for (uint256 i; i < prizesCount; ) {
@@ -267,47 +271,6 @@ contract Raffle is
             }
             _validatePrize(prize);
 
-            cumulativeWinnersCount += prize.winnersCount;
-            prize.cumulativeWinnersCount = cumulativeWinnersCount;
-            currentPrizeTier = prize.prizeTier;
-            raffle.prizes.push(prize);
-
-            unchecked {
-                ++i;
-            }
-        }
-
-        uint40 minimumEntries = params.minimumEntries;
-        if (cumulativeWinnersCount > minimumEntries || cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
-            revert InvalidWinnersCount();
-        }
-
-        _validateAndSetPricingOptions(raffleId, params.pricingOptions);
-
-        raffle.owner = msg.sender;
-        raffle.isMinimumEntriesFixed = params.isMinimumEntriesFixed;
-        raffle.cutoffTime = cutoffTime;
-        raffle.minimumEntries = minimumEntries;
-        raffle.maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        raffle.protocolFeeBp = agreedProtocolFeeBp;
-        raffle.feeTokenAddress = feeTokenAddress;
-        _setRaffleStatus(raffle, raffleId, RaffleStatus.Created);
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function depositPrizes(uint256 raffleId) external payable nonReentrant whenNotPaused {
-        Raffle storage raffle = raffles[raffleId];
-
-        _validateRaffleStatus(raffle, RaffleStatus.Created);
-        _validateCaller(raffle.owner);
-
-        Prize[] storage prizes = raffle.prizes;
-        uint256 prizesCount = prizes.length;
-        uint256 expectedEthValue;
-        for (uint256 i; i < prizesCount; ) {
-            Prize storage prize = prizes[i];
             TokenType prizeType = prize.prizeType;
             if (prizeType == TokenType.ERC721) {
                 _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
@@ -329,12 +292,33 @@ contract Raffle is
                     prize.prizeAmount * prize.winnersCount
                 );
             }
+
+            cumulativeWinnersCount += prize.winnersCount;
+            prize.cumulativeWinnersCount = cumulativeWinnersCount;
+            currentPrizeTier = prize.prizeTier;
+            raffle.prizes.push(prize);
+
             unchecked {
                 ++i;
             }
         }
 
         _validateExpectedEthValueOrRefund(expectedEthValue);
+
+        uint40 minimumEntries = params.minimumEntries;
+        if (cumulativeWinnersCount > minimumEntries || cumulativeWinnersCount > MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE) {
+            revert InvalidWinnersCount();
+        }
+
+        _validateAndSetPricingOptions(raffleId, params.pricingOptions);
+
+        raffle.owner = msg.sender;
+        raffle.isMinimumEntriesFixed = params.isMinimumEntriesFixed;
+        raffle.cutoffTime = cutoffTime;
+        raffle.minimumEntries = minimumEntries;
+        raffle.maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        raffle.protocolFeeBp = agreedProtocolFeeBp;
+        raffle.feeTokenAddress = feeTokenAddress;
 
         _setRaffleStatus(raffle, raffleId, RaffleStatus.Open);
     }
@@ -570,17 +554,13 @@ contract Raffle is
      */
     function cancel(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
-        bool isOpen = raffle.status == RaffleStatus.Open;
+        _validateRaffleStatus(raffle, RaffleStatus.Open);
 
-        if (isOpen) {
-            if (raffle.cutoffTime > block.timestamp) {
-                revert CutoffTimeNotReached();
-            }
-        } else {
-            _validateRaffleStatus(raffle, RaffleStatus.Created);
+        if (raffle.cutoffTime > block.timestamp) {
+            revert CutoffTimeNotReached();
         }
 
-        _setRaffleStatus(raffle, raffleId, isOpen ? RaffleStatus.Refundable : RaffleStatus.Cancelled);
+        _setRaffleStatus(raffle, raffleId, RaffleStatus.Refundable);
     }
 
     /**
