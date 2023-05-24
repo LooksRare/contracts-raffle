@@ -340,9 +340,9 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
-        uint256 entriesCount = entries.length;
+        uint256 count = entries.length;
         uint208 expectedEthValue;
-        for (uint256 i; i < entriesCount; ) {
+        for (uint256 i; i < count; ) {
             EntryCalldata calldata entry = entries[i];
 
             if (entry.pricingOptionIndex >= PRICING_OPTIONS_PER_RAFFLE) {
@@ -360,9 +360,10 @@ contract Raffle is
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
 
+            uint40 entriesCount = pricingOption.entriesCount * uint40(entry.count);
+
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
-                pricingOption.entriesCount *
-                uint40(entry.count);
+                entriesCount;
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
@@ -379,11 +380,11 @@ contract Raffle is
             uint40 currentEntryIndex;
             uint256 raffleEntriesCount = raffle.entries.length;
             if (raffleEntriesCount == 0) {
-                currentEntryIndex = uint40(_unsafeSubtract(pricingOption.entriesCount, 1));
+                currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
             } else {
                 currentEntryIndex =
                     raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex +
-                    pricingOption.entriesCount;
+                    entriesCount;
             }
 
             if (raffle.isMinimumEntriesFixed) {
@@ -397,7 +398,7 @@ contract Raffle is
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
 
-            emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount * uint40(entry.count), price);
+            emit EntrySold(raffleId, msg.sender, entriesCount, price);
 
             if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);
