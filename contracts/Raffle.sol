@@ -351,9 +351,8 @@ contract Raffle is
             recipient = msg.sender;
         }
 
-        uint256 count = entries.length;
         uint208 expectedEthValue;
-        for (uint256 i; i < count; ) {
+        for (uint256 i; i < entries.length; ) {
             EntryCalldata calldata entry = entries[i];
 
             if (entry.pricingOptionIndex >= PRICING_OPTIONS_PER_RAFFLE) {
