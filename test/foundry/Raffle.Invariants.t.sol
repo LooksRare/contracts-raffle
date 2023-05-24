@@ -146,10 +146,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         uint256 erc20Value;
         uint256 erc1155Value;
 
-        erc721.setApprovalForAll(address(looksRareRaffle), true);
-        erc20.approve(address(looksRareRaffle), erc20Value);
-        erc1155.setApprovalForAll(address(looksRareRaffle), true);
-
         for (uint256 i; i < prizes.length; i++) {
             prizes[i].prizeTier = uint8(i);
 
@@ -204,6 +200,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         if (minimumEntries < pricingOptions[4].entriesCount) {
             minimumEntries = pricingOptions[4].entriesCount;
         }
+
+        erc721.setApprovalForAll(address(looksRareRaffle), true);
+        erc20.approve(address(looksRareRaffle), erc20Value);
+        erc1155.setApprovalForAll(address(looksRareRaffle), true);
 
         IRaffle.CreateRaffleCalldata memory params = IRaffle.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
