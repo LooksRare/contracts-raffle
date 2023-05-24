@@ -195,7 +195,7 @@ contract Raffle is
     /**
      * @notice The maximum number of pricing options per raffle.
      */
-    uint256 public constant MAX_PRICING_OPTIONS_PER_RAFFLE = 5;
+    uint256 public constant MAXIMUM_PRICING_OPTIONS_PER_RAFFLE = 5;
 
     /**
      * @param _weth The WETH address
@@ -353,12 +353,12 @@ contract Raffle is
         for (uint256 i; i < entries.length; ) {
             EntryCalldata calldata entry = entries[i];
 
-            if (entry.pricingOptionIndex >= MAX_PRICING_OPTIONS_PER_RAFFLE) {
-                revert InvalidIndex();
-            }
-
             uint256 raffleId = entry.raffleId;
             Raffle storage raffle = raffles[raffleId];
+
+            if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
+                revert InvalidIndex();
+            }
 
             _validateRaffleStatus(raffle, RaffleStatus.Open);
 
@@ -744,7 +744,7 @@ contract Raffle is
     function _validateAndSetPricingOptions(uint256 raffleId, PricingOption[] calldata pricingOptions) private {
         uint256 count = pricingOptions.length;
 
-        if (count == 0 || count > MAX_PRICING_OPTIONS_PER_RAFFLE) {
+        if (count == 0 || count > MAXIMUM_PRICING_OPTIONS_PER_RAFFLE) {
             revert InvalidPricingOptionsCount();
         }
 
