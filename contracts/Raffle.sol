@@ -339,7 +339,16 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
+    function enterRaffles(EntryCalldata[] calldata entries, address recipient)
+        external
+        payable
+        nonReentrant
+        whenNotPaused
+    {
+        if (recipient == address(0)) {
+            recipient = msg.sender;
+        }
+
         uint256 count = entries.length;
         uint208 expectedEthValue;
         for (uint256 i; i < count; ) {
@@ -367,12 +376,12 @@ contract Raffle is
 
             uint40 entriesCount = pricingOption.entriesCount * multiplier;
 
-            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][msg.sender].entriesCount +
+            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
                 entriesCount;
             if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                 revert MaximumEntriesPerParticipantReached();
             }
-            rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
+            rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
 
             uint208 price = pricingOption.price * uint208(multiplier);
 
@@ -398,12 +407,12 @@ contract Raffle is
                 }
             }
 
-            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
+            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
             raffle.claimableFees += price;
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
 
-            emit EntrySold(raffleId, msg.sender, entriesCount, price);
+            emit EntrySold(raffleId, recipient, entriesCount, price);
 
             if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);

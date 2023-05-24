@@ -67,7 +67,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
-        looksRareRaffle.enterRaffles{value: price}(entries);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         _fulfillCurrentTestRandomWords();
         looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -118,7 +118,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         entries[3] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
-        looksRareRaffle.enterRaffles{value: price}(entries);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         _fulfillCurrentTestRandomWords();
         looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
 

@@ -70,7 +70,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
+            looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries, address(0));
 
             unchecked {
                 currentEntryIndex += pricingOptions[pricingOptionIndex].entriesCount;

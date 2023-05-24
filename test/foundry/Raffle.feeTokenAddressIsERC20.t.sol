@@ -49,7 +49,7 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
 
             vm.startPrank(participant);
             feeToken.approve(address(looksRareRaffle), price);
-            looksRareRaffle.enterRaffles(entries);
+            looksRareRaffle.enterRaffles(entries, address(0));
             vm.stopPrank();
         }
 

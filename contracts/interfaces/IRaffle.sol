@@ -206,8 +206,9 @@ interface IRaffle {
     /**
      * @notice Enters a raffle or multiple raffles.
      * @param entries The entries to be made.
+     * @param recipient The entries' recipient address.
      */
-    function enterRaffles(EntryCalldata[] calldata entries) external payable;
+    function enterRaffles(EntryCalldata[] calldata entries, address recipient) external payable;
 
     /**
      * @notice Select the winners for a raffle based on the random words returned by Chainlink.

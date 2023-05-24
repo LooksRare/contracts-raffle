@@ -163,7 +163,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
+            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries, address(0));
         }
     }
 
@@ -179,7 +179,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0, count: 1});
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: price}(entries);
+            looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         }
     }
 

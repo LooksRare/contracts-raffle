@@ -62,7 +62,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
-        looksRareRaffle.enterRaffles{value: price}(entries);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         _fulfillRandomWords();
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -117,7 +117,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         entries[3] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
-        looksRareRaffle.enterRaffles{value: price}(entries);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         _fulfillRandomWords();
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
