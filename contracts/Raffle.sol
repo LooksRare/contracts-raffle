@@ -406,7 +406,7 @@ contract Raffle is
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
             raffle.claimableFees += price;
 
-            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
+            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price * uint208(entry.count);
 
             emit EntrySold(raffleId, msg.sender, entriesCount, price);
 
