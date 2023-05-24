@@ -190,7 +190,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         minimumEntries = (minimumEntries * 10_500) / 10_000;
 
-        IRaffle.PricingOption[5] memory pricingOptions;
+        IRaffle.PricingOption[] memory pricingOptions = new IRaffle.PricingOption[](5);
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});
         pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.5 ether});
@@ -247,7 +247,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         }
 
         uint256 pricingOptionIndex = seed % 5;
-        IRaffle.PricingOption[5] memory pricingOptions = looksRareRaffle.getPricingOptions(raffleId);
+        IRaffle.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(raffleId);
         uint208 price = pricingOptions[pricingOptionIndex].price;
 
         IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);

@@ -68,7 +68,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         returns (IRaffle.CreateRaffleCalldata memory params)
     {
         IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(erc20, erc721);
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.PricingOption[] memory pricingOptions = _generateStandardPricings();
 
         params = IRaffle.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
@@ -82,7 +82,8 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         });
     }
 
-    function _generateStandardPricings() internal pure returns (IRaffle.PricingOption[5] memory pricingOptions) {
+    function _generateStandardPricings() internal pure returns (IRaffle.PricingOption[] memory pricingOptions) {
+        pricingOptions = new IRaffle.PricingOption[](5);
         pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});
         pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.5 ether});

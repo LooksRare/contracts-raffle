@@ -58,7 +58,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     function testFuzz_selectWinners(uint256 randomWord) public {
         _subscribeRaffleToVRF();
 
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffle.PricingOption[] memory pricingOptions = _generateStandardPricings();
         uint256 userIndex;
         uint256 currentEntryIndex;
         while (currentEntryIndex < 107) {
