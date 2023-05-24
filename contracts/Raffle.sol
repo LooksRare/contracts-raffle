@@ -368,17 +368,12 @@ contract Raffle is
             }
             rafflesParticipantsStats[raffleId][msg.sender].entriesCount = newParticipantEntriesCount;
 
-            uint208 price = pricingOption.price;
+            uint208 price = pricingOption.price * uint208(entry.count);
 
             if (raffle.feeTokenAddress == address(0)) {
-                expectedEthValue += price * uint208(entry.count);
+                expectedEthValue += price;
             } else {
-                _executeERC20TransferFrom(
-                    raffle.feeTokenAddress,
-                    msg.sender,
-                    address(this),
-                    price * uint208(entry.count)
-                );
+                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), price);
             }
 
             uint40 currentEntryIndex;
@@ -400,14 +395,9 @@ contract Raffle is
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: msg.sender}));
             raffle.claimableFees += price;
 
-            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price * uint208(entry.count);
+            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
 
-            emit EntrySold(
-                raffleId,
-                msg.sender,
-                pricingOption.entriesCount * uint40(entry.count),
-                price * uint208(entry.count)
-            );
+            emit EntrySold(raffleId, msg.sender, pricingOption.entriesCount * uint40(entry.count), price);
 
             if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);
