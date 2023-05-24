@@ -73,7 +73,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
 
         assertEq(amountPaid, price);
-        assertEq(entriesCount, 110);
+        assertEq(entriesCount, 120);
         assertFalse(refunded);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawing);
