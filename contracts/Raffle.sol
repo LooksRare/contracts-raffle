@@ -251,13 +251,13 @@ contract Raffle is
             }
         }
 
-        unchecked {
-            raffleId = ++rafflesCount;
-        }
-
         uint256 prizesCount = params.prizes.length;
         if (prizesCount == 0 || prizesCount > MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE) {
             revert InvalidPrizesCount();
+        }
+
+        unchecked {
+            raffleId = ++rafflesCount;
         }
 
         Raffle storage raffle = raffles[raffleId];
