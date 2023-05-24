@@ -75,7 +75,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Call summary:");
         console2.log("-------------------");
         console2.log("Create raffle", calls["createRaffle"]);
-        console2.log("Deposit prizes", calls["depositPrizes"]);
         console2.log("Enter raffles", calls["enterRaffles"]);
         console2.log("Fulfill random words", calls["fulfillRandomWords"]);
         console2.log("Select winners", calls["selectWinners"]);
