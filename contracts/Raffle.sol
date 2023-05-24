@@ -476,12 +476,12 @@ contract Raffle is
         }
 
         uint256 randomWord = randomnessRequest.randomWord;
+        uint256 winningEntry;
 
         for (uint256 i; i < winnersCount; ) {
-            uint256 winningEntry = randomWord % (currentEntryIndex + 1);
-            (winningEntry, winningEntriesBitmap) = _incrementWinningEntryUntilThereIsNotADuplicate(
+            (randomWord, winningEntry, winningEntriesBitmap) = _searchForWinningEntryUntilThereIsNotADuplicate(
+                randomWord,
                 currentEntryIndex,
-                winningEntry,
                 winningEntriesBitmap
             );
 
