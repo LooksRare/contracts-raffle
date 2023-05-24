@@ -230,6 +230,7 @@ contract Raffle is
     function createRaffle(CreateRaffleCalldata calldata params)
         external
         payable
+        nonReentrant
         whenNotPaused
         returns (uint256 raffleId)
     {
