@@ -31,7 +31,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
         emit CurrenciesStatusUpdated(currencies, true);
 
         looksRareRaffle.updateCurrenciesStatus(currencies, true);
-        assertTrue(looksRareRaffle.isCurrencyAllowed(address(1)));
+        assertEq(looksRareRaffle.isCurrencyAllowed(address(1)), 1);
     }
 
     function test_updateCurrenciesStatus_RevertIf_NotOwner() public {

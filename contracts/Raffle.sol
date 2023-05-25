@@ -130,8 +130,9 @@ contract Raffle is
 
     /**
      * @notice It checks whether the currency is allowed.
+     * @dev 0 is not allowed, 1 is allowed.
      */
-    mapping(address => bool) public isCurrencyAllowed;
+    mapping(address => uint256) public isCurrencyAllowed;
 
     /**
      * @notice The maximum number of prizes per raffle.
@@ -195,7 +196,7 @@ contract Raffle is
     /**
      * @notice The maximum number of pricing options per raffle.
      */
-    uint256 public constant MAX_PRICING_OPTIONS_PER_RAFFLE = 5;
+    uint256 public constant MAXIMUM_PRICING_OPTIONS_PER_RAFFLE = 5;
 
     /**
      * @param _weth The WETH address
@@ -353,12 +354,12 @@ contract Raffle is
         for (uint256 i; i < entries.length; ) {
             EntryCalldata calldata entry = entries[i];
 
-            if (entry.pricingOptionIndex >= MAX_PRICING_OPTIONS_PER_RAFFLE) {
-                revert InvalidIndex();
-            }
-
             uint256 raffleId = entry.raffleId;
             Raffle storage raffle = raffles[raffleId];
+
+            if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
+                revert InvalidIndex();
+            }
 
             _validateRaffleStatus(raffle, RaffleStatus.Open);
 
@@ -672,7 +673,7 @@ contract Raffle is
     function updateCurrenciesStatus(address[] calldata currencies, bool isAllowed) external onlyOwner {
         uint256 count = currencies.length;
         for (uint256 i; i < count; ) {
-            isCurrencyAllowed[currencies[i]] = isAllowed;
+            isCurrencyAllowed[currencies[i]] = (isAllowed ? 1 : 0);
             unchecked {
                 ++i;
             }
@@ -744,7 +745,7 @@ contract Raffle is
     function _validateAndSetPricingOptions(uint256 raffleId, PricingOption[] calldata pricingOptions) private {
         uint256 count = pricingOptions.length;
 
-        if (count == 0 || count > MAX_PRICING_OPTIONS_PER_RAFFLE) {
+        if (count == 0 || count > MAXIMUM_PRICING_OPTIONS_PER_RAFFLE) {
             revert InvalidPricingOptionsCount();
         }
 
@@ -850,8 +851,7 @@ contract Raffle is
     function _claimPrizesPerRaffle(ClaimPrizesCalldata calldata claimPrizesCalldata) private {
         uint256 raffleId = claimPrizesCalldata.raffleId;
         Raffle storage raffle = raffles[raffleId];
-        RaffleStatus status = raffle.status;
-        if (status != RaffleStatus.Drawn) {
+        if (raffle.status != RaffleStatus.Drawn) {
             _validateRaffleStatus(raffle, RaffleStatus.Complete);
         }
 
@@ -933,7 +933,7 @@ contract Raffle is
      * @param currency The currency to validate.
      */
     function _validateCurrency(address currency) private view {
-        if (!isCurrencyAllowed[currency]) {
+        if (isCurrencyAllowed[currency] != 1) {
             revert InvalidCurrency();
         }
     }

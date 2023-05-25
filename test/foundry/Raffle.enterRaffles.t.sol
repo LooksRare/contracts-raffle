@@ -177,19 +177,6 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
     }
 
-    function test_enterRaffles_RevertIf_InvalidStatus() public {
-        uint208 price = 0.025 ether;
-        vm.deal(user2, price);
-
-        // Raffle does not exist
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 0, count: 1});
-
-        vm.prank(user2);
-        vm.expectRevert(IRaffle.InvalidStatus.selector);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
-    }
-
     function test_enterRaffles_RevertIf_InvalidStatus_StubAllStatuses() public {
         uint256 raffleId = 1;
         vm.deal(user2, 1 ether);
