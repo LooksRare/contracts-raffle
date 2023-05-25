@@ -850,8 +850,7 @@ contract Raffle is
     function _claimPrizesPerRaffle(ClaimPrizesCalldata calldata claimPrizesCalldata) private {
         uint256 raffleId = claimPrizesCalldata.raffleId;
         Raffle storage raffle = raffles[raffleId];
-        RaffleStatus status = raffle.status;
-        if (status != RaffleStatus.Drawn) {
+        if (raffle.status != RaffleStatus.Drawn) {
             _validateRaffleStatus(raffle, RaffleStatus.Complete);
         }
 
