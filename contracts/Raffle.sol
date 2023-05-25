@@ -464,9 +464,6 @@ contract Raffle is
 
         Entry[] memory entries = raffle.entries;
         uint256 entriesCount = entries.length;
-        uint256 currentEntryIndex = uint256(entries[entriesCount - 1].currentEntryIndex);
-
-        uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
 
         uint256[] memory currentEntryIndexArray = new uint256[](entriesCount);
         for (uint256 i; i < entriesCount; ) {
@@ -475,6 +472,10 @@ contract Raffle is
                 ++i;
             }
         }
+
+        uint256 currentEntryIndex = uint256(currentEntryIndexArray[entriesCount - 1]);
+
+        uint256[] memory winningEntriesBitmap = new uint256[]((currentEntryIndex >> 8) + 1);
 
         uint256[] memory cumulativeWinnersCountArray = new uint256[](prizesCount);
         for (uint256 i; i < prizesCount; ) {
