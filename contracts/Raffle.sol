@@ -130,8 +130,9 @@ contract Raffle is
 
     /**
      * @notice It checks whether the currency is allowed.
+     * @dev 0 is not allowed, 1 is allowed.
      */
-    mapping(address => bool) public isCurrencyAllowed;
+    mapping(address => uint256) public isCurrencyAllowed;
 
     /**
      * @notice The maximum number of prizes per raffle.
@@ -672,7 +673,7 @@ contract Raffle is
     function updateCurrenciesStatus(address[] calldata currencies, bool isAllowed) external onlyOwner {
         uint256 count = currencies.length;
         for (uint256 i; i < count; ) {
-            isCurrencyAllowed[currencies[i]] = isAllowed;
+            isCurrencyAllowed[currencies[i]] = (isAllowed ? 1 : 0);
             unchecked {
                 ++i;
             }
@@ -932,7 +933,7 @@ contract Raffle is
      * @param currency The currency to validate.
      */
     function _validateCurrency(address currency) private view {
-        if (!isCurrencyAllowed[currency]) {
+        if (isCurrencyAllowed[currency] != 1) {
             revert InvalidCurrency();
         }
     }
