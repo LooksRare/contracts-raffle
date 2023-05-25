@@ -304,7 +304,7 @@ contract Raffle is
             revert InvalidWinnersCount();
         }
 
-        _validateAndSetPricingOptions(raffleId, params.pricingOptions);
+        _validateAndSetPricingOptions(raffleId, minimumEntries, params.pricingOptions);
 
         raffle.owner = msg.sender;
         raffle.isMinimumEntriesFixed = params.isMinimumEntriesFixed;
@@ -738,12 +738,18 @@ contract Raffle is
      * @param raffleId The ID of the raffle.
      * @param pricingOptions The pricing options for the raffle.
      */
-    function _validateAndSetPricingOptions(uint256 raffleId, PricingOption[] calldata pricingOptions) private {
+    function _validateAndSetPricingOptions(
+        uint256 raffleId,
+        uint40 minimumEntries,
+        PricingOption[] calldata pricingOptions
+    ) private {
         uint256 count = pricingOptions.length;
 
         if (count == 0 || count > MAXIMUM_PRICING_OPTIONS_PER_RAFFLE) {
             revert InvalidPricingOptionsCount();
         }
+
+        uint40 lowestEntriesCount = pricingOptions[0].entriesCount;
 
         for (uint256 i; i < count; ) {
             PricingOption memory pricingOption = pricingOptions[i];
@@ -752,7 +758,7 @@ contract Raffle is
             uint208 price = pricingOption.price;
 
             if (i == 0) {
-                if (entriesCount != 1 || price == 0) {
+                if (minimumEntries % entriesCount != 0 || price == 0) {
                     revert InvalidPricingOption();
                 }
             } else {
@@ -761,6 +767,7 @@ contract Raffle is
                 uint40 lastEntriesCount = lastPricingOption.entriesCount;
 
                 if (
+                    entriesCount % lowestEntriesCount != 0 ||
                     price % entriesCount != 0 ||
                     entriesCount <= lastEntriesCount ||
                     price <= lastPrice ||
