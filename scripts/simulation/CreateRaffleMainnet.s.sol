@@ -22,22 +22,29 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
         address bayc = 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D;
-        address on1 = 0x3bf2922f4520a8BA0c2eFC3D2a1539678DaD5e9D;
-        address beanz = 0x306b1ea3ecdf94aB739F1910bbda052Ed4A9f949;
+        address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
+        address kubz = 0xEb2dFC54EbaFcA8F50eFcc1e21A9D100b5AEb349;
 
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](16);
+        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](13);
 
         prizes[0].prizeTier = 0;
         prizes[0].prizeType = IRaffle.TokenType.ERC721;
         prizes[0].prizeAddress = bayc;
-        prizes[0].prizeId = 8412;
+        prizes[0].prizeId = 6425;
         prizes[0].prizeAmount = 1;
         prizes[0].winnersCount = 1;
 
-        for (uint256 i = 1; i < 11; ) {
+        prizes[1].prizeTier = 1;
+        prizes[1].prizeType = IRaffle.TokenType.ERC721;
+        prizes[1].prizeAddress = azuki;
+        prizes[1].prizeId = 8766;
+        prizes[1].prizeAmount = 1;
+        prizes[1].winnersCount = 1;
+
+        for (uint256 i = 2; i < 12; ) {
             prizes[i].prizeTier = 1;
             prizes[i].prizeType = IRaffle.TokenType.ERC721;
-            prizes[i].prizeAddress = on1;
+            prizes[i].prizeAddress = kubz;
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
 
@@ -45,33 +52,22 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                 ++i;
             }
         }
-        prizes[1].prizeId = 4878;
-        prizes[2].prizeId = 4910;
-        prizes[3].prizeId = 5023;
-        prizes[4].prizeId = 5556;
-        prizes[5].prizeId = 6381;
-        prizes[6].prizeId = 1801;
-        prizes[7].prizeId = 356;
-        prizes[8].prizeId = 1239;
-        prizes[9].prizeId = 1800;
-        prizes[10].prizeId = 4293;
+        prizes[2].prizeId = 637;
+        prizes[3].prizeId = 8059;
+        prizes[4].prizeId = 8061;
+        prizes[5].prizeId = 8062;
+        prizes[6].prizeId = 8063;
+        prizes[7].prizeId = 8064;
+        prizes[8].prizeId = 183;
+        prizes[9].prizeId = 554;
+        prizes[10].prizeId = 556;
+        prizes[11].prizeId = 6707;
 
-        for (uint256 i = 11; i < 16; ) {
-            prizes[i].prizeTier = 1;
-            prizes[i].prizeType = IRaffle.TokenType.ERC721;
-            prizes[i].prizeAddress = beanz;
-            prizes[i].prizeAmount = 1;
-            prizes[i].winnersCount = 1;
-
-            unchecked {
-                ++i;
-            }
-        }
-        prizes[11].prizeId = 8052;
-        prizes[12].prizeId = 8943;
-        prizes[13].prizeId = 15081;
-        prizes[14].prizeId = 5822;
-        prizes[15].prizeId = 19119;
+        prizes[12].prizeTier = 2;
+        prizes[12].prizeType = IRaffle.TokenType.ERC20;
+        prizes[12].prizeAddress = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
+        prizes[12].prizeAmount = 500e18;
+        prizes[12].winnersCount = 98;
 
         console2.logBytes(
             abi.encodeCall(
@@ -80,7 +76,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                     IRaffle.CreateRaffleCalldata({
                         cutoffTime: uint40(block.timestamp + 50 hours),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 75_000,
+                        minimumEntries: 77_000,
                         maximumEntriesPerParticipant: 15_000,
                         protocolFeeBp: 0,
                         feeTokenAddress: address(0),
