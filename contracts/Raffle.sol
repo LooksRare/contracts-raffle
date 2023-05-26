@@ -362,14 +362,8 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
-            uint40 multiplier = entry.count;
-            if (multiplier == 0) {
-                revert InvalidCount();
-            }
-
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
-
-            uint40 entriesCount = pricingOption.entriesCount * multiplier;
+            (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
 
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
                 entriesCount;
@@ -377,8 +371,6 @@ contract Raffle is
                 revert MaximumEntriesPerParticipantReached();
             }
             rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
-
-            uint208 price = pricingOption.price * uint208(multiplier);
 
             if (raffle.feeTokenAddress == address(0)) {
                 expectedEthValue += price;
@@ -712,14 +704,8 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
-            uint40 multiplier = entry.count;
-            if (multiplier == 0) {
-                revert InvalidCount();
-            }
-
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
-
-            uint40 entriesCount = pricingOption.entriesCount * multiplier;
+            (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
 
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
                 entriesCount;
@@ -727,8 +713,6 @@ contract Raffle is
                 revert MaximumEntriesPerParticipantReached();
             }
             rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
-
-            uint208 price = pricingOption.price * uint208(multiplier);
 
             expectedValue += price;
 
@@ -1096,6 +1080,20 @@ contract Raffle is
     ) private {
         raffle.status = status;
         emit RaffleStatusUpdated(raffleId, status);
+    }
+
+    function _calculateEntriesCountAndPrice(PricingOption memory pricingOption, EntryCalldata calldata entry)
+        private
+        pure
+        returns (uint40 entriesCount, uint208 price)
+    {
+        uint40 multiplier = entry.count;
+        if (multiplier == 0) {
+            revert InvalidCount();
+        }
+
+        entriesCount = pricingOption.entriesCount * multiplier;
+        price = pricingOption.price * multiplier;
     }
 
     function _unsafeAdd(uint256 a, uint256 b) private pure returns (uint256) {
