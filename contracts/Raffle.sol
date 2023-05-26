@@ -147,11 +147,6 @@ contract Raffle is
     uint40 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
 
     /**
-     * @notice A Chainlink node should wait for 3 confirmations before responding.
-     */
-    uint16 public constant REQUEST_CONFIRMATIONS = 3;
-
-    /**
      * @notice The key hash of the Chainlink VRF.
      */
     bytes32 public immutable KEY_HASH;
@@ -893,13 +888,13 @@ contract Raffle is
         _setRaffleStatus(raffle, raffleId, RaffleStatus.Drawing);
         raffle.drawnAt = uint40(block.timestamp);
 
-        uint256 requestId = VRF_COORDINATOR.requestRandomWords(
-            KEY_HASH,
-            SUBSCRIPTION_ID,
-            REQUEST_CONFIRMATIONS,
-            uint32(500_000),
-            uint32(1)
-        );
+        uint256 requestId = VRF_COORDINATOR.requestRandomWords({
+            keyHash: KEY_HASH,
+            subId: SUBSCRIPTION_ID,
+            minimumRequestConfirmations: uint16(3),
+            callbackGasLimit: uint32(500_000),
+            numWords: uint32(1)
+        });
 
         if (randomnessRequests[requestId].exists) {
             revert RandomnessRequestAlreadyExists();
