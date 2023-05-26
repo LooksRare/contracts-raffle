@@ -316,13 +316,11 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
-    function testFuzz_createRaffle_RevertIf_FirstPricingOptionEntriesCountIsNotOne(uint40 entriesCount)
-        public
-        asPrankedUser(user1)
-    {
-        vm.assume(entriesCount != 1);
-
+    function testFuzz_createRaffle_RevertIf_MinimumEntriesIsNotDivisibleByFirstPricingOptionEntriesCount(
+        uint40 entriesCount
+    ) public asPrankedUser(user1) {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        vm.assume(entriesCount != 0 && params.minimumEntries % entriesCount != 0);
         params.pricingOptions[0].entriesCount = entriesCount;
 
         vm.expectRevert(IRaffle.InvalidPricingOption.selector);
@@ -337,7 +335,26 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
-    function test_createRaffle_RevertIf_PricingEntriesCountIsNotGreaterThanLastPricing() public asPrankedUser(user1) {
+    function testFuzz_createRaffle_RevertIf_PricingOptionEntriesCountIsNotDivisibleByFirstPricingOptionEntriesCount(
+        uint8 entriesCount
+    ) public asPrankedUser(user1) {
+        for (uint256 index = 1; index <= 4; index++) {
+            IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(
+                address(mockERC20),
+                address(mockERC721)
+            );
+            params.pricingOptions[0].entriesCount = 10;
+            vm.assume(uint40(entriesCount) % 10 != 0);
+            params.pricingOptions[index].entriesCount = uint40(entriesCount);
+            vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+            looksRareRaffle.createRaffle(params);
+        }
+    }
+
+    function test_createRaffle_RevertIf_PricingOptionEntriesCountIsNotGreaterThanLastPricing()
+        public
+        asPrankedUser(user1)
+    {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // params.pricingOptions[1].entriesCount == 10
         params.pricingOptions[2].entriesCount = 9;
