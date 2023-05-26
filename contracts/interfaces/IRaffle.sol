@@ -250,6 +250,18 @@ interface IRaffle {
     function withdrawPrizes(uint256 raffleId) external;
 
     /**
+     * @notice Rollover entries from cancelled raffles to open raffles.
+     * @param refundableRaffleIds The ids of the refundable raffles.
+     * @param entries The entries to be made.
+     * @param recipient The entries' recipient address.
+     */
+    function rollover(
+        uint256[] calldata refundableRaffleIds,
+        EntryCalldata[] calldata entries,
+        address recipient
+    ) external payable;
+
+    /**
      * @notice Claims the refund for a cancelled raffle.
      * @param raffleIds The ids of the raffles.
      */

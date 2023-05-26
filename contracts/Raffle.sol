@@ -646,6 +646,138 @@ contract Raffle is
 
     /**
      * @inheritdoc IRaffle
+     * @notice The fee token address for all the raffles involved must be the same.
+     * @dev Refundable and Cancelled are the only statuses that allow refunds.
+     */
+    function rollover(
+        uint256[] calldata refundableRaffleIds,
+        EntryCalldata[] calldata entries,
+        address recipient
+    ) external payable {
+        uint256 count = refundableRaffleIds.length;
+        address feeTokenAddress;
+        uint208 rolloverAmount;
+
+        for (uint256 i; i < count; ) {
+            uint256 raffleId = refundableRaffleIds[i];
+            Raffle storage raffle = raffles[raffleId];
+
+            if (raffle.status < RaffleStatus.Refundable) {
+                revert InvalidStatus();
+            }
+
+            ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
+            uint208 amountPaid = stats.amountPaid;
+
+            if (stats.refunded || amountPaid == 0) {
+                revert NothingToClaim();
+            }
+
+            if (i == 0) {
+                feeTokenAddress = raffle.feeTokenAddress;
+            } else if (feeTokenAddress != raffle.feeTokenAddress) {
+                revert InvalidCurrency();
+            }
+
+            stats.refunded = true;
+            rolloverAmount += amountPaid;
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        if (recipient == address(0)) {
+            recipient = msg.sender;
+        }
+
+        uint208 expectedValue;
+        for (uint256 i; i < entries.length; ) {
+            EntryCalldata calldata entry = entries[i];
+
+            uint256 raffleId = entry.raffleId;
+            Raffle storage raffle = raffles[raffleId];
+
+            if (raffle.feeTokenAddress != feeTokenAddress) {
+                revert InvalidCurrency();
+            }
+
+            if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
+                revert InvalidIndex();
+            }
+
+            _validateRaffleStatus(raffle, RaffleStatus.Open);
+
+            if (block.timestamp >= raffle.cutoffTime) {
+                revert CutoffTimeReached();
+            }
+
+            uint40 multiplier = entry.count;
+            if (multiplier == 0) {
+                revert InvalidCount();
+            }
+
+            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
+
+            uint40 entriesCount = pricingOption.entriesCount * multiplier;
+
+            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
+                entriesCount;
+            if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
+                revert MaximumEntriesPerParticipantReached();
+            }
+            rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
+
+            uint208 price = pricingOption.price * uint208(multiplier);
+
+            expectedValue += price;
+
+            uint40 currentEntryIndex;
+            uint256 raffleEntriesCount = raffle.entries.length;
+            if (raffleEntriesCount == 0) {
+                currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
+            } else {
+                currentEntryIndex =
+                    raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex +
+                    entriesCount;
+            }
+
+            if (raffle.isMinimumEntriesFixed) {
+                if (currentEntryIndex >= raffle.minimumEntries) {
+                    revert MaximumEntriesReached();
+                }
+            }
+
+            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
+            raffle.claimableFees += price;
+
+            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
+
+            emit EntrySold(raffleId, recipient, entriesCount, price);
+
+            if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
+                _drawWinners(raffleId, raffle);
+            }
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        if (rolloverAmount > expectedValue) {
+            _transferFungibleTokens(feeTokenAddress, msg.sender, rolloverAmount - expectedValue);
+        } else {
+            uint256 owedAmount = expectedValue - rolloverAmount;
+            if (feeTokenAddress == address(0)) {
+                _validateExpectedEthValueOrRefund(owedAmount);
+            } else {
+                _executeERC20TransferFrom(feeTokenAddress, msg.sender, address(this), owedAmount);
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc IRaffle
      */
     function setProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {
         _setProtocolFeeRecipient(_protocolFeeRecipient);
