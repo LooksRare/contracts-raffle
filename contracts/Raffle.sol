@@ -356,11 +356,7 @@ contract Raffle is
                 revert InvalidIndex();
             }
 
-            _validateRaffleStatus(raffle, RaffleStatus.Open);
-
-            if (block.timestamp >= raffle.cutoffTime) {
-                revert CutoffTimeReached();
-            }
+            _validateRaffleIsOpenForEntering(raffle);
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
             (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
@@ -677,11 +673,7 @@ contract Raffle is
                 revert InvalidIndex();
             }
 
-            _validateRaffleStatus(raffle, RaffleStatus.Open);
-
-            if (block.timestamp >= raffle.cutoffTime) {
-                revert CutoffTimeReached();
-            }
+            _validateRaffleIsOpenForEntering(raffle);
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
             (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
@@ -1057,6 +1049,14 @@ contract Raffle is
     /**
      * Enter raffles related private functions.
      */
+
+    function _validateRaffleIsOpenForEntering(Raffle storage raffle) private view {
+        _validateRaffleStatus(raffle, RaffleStatus.Open);
+
+        if (block.timestamp >= raffle.cutoffTime) {
+            revert CutoffTimeReached();
+        }
+    }
 
     function _incrementParticipantEntriesCount(
         uint256 raffleId,
