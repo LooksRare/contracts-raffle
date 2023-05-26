@@ -627,14 +627,9 @@ contract Raffle is
             }
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
-
-            if (stats.refunded) {
-                revert NothingToClaim();
-            }
-
             uint208 amountPaid = stats.amountPaid;
 
-            if (amountPaid == 0) {
+            if (stats.refunded || amountPaid == 0) {
                 revert NothingToClaim();
             }
 
