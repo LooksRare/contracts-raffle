@@ -365,12 +365,7 @@ contract Raffle is
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
             (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
 
-            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
-                entriesCount;
-            if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
-                revert MaximumEntriesPerParticipantReached();
-            }
-            rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
+            _incrementParticipantEntriesCount(raffleId, recipient, entriesCount, raffle.maximumEntriesPerParticipant);
 
             if (raffle.feeTokenAddress == address(0)) {
                 expectedEthValue += price;
@@ -378,21 +373,7 @@ contract Raffle is
                 _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), price);
             }
 
-            uint40 currentEntryIndex;
-            uint256 raffleEntriesCount = raffle.entries.length;
-            if (raffleEntriesCount == 0) {
-                currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
-            } else {
-                currentEntryIndex =
-                    raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex +
-                    entriesCount;
-            }
-
-            if (raffle.isMinimumEntriesFixed) {
-                if (currentEntryIndex >= raffle.minimumEntries) {
-                    revert MaximumEntriesReached();
-                }
-            }
+            uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
 
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
             raffle.claimableFees += price;
@@ -707,30 +688,11 @@ contract Raffle is
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
             (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
 
-            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
-                entriesCount;
-            if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
-                revert MaximumEntriesPerParticipantReached();
-            }
-            rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
+            _incrementParticipantEntriesCount(raffleId, recipient, entriesCount, raffle.maximumEntriesPerParticipant);
 
             expectedValue += price;
 
-            uint40 currentEntryIndex;
-            uint256 raffleEntriesCount = raffle.entries.length;
-            if (raffleEntriesCount == 0) {
-                currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
-            } else {
-                currentEntryIndex =
-                    raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex +
-                    entriesCount;
-            }
-
-            if (raffle.isMinimumEntriesFixed) {
-                if (currentEntryIndex >= raffle.minimumEntries) {
-                    revert MaximumEntriesReached();
-                }
-            }
+            uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
 
             raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
             raffle.claimableFees += price;
@@ -1094,6 +1056,38 @@ contract Raffle is
 
         entriesCount = pricingOption.entriesCount * multiplier;
         price = pricingOption.price * multiplier;
+    }
+
+    function _incrementParticipantEntriesCount(
+        uint256 raffleId,
+        address recipient,
+        uint40 entriesCount,
+        uint40 maximumEntriesPerParticipant
+    ) private {
+        uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount + entriesCount;
+        if (newParticipantEntriesCount > maximumEntriesPerParticipant) {
+            revert MaximumEntriesPerParticipantReached();
+        }
+        rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
+    }
+
+    function _getUpdatedCurrentEntryIndex(Raffle storage raffle, uint40 entriesCount)
+        private
+        view
+        returns (uint40 currentEntryIndex)
+    {
+        uint256 raffleEntriesCount = raffle.entries.length;
+        if (raffleEntriesCount == 0) {
+            currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
+        } else {
+            currentEntryIndex = raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex + entriesCount;
+        }
+
+        if (raffle.isMinimumEntriesFixed) {
+            if (currentEntryIndex >= raffle.minimumEntries) {
+                revert MaximumEntriesReached();
+            }
+        }
     }
 
     function _unsafeAdd(uint256 a, uint256 b) private pure returns (uint256) {
