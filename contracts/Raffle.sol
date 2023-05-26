@@ -382,9 +382,7 @@ contract Raffle is
 
             emit EntrySold(raffleId, recipient, entriesCount, price);
 
-            if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
-                _drawWinners(raffleId, raffle);
-            }
+            _drawWinnersIfMinimumEntriesReached(raffle, raffleId, currentEntryIndex);
 
             unchecked {
                 ++i;
@@ -701,9 +699,7 @@ contract Raffle is
 
             emit EntrySold(raffleId, recipient, entriesCount, price);
 
-            if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
-                _drawWinners(raffleId, raffle);
-            }
+            _drawWinnersIfMinimumEntriesReached(raffle, raffleId, currentEntryIndex);
 
             unchecked {
                 ++i;
@@ -1058,6 +1054,10 @@ contract Raffle is
         price = pricingOption.price * multiplier;
     }
 
+    /**
+     * Enter raffles related private functions.
+     */
+
     function _incrementParticipantEntriesCount(
         uint256 raffleId,
         address recipient,
@@ -1089,6 +1089,20 @@ contract Raffle is
             }
         }
     }
+
+    function _drawWinnersIfMinimumEntriesReached(
+        Raffle storage raffle,
+        uint256 raffleId,
+        uint40 currentEntryIndex
+    ) private {
+        if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
+            _drawWinners(raffleId, raffle);
+        }
+    }
+
+    /**
+     * Unsafe math functions.
+     */
 
     function _unsafeAdd(uint256 a, uint256 b) private pure returns (uint256) {
         unchecked {
