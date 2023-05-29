@@ -589,9 +589,7 @@ contract Raffle is
             uint256 raffleId = raffleIds[i];
             Raffle storage raffle = raffles[raffleId];
 
-            if (raffle.status < RaffleStatus.Refundable) {
-                revert InvalidStatus();
-            }
+            _validateRaffleStatusRefundable(raffle);
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
             uint208 amountPaid = stats.amountPaid;
@@ -629,9 +627,7 @@ contract Raffle is
             uint256 raffleId = refundableRaffleIds[i];
             Raffle storage raffle = raffles[raffleId];
 
-            if (raffle.status < RaffleStatus.Refundable) {
-                revert InvalidStatus();
-            }
+            _validateRaffleStatusRefundable(raffle);
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
             uint208 amountPaid = stats.amountPaid;
@@ -980,6 +976,12 @@ contract Raffle is
      */
     function _validateRaffleStatus(Raffle storage raffle, RaffleStatus status) private view {
         if (raffle.status != status) {
+            revert InvalidStatus();
+        }
+    }
+
+    function _validateRaffleStatusRefundable(Raffle storage raffle) private view {
+        if (raffle.status < RaffleStatus.Refundable) {
             revert InvalidStatus();
         }
     }
