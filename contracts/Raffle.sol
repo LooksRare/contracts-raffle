@@ -341,10 +341,6 @@ contract Raffle is
         nonReentrant
         whenNotPaused
     {
-        if (recipient == address(0)) {
-            recipient = msg.sender;
-        }
-
         (address feeTokenAddress, uint208 expectedValue) = _enterRaffles(entries, recipient);
         _chargeUser(feeTokenAddress, expectedValue);
     }
@@ -559,11 +555,6 @@ contract Raffle is
         address recipient
     ) external payable {
         (address refundFeeTokenAddress, uint208 rolloverAmount) = _claimRefund(refundableRaffleIds);
-
-        if (recipient == address(0)) {
-            recipient = msg.sender;
-        }
-
         (address enterRafflesFeeTokenAddress, uint208 expectedValue) = _enterRaffles(entries, recipient);
 
         if (refundFeeTokenAddress != enterRafflesFeeTokenAddress) {
@@ -861,6 +852,10 @@ contract Raffle is
         private
         returns (address feeTokenAddress, uint208 expectedValue)
     {
+        if (recipient == address(0)) {
+            recipient = msg.sender;
+        }
+
         for (uint256 i; i < entries.length; ) {
             EntryCalldata calldata entry = entries[i];
 
