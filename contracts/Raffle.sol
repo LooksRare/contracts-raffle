@@ -260,7 +260,8 @@ contract Raffle is
         uint8 currentPrizeTier;
         for (uint256 i; i < prizesCount; ) {
             Prize memory prize = params.prizes[i];
-            if (prize.prizeTier < currentPrizeTier) {
+            uint8 prizeTier = prize.prizeTier;
+            if (prizeTier < currentPrizeTier) {
                 revert InvalidPrize();
             }
             _validatePrize(prize);
@@ -290,7 +291,7 @@ contract Raffle is
 
             cumulativeWinnersCount += winnersCount;
             prize.cumulativeWinnersCount = cumulativeWinnersCount;
-            currentPrizeTier = prize.prizeTier;
+            currentPrizeTier = prizeTier;
             raffle.prizes.push(prize);
 
             unchecked {
