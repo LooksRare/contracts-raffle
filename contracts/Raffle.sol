@@ -345,44 +345,8 @@ contract Raffle is
             recipient = msg.sender;
         }
 
-        uint208 expectedEthValue;
-        for (uint256 i; i < entries.length; ) {
-            EntryCalldata calldata entry = entries[i];
-
-            uint256 raffleId = entry.raffleId;
-            Raffle storage raffle = raffles[raffleId];
-
-            _validateEntryPricingOptionIndex(entry, raffle);
-            _validateRaffleIsOpenForEntering(raffle);
-
-            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
-            (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
-
-            _incrementParticipantEntriesCount(raffleId, recipient, entriesCount, raffle.maximumEntriesPerParticipant);
-
-            if (raffle.feeTokenAddress == address(0)) {
-                expectedEthValue += price;
-            } else {
-                _executeERC20TransferFrom(raffle.feeTokenAddress, msg.sender, address(this), price);
-            }
-
-            uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
-
-            _pushEntry(raffle, currentEntryIndex, recipient);
-            raffle.claimableFees += price;
-
-            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
-
-            emit EntrySold(raffleId, recipient, entriesCount, price);
-
-            _drawWinnersIfMinimumEntriesReached(raffle, raffleId, currentEntryIndex);
-
-            unchecked {
-                ++i;
-            }
-        }
-
-        _validateExpectedEthValueOrRefund(expectedEthValue);
+        (address feeTokenAddress, uint208 expectedValue) = _enterRaffles(entries, recipient);
+        _chargeUser(feeTokenAddress, expectedValue);
     }
 
     /**
@@ -594,58 +558,22 @@ contract Raffle is
         EntryCalldata[] calldata entries,
         address recipient
     ) external payable {
-        (address feeTokenAddress, uint208 rolloverAmount) = _claimRefund(refundableRaffleIds);
+        (address refundFeeTokenAddress, uint208 rolloverAmount) = _claimRefund(refundableRaffleIds);
 
         if (recipient == address(0)) {
             recipient = msg.sender;
         }
 
-        uint208 expectedValue;
-        for (uint256 i; i < entries.length; ) {
-            EntryCalldata calldata entry = entries[i];
+        (address enterRafflesFeeTokenAddress, uint208 expectedValue) = _enterRaffles(entries, recipient);
 
-            uint256 raffleId = entry.raffleId;
-            Raffle storage raffle = raffles[raffleId];
-
-            if (raffle.feeTokenAddress != feeTokenAddress) {
-                revert InvalidCurrency();
-            }
-
-            _validateEntryPricingOptionIndex(entry, raffle);
-            _validateRaffleIsOpenForEntering(raffle);
-
-            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
-            (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
-
-            _incrementParticipantEntriesCount(raffleId, recipient, entriesCount, raffle.maximumEntriesPerParticipant);
-
-            expectedValue += price;
-
-            uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
-
-            _pushEntry(raffle, currentEntryIndex, recipient);
-            raffle.claimableFees += price;
-
-            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
-
-            emit EntrySold(raffleId, recipient, entriesCount, price);
-
-            _drawWinnersIfMinimumEntriesReached(raffle, raffleId, currentEntryIndex);
-
-            unchecked {
-                ++i;
-            }
+        if (refundFeeTokenAddress != enterRafflesFeeTokenAddress) {
+            revert InvalidCurrency();
         }
 
         if (rolloverAmount > expectedValue) {
-            _transferFungibleTokens(feeTokenAddress, msg.sender, rolloverAmount - expectedValue);
-        } else {
-            uint256 owedAmount = expectedValue - rolloverAmount;
-            if (feeTokenAddress == address(0)) {
-                _validateExpectedEthValueOrRefund(owedAmount);
-            } else {
-                _executeERC20TransferFrom(feeTokenAddress, msg.sender, address(this), owedAmount);
-            }
+            _transferFungibleTokens(refundFeeTokenAddress, msg.sender, rolloverAmount - expectedValue);
+        } else if (rolloverAmount < expectedValue) {
+            _chargeUser(refundFeeTokenAddress, expectedValue - rolloverAmount);
         }
     }
 
@@ -926,6 +854,57 @@ contract Raffle is
     function _validateEntryPricingOptionIndex(EntryCalldata calldata entry, Raffle storage raffle) private view {
         if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
             revert InvalidIndex();
+        }
+    }
+
+    function _enterRaffles(EntryCalldata[] calldata entries, address recipient)
+        private
+        returns (address feeTokenAddress, uint208 expectedValue)
+    {
+        for (uint256 i; i < entries.length; ) {
+            EntryCalldata calldata entry = entries[i];
+
+            uint256 raffleId = entry.raffleId;
+            Raffle storage raffle = raffles[raffleId];
+
+            if (i == 0) {
+                feeTokenAddress = raffle.feeTokenAddress;
+            } else if (raffle.feeTokenAddress != feeTokenAddress) {
+                revert InvalidCurrency();
+            }
+
+            _validateEntryPricingOptionIndex(entry, raffle);
+            _validateRaffleIsOpenForEntering(raffle);
+
+            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
+            (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
+
+            _incrementParticipantEntriesCount(raffleId, recipient, entriesCount, raffle.maximumEntriesPerParticipant);
+
+            expectedValue += price;
+
+            uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
+
+            _pushEntry(raffle, currentEntryIndex, recipient);
+            raffle.claimableFees += price;
+
+            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
+
+            emit EntrySold(raffleId, recipient, entriesCount, price);
+
+            _drawWinnersIfMinimumEntriesReached(raffle, raffleId, currentEntryIndex);
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function _chargeUser(address feeTokenAddress, uint208 expectedValue) private {
+        if (feeTokenAddress == address(0)) {
+            _validateExpectedEthValueOrRefund(expectedValue);
+        } else {
+            _executeERC20TransferFrom(feeTokenAddress, msg.sender, address(this), expectedValue);
         }
     }
 
