@@ -881,7 +881,21 @@ contract Raffle is
 
             expectedValue += price;
 
-            uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
+            uint256 raffleEntriesCount = raffle.entries.length;
+            uint40 currentEntryIndex;
+            if (raffleEntriesCount == 0) {
+                currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
+            } else {
+                currentEntryIndex =
+                    raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex +
+                    entriesCount;
+            }
+
+            if (raffle.isMinimumEntriesFixed) {
+                if (currentEntryIndex >= raffle.minimumEntries) {
+                    revert MaximumEntriesReached();
+                }
+            }
 
             _pushEntry(raffle, currentEntryIndex, recipient);
             raffle.claimableFees += price;
@@ -1023,25 +1037,6 @@ contract Raffle is
             revert MaximumEntriesPerParticipantReached();
         }
         rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
-    }
-
-    function _getUpdatedCurrentEntryIndex(Raffle storage raffle, uint40 entriesCount)
-        private
-        view
-        returns (uint40 currentEntryIndex)
-    {
-        uint256 raffleEntriesCount = raffle.entries.length;
-        if (raffleEntriesCount == 0) {
-            currentEntryIndex = uint40(_unsafeSubtract(entriesCount, 1));
-        } else {
-            currentEntryIndex = raffle.entries[_unsafeSubtract(raffleEntriesCount, 1)].currentEntryIndex + entriesCount;
-        }
-
-        if (raffle.isMinimumEntriesFixed) {
-            if (currentEntryIndex >= raffle.minimumEntries) {
-                revert MaximumEntriesReached();
-            }
-        }
     }
 
     function _pushEntry(
