@@ -877,8 +877,7 @@ contract Raffle is
             }
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
-            // TODO: Stack too deep
-            // uint40 multiplier = entry.count;
+
             if (entry.count == 0) {
                 revert InvalidCount();
             }
