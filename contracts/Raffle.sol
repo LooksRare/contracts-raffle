@@ -856,7 +856,9 @@ contract Raffle is
             recipient = msg.sender;
         }
 
-        for (uint256 i; i < entries.length; ) {
+        uint256 count = entries.length;
+
+        for (uint256 i; i < count; ) {
             EntryCalldata calldata entry = entries[i];
 
             uint256 raffleId = entry.raffleId;
