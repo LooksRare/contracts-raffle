@@ -867,7 +867,12 @@ contract Raffle is
             if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
                 revert InvalidIndex();
             }
-            _validateRaffleIsOpenForEntering(raffle);
+
+            _validateRaffleStatus(raffle, RaffleStatus.Open);
+
+            if (block.timestamp >= raffle.cutoffTime) {
+                revert CutoffTimeReached();
+            }
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
             (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
@@ -1004,14 +1009,6 @@ contract Raffle is
     /**
      * Enter raffles related private functions.
      */
-
-    function _validateRaffleIsOpenForEntering(Raffle storage raffle) private view {
-        _validateRaffleStatus(raffle, RaffleStatus.Open);
-
-        if (block.timestamp >= raffle.cutoffTime) {
-            revert CutoffTimeReached();
-        }
-    }
 
     function _incrementParticipantEntriesCount(
         uint256 raffleId,
