@@ -890,7 +890,9 @@ contract Raffle is
 
             emit EntrySold(raffleId, recipient, entriesCount, price);
 
-            _drawWinnersIfMinimumEntriesReached(raffle, raffleId, currentEntryIndex);
+            if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
+                _drawWinners(raffleId, raffle);
+            }
 
             unchecked {
                 ++i;
@@ -1039,16 +1041,6 @@ contract Raffle is
             if (currentEntryIndex >= raffle.minimumEntries) {
                 revert MaximumEntriesReached();
             }
-        }
-    }
-
-    function _drawWinnersIfMinimumEntriesReached(
-        Raffle storage raffle,
-        uint256 raffleId,
-        uint40 currentEntryIndex
-    ) private {
-        if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
-            _drawWinners(raffleId, raffle);
         }
     }
 
