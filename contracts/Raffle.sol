@@ -710,12 +710,13 @@ contract Raffle is
      * @param prize The prize.
      */
     function _validatePrize(Prize memory prize) private view {
-        if (prize.prizeType == TokenType.ERC721) {
+        TokenType prizeType = prize.prizeType;
+        if (prizeType == TokenType.ERC721) {
             if (prize.prizeAmount != 1 || prize.winnersCount != 1) {
                 revert InvalidPrize();
             }
         } else {
-            if (prize.prizeType == TokenType.ERC20) {
+            if (prizeType == TokenType.ERC20) {
                 _validateCurrency(prize.prizeAddress);
             }
 
