@@ -368,7 +368,7 @@ contract Raffle is
 
             uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
 
-            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
+            _pushEntry(raffle, currentEntryIndex, recipient);
             raffle.claimableFees += price;
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
@@ -674,7 +674,7 @@ contract Raffle is
 
             uint40 currentEntryIndex = _getUpdatedCurrentEntryIndex(raffle, entriesCount);
 
-            raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
+            _pushEntry(raffle, currentEntryIndex, recipient);
             raffle.claimableFees += price;
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
@@ -1100,6 +1100,14 @@ contract Raffle is
         if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
             _drawWinners(raffleId, raffle);
         }
+    }
+
+    function _pushEntry(
+        Raffle storage raffle,
+        uint40 currentEntryIndex,
+        address recipient
+    ) private {
+        raffle.entries.push(Entry({currentEntryIndex: currentEntryIndex, participant: recipient}));
     }
 
     /**
