@@ -566,7 +566,7 @@ contract Raffle is
         if (rolloverAmount > expectedValue) {
             _transferFungibleTokens(refundFeeTokenAddress, msg.sender, rolloverAmount - expectedValue);
         } else if (rolloverAmount < expectedValue) {
-            _chargeUser(refundFeeTokenAddress, expectedValue - rolloverAmount);
+            _chargeUser(refundFeeTokenAddress, _unsafeSubtract(expectedValue, rolloverAmount));
         }
     }
 
@@ -933,7 +933,7 @@ contract Raffle is
      * @param feeTokenAddress The address of the token to charge the fee in.
      * @param expectedValue The expected value of the fee.
      */
-    function _chargeUser(address feeTokenAddress, uint208 expectedValue) private {
+    function _chargeUser(address feeTokenAddress, uint256 expectedValue) private {
         if (feeTokenAddress == address(0)) {
             _validateExpectedEthValueOrRefund(expectedValue);
         } else {
