@@ -352,10 +352,7 @@ contract Raffle is
             uint256 raffleId = entry.raffleId;
             Raffle storage raffle = raffles[raffleId];
 
-            if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
-                revert InvalidIndex();
-            }
-
+            _validateEntryPricingOptionIndex(entry, raffle);
             _validateRaffleIsOpenForEntering(raffle);
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
@@ -665,10 +662,7 @@ contract Raffle is
                 revert InvalidCurrency();
             }
 
-            if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
-                revert InvalidIndex();
-            }
-
+            _validateEntryPricingOptionIndex(entry, raffle);
             _validateRaffleIsOpenForEntering(raffle);
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
@@ -983,6 +977,12 @@ contract Raffle is
     function _validateRaffleStatusRefundable(Raffle storage raffle) private view {
         if (raffle.status < RaffleStatus.Refundable) {
             revert InvalidStatus();
+        }
+    }
+
+    function _validateEntryPricingOptionIndex(EntryCalldata calldata entry, Raffle storage raffle) private view {
+        if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
+            revert InvalidIndex();
         }
     }
 
