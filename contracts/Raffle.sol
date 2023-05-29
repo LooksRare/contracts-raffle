@@ -842,12 +842,6 @@ contract Raffle is
         }
     }
 
-    function _validateEntryPricingOptionIndex(EntryCalldata calldata entry, Raffle storage raffle) private view {
-        if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
-            revert InvalidIndex();
-        }
-    }
-
     function _enterRaffles(EntryCalldata[] calldata entries, address recipient)
         private
         returns (address feeTokenAddress, uint208 expectedValue)
@@ -870,7 +864,9 @@ contract Raffle is
                 revert InvalidCurrency();
             }
 
-            _validateEntryPricingOptionIndex(entry, raffle);
+            if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
+                revert InvalidIndex();
+            }
             _validateRaffleIsOpenForEntering(raffle);
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
