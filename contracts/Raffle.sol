@@ -850,9 +850,7 @@ contract Raffle is
             recipient = msg.sender;
         }
 
-        uint256 count = entries.length;
-
-        for (uint256 i; i < count; ) {
+        for (uint256 i; i < entries.length; ) {
             EntryCalldata calldata entry = entries[i];
 
             uint256 raffleId = entry.raffleId;
@@ -877,7 +875,12 @@ contract Raffle is
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
             (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
 
-            _incrementParticipantEntriesCount(raffleId, recipient, entriesCount, raffle.maximumEntriesPerParticipant);
+            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
+                entriesCount;
+            if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
+                revert MaximumEntriesPerParticipantReached();
+            }
+            rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
 
             expectedValue += price;
 
@@ -1025,19 +1028,6 @@ contract Raffle is
     /**
      * Enter raffles related private functions.
      */
-
-    function _incrementParticipantEntriesCount(
-        uint256 raffleId,
-        address recipient,
-        uint40 entriesCount,
-        uint40 maximumEntriesPerParticipant
-    ) private {
-        uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount + entriesCount;
-        if (newParticipantEntriesCount > maximumEntriesPerParticipant) {
-            revert MaximumEntriesPerParticipantReached();
-        }
-        rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
-    }
 
     function _pushEntry(
         Raffle storage raffle,
