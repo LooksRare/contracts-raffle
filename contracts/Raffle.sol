@@ -873,7 +873,14 @@ contract Raffle is
             }
 
             PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
-            (uint40 entriesCount, uint208 price) = _calculateEntriesCountAndPrice(pricingOption, entry);
+            // TODO: Stack too deep
+            // uint40 multiplier = entry.count;
+            if (entry.count == 0) {
+                revert InvalidCount();
+            }
+
+            uint40 entriesCount = pricingOption.entriesCount * entry.count;
+            uint208 price = pricingOption.price * entry.count;
 
             uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
                 entriesCount;
@@ -1009,20 +1016,6 @@ contract Raffle is
     ) private {
         raffle.status = status;
         emit RaffleStatusUpdated(raffleId, status);
-    }
-
-    function _calculateEntriesCountAndPrice(PricingOption memory pricingOption, EntryCalldata calldata entry)
-        private
-        pure
-        returns (uint40 entriesCount, uint208 price)
-    {
-        uint40 multiplier = entry.count;
-        if (multiplier == 0) {
-            revert InvalidCount();
-        }
-
-        entriesCount = pricingOption.entriesCount * multiplier;
-        price = pricingOption.price * multiplier;
     }
 
     /**
