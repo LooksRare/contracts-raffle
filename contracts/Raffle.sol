@@ -564,7 +564,7 @@ contract Raffle is
         }
 
         if (rolloverAmount > expectedValue) {
-            _transferFungibleTokens(refundFeeTokenAddress, msg.sender, rolloverAmount - expectedValue);
+            _transferFungibleTokens(refundFeeTokenAddress, msg.sender, _unsafeSubtract(rolloverAmount, expectedValue));
         } else if (rolloverAmount < expectedValue) {
             _chargeUser(refundFeeTokenAddress, _unsafeSubtract(expectedValue, rolloverAmount));
         }
