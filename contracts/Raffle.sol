@@ -266,6 +266,7 @@ contract Raffle is
             _validatePrize(prize);
 
             TokenType prizeType = prize.prizeType;
+            uint40 winnersCount = prize.winnersCount;
             if (prizeType == TokenType.ERC721) {
                 _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
             } else if (prizeType == TokenType.ERC20) {
@@ -273,21 +274,21 @@ contract Raffle is
                     prize.prizeAddress,
                     msg.sender,
                     address(this),
-                    prize.prizeAmount * prize.winnersCount
+                    prize.prizeAmount * winnersCount
                 );
             } else if (prizeType == TokenType.ETH) {
-                expectedEthValue += (prize.prizeAmount * prize.winnersCount);
+                expectedEthValue += (prize.prizeAmount * winnersCount);
             } else {
                 _executeERC1155SafeTransferFrom(
                     prize.prizeAddress,
                     msg.sender,
                     address(this),
                     prize.prizeId,
-                    prize.prizeAmount * prize.winnersCount
+                    prize.prizeAmount * winnersCount
                 );
             }
 
-            cumulativeWinnersCount += prize.winnersCount;
+            cumulativeWinnersCount += winnersCount;
             prize.cumulativeWinnersCount = cumulativeWinnersCount;
             currentPrizeTier = prize.prizeTier;
             raffle.prizes.push(prize);
