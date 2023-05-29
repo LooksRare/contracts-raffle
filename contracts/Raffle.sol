@@ -798,8 +798,7 @@ contract Raffle is
             _validateCaller(winner.participant);
             winner.claimed = true;
 
-            Prize storage prize = raffle.prizes[winner.prizeIndex];
-            _transferPrize({prize: prize, recipient: msg.sender, multiplier: 1});
+            _transferPrize({prize: raffle.prizes[winner.prizeIndex], recipient: msg.sender, multiplier: 1});
 
             unchecked {
                 ++i;
