@@ -589,11 +589,7 @@ contract Raffle is
             _validateRaffleStatusRefundable(raffle);
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
-            uint208 amountPaid = stats.amountPaid;
-
-            if (stats.refunded || amountPaid == 0) {
-                revert NothingToClaim();
-            }
+            uint208 amountPaid = _validateThereIsSomethingToRefundAndReturnAmountPaid(stats);
 
             stats.refunded = true;
             _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
@@ -627,11 +623,7 @@ contract Raffle is
             _validateRaffleStatusRefundable(raffle);
 
             ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
-            uint208 amountPaid = stats.amountPaid;
-
-            if (stats.refunded || amountPaid == 0) {
-                revert NothingToClaim();
-            }
+            uint208 amountPaid = _validateThereIsSomethingToRefundAndReturnAmountPaid(stats);
 
             if (i == 0) {
                 feeTokenAddress = raffle.feeTokenAddress;
@@ -983,6 +975,18 @@ contract Raffle is
     function _validateEntryPricingOptionIndex(EntryCalldata calldata entry, Raffle storage raffle) private view {
         if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
             revert InvalidIndex();
+        }
+    }
+
+    function _validateThereIsSomethingToRefundAndReturnAmountPaid(ParticipantStats storage stats)
+        private
+        view
+        returns (uint208 amountPaid)
+    {
+        amountPaid = stats.amountPaid;
+
+        if (stats.refunded || amountPaid == 0) {
+            revert NothingToClaim();
         }
     }
 
