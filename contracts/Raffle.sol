@@ -842,6 +842,10 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param entries The entries to enter.
+     * @param recipient The recipient of the entries.
+     */
     function _enterRaffles(EntryCalldata[] calldata entries, address recipient)
         private
         returns (address feeTokenAddress, uint208 expectedValue)
@@ -924,6 +928,10 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param feeTokenAddress The address of the token to charge the fee in.
+     * @param expectedValue The expected value of the fee.
+     */
     function _chargeUser(address feeTokenAddress, uint208 expectedValue) private {
         if (feeTokenAddress == address(0)) {
             _validateExpectedEthValueOrRefund(expectedValue);
@@ -932,6 +940,9 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param raffleIds The IDs of the raffles to claim refunds for.
+     */
     function _claimRefund(uint256[] calldata raffleIds)
         private
         returns (address feeTokenAddress, uint208 refundAmount)
@@ -1017,10 +1028,6 @@ contract Raffle is
         raffle.status = status;
         emit RaffleStatusUpdated(raffleId, status);
     }
-
-    /**
-     * Enter raffles related private functions.
-     */
 
     function _pushEntry(
         Raffle storage raffle,
