@@ -580,26 +580,8 @@ contract Raffle is
      * @dev Refundable and Cancelled are the only statuses that allow refunds.
      */
     function claimRefund(uint256[] calldata raffleIds) external nonReentrant whenNotPaused {
-        uint256 count = raffleIds.length;
-
-        for (uint256 i; i < count; ) {
-            uint256 raffleId = raffleIds[i];
-            Raffle storage raffle = raffles[raffleId];
-
-            _validateRaffleStatusRefundable(raffle);
-
-            ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
-            uint208 amountPaid = _validateThereIsSomethingToRefundAndReturnAmountPaid(stats);
-
-            stats.refunded = true;
-            _transferFungibleTokens(raffle.feeTokenAddress, msg.sender, amountPaid);
-
-            emit EntryRefunded(raffleId, msg.sender, amountPaid);
-
-            unchecked {
-                ++i;
-            }
-        }
+        (address feeTokenAddress, uint208 refundAmount) = _claimRefund(raffleIds);
+        _transferFungibleTokens(feeTokenAddress, msg.sender, refundAmount);
     }
 
     /**
@@ -612,32 +594,7 @@ contract Raffle is
         EntryCalldata[] calldata entries,
         address recipient
     ) external payable {
-        uint256 count = refundableRaffleIds.length;
-        address feeTokenAddress;
-        uint208 rolloverAmount;
-
-        for (uint256 i; i < count; ) {
-            uint256 raffleId = refundableRaffleIds[i];
-            Raffle storage raffle = raffles[raffleId];
-
-            _validateRaffleStatusRefundable(raffle);
-
-            ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
-            uint208 amountPaid = _validateThereIsSomethingToRefundAndReturnAmountPaid(stats);
-
-            if (i == 0) {
-                feeTokenAddress = raffle.feeTokenAddress;
-            } else if (feeTokenAddress != raffle.feeTokenAddress) {
-                revert InvalidCurrency();
-            }
-
-            stats.refunded = true;
-            rolloverAmount += amountPaid;
-
-            unchecked {
-                ++i;
-            }
-        }
+        (address feeTokenAddress, uint208 rolloverAmount) = _claimRefund(refundableRaffleIds);
 
         if (recipient == address(0)) {
             recipient = msg.sender;
@@ -966,27 +923,47 @@ contract Raffle is
         }
     }
 
-    function _validateRaffleStatusRefundable(Raffle storage raffle) private view {
-        if (raffle.status < RaffleStatus.Refundable) {
-            revert InvalidStatus();
-        }
-    }
-
     function _validateEntryPricingOptionIndex(EntryCalldata calldata entry, Raffle storage raffle) private view {
         if (entry.pricingOptionIndex >= raffle.pricingOptions.length) {
             revert InvalidIndex();
         }
     }
 
-    function _validateThereIsSomethingToRefundAndReturnAmountPaid(ParticipantStats storage stats)
+    function _claimRefund(uint256[] calldata raffleIds)
         private
-        view
-        returns (uint208 amountPaid)
+        returns (address feeTokenAddress, uint208 refundAmount)
     {
-        amountPaid = stats.amountPaid;
+        uint256 count = raffleIds.length;
 
-        if (stats.refunded || amountPaid == 0) {
-            revert NothingToClaim();
+        for (uint256 i; i < count; ) {
+            uint256 raffleId = raffleIds[i];
+            Raffle storage raffle = raffles[raffleId];
+
+            if (raffle.status < RaffleStatus.Refundable) {
+                revert InvalidStatus();
+            }
+
+            ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
+            uint208 amountPaid = stats.amountPaid;
+
+            if (stats.refunded || amountPaid == 0) {
+                revert NothingToClaim();
+            }
+
+            if (i == 0) {
+                feeTokenAddress = raffle.feeTokenAddress;
+            } else if (feeTokenAddress != raffle.feeTokenAddress) {
+                revert InvalidCurrency();
+            }
+
+            stats.refunded = true;
+            refundAmount += amountPaid;
+
+            emit EntryRefunded(raffleId, msg.sender, amountPaid);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
