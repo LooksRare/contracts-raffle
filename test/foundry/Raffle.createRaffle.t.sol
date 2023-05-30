@@ -163,7 +163,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
     function test_createRaffle_RevertIf_InvalidPrizesCount_TooManyPrizes() public {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.prizes = new IRaffle.Prize[](21);
+        params.prizes = new IRaffle.Prize[](201);
 
         vm.expectRevert(IRaffle.InvalidPrizesCount.selector);
         looksRareRaffle.createRaffle(params);
