@@ -15,7 +15,7 @@ import "forge-std/console2.sol";
 contract CreateRaffleMainnet is Script, SimulationBase {
     function run() external view {
         IRaffle.PricingOption[5] memory pricingOptions;
-        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.000985 ether});
+        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.00098 ether});
         pricingOptions[1] = IRaffle.PricingOption({entriesCount: 20, price: 0.0196 ether});
         pricingOptions[2] = IRaffle.PricingOption({entriesCount: 100, price: 0.098 ether});
         pricingOptions[3] = IRaffle.PricingOption({entriesCount: 500, price: 0.49 ether});
