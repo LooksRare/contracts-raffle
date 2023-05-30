@@ -101,6 +101,49 @@ contract Raffle_Rollover_Test is TestHelpers {
         assertEq(user2.balance, 0.195 ether);
     }
 
+    function test_rollover_ExpectedAmountGreaterThanRolloverAmount() public {
+        uint256 price = 0.22 ether;
+        vm.deal(user2, price);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+
+        vm.prank(user2);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+
+        vm.warp(block.timestamp + 86_400 + 1);
+
+        looksRareRaffle.cancel(1);
+
+        _mintStandardRafflePrizesToRaffleOwnerAndApprove();
+
+        _createOpenRaffle();
+
+        uint256[] memory refundableRaffleIds = new uint256[](1);
+        refundableRaffleIds[0] = 1;
+
+        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 2, count: 1});
+
+        vm.deal(user2, 0.28 ether);
+
+        vm.prank(user2);
+        looksRareRaffle.rollover{value: 0.28 ether}(refundableRaffleIds, entries, address(0));
+
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+
+        assertEq(amountPaid, price);
+        assertEq(entriesCount, 10);
+        assertTrue(refunded);
+
+        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(2, user2);
+
+        assertEq(amountPaid, 0.5 ether);
+        assertEq(entriesCount, 25);
+        assertFalse(refunded);
+
+        assertEq(user2.balance, 0);
+    }
+
     function _createOpenRaffle() private {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < 6; i++) {
