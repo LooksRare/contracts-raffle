@@ -921,6 +921,11 @@ contract Raffle is
         uint256[] calldata winnerIndices = claimPrizesCalldata.winnerIndices;
         uint256 winnersCount = winners.length;
         uint256 claimsCount = winnerIndices.length;
+
+        TokenType currentPrizeType;
+        address currentPrizeAddress;
+        uint256 accumulatedPrizeAmount;
+
         for (uint256 i; i < claimsCount; ) {
             uint256 winnerIndex = winnerIndices[i];
 
@@ -935,11 +940,31 @@ contract Raffle is
             _validateCaller(winner.participant);
             winner.claimed = true;
 
-            _transferPrize({prize: raffle.prizes[winner.prizeIndex], recipient: msg.sender, multiplier: 1});
+            Prize storage prize = raffle.prizes[winner.prizeIndex];
+            TokenType prizeType = prize.prizeType;
+            if (prizeType > TokenType.ERC1155) {
+                address prizeAddress = prize.prizeAddress;
+                uint256 prizeAmount = prize.prizeAmount;
+                if (prizeType == currentPrizeType && prizeAddress == currentPrizeAddress) {
+                    accumulatedPrizeAmount += prizeAmount;
+                } else {
+                    _transferFungibleTokens(currentPrizeAddress, msg.sender, accumulatedPrizeAmount);
+
+                    currentPrizeType = prizeType;
+                    currentPrizeAddress = prizeAddress;
+                    accumulatedPrizeAmount = prizeAmount;
+                }
+            } else {
+                _transferPrize({prize: prize, recipient: msg.sender, multiplier: 1});
+            }
 
             unchecked {
                 ++i;
             }
+        }
+
+        if (accumulatedPrizeAmount != 0) {
+            _transferFungibleTokens(currentPrizeAddress, msg.sender, accumulatedPrizeAmount);
         }
 
         emit PrizesClaimed(raffleId, winnerIndices);
