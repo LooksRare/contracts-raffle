@@ -856,7 +856,8 @@ contract Raffle is
             recipient = msg.sender;
         }
 
-        for (uint256 i; i < entries.length; ) {
+        uint256 count = entries.length;
+        for (uint256 i; i < count; ) {
             EntryCalldata calldata entry = entries[i];
 
             uint256 raffleId = entry.raffleId;
@@ -878,21 +879,26 @@ contract Raffle is
                 revert CutoffTimeReached();
             }
 
-            PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
+            uint40 entriesCount;
+            uint208 price;
+            {
+                PricingOption memory pricingOption = raffle.pricingOptions[entry.pricingOptionIndex];
 
-            if (entry.count == 0) {
-                revert InvalidCount();
+                uint40 multiplier = entry.count;
+                if (multiplier == 0) {
+                    revert InvalidCount();
+                }
+
+                entriesCount = pricingOption.entriesCount * multiplier;
+                price = pricingOption.price * multiplier;
+
+                uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
+                    entriesCount;
+                if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
+                    revert MaximumEntriesPerParticipantReached();
+                }
+                rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
             }
-
-            uint40 entriesCount = pricingOption.entriesCount * entry.count;
-            uint208 price = pricingOption.price * entry.count;
-
-            uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
-                entriesCount;
-            if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
-                revert MaximumEntriesPerParticipantReached();
-            }
-            rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
 
             expectedValue += price;
 
