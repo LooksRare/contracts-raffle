@@ -15,69 +15,54 @@ import "forge-std/console2.sol";
 contract CreateRaffleMainnet is Script, SimulationBase {
     function run() external view {
         IRaffle.PricingOption[5] memory pricingOptions;
-        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.00125 ether});
-        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 20, price: 0.024 ether});
-        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 100, price: 0.11 ether});
-        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 500, price: 0.525 ether});
+        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.00098 ether});
+        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 20, price: 0.0196 ether});
+        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 100, price: 0.098 ether});
+        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 500, price: 0.49 ether});
         pricingOptions[4] = IRaffle.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
         address bayc = 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D;
         address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
-        address kubz = 0xEb2dFC54EbaFcA8F50eFcc1e21A9D100b5AEb349;
 
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](13);
+        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](4);
 
         prizes[0].prizeTier = 0;
         prizes[0].prizeType = IRaffle.TokenType.ERC721;
         prizes[0].prizeAddress = bayc;
-        prizes[0].prizeId = 6425;
+        prizes[0].prizeId = 5151;
         prizes[0].prizeAmount = 1;
         prizes[0].winnersCount = 1;
 
         prizes[1].prizeTier = 1;
         prizes[1].prizeType = IRaffle.TokenType.ERC721;
         prizes[1].prizeAddress = azuki;
-        prizes[1].prizeId = 8766;
+        prizes[1].prizeId = 2164;
         prizes[1].prizeAmount = 1;
         prizes[1].winnersCount = 1;
 
-        for (uint256 i = 2; i < 12; ) {
-            prizes[i].prizeTier = 1;
-            prizes[i].prizeType = IRaffle.TokenType.ERC721;
-            prizes[i].prizeAddress = kubz;
-            prizes[i].prizeAmount = 1;
-            prizes[i].winnersCount = 1;
+        prizes[2].prizeTier = 1;
+        prizes[2].prizeType = IRaffle.TokenType.ERC721;
+        prizes[2].prizeAddress = azuki;
+        prizes[2].prizeId = 6500;
+        prizes[2].prizeAmount = 1;
+        prizes[2].winnersCount = 1;
 
-            unchecked {
-                ++i;
-            }
-        }
-        prizes[2].prizeId = 637;
-        prizes[3].prizeId = 8059;
-        prizes[4].prizeId = 8061;
-        prizes[5].prizeId = 8062;
-        prizes[6].prizeId = 8063;
-        prizes[7].prizeId = 8064;
-        prizes[8].prizeId = 183;
-        prizes[9].prizeId = 554;
-        prizes[10].prizeId = 556;
-        prizes[11].prizeId = 6707;
-
-        prizes[12].prizeTier = 2;
-        prizes[12].prizeType = IRaffle.TokenType.ERC20;
-        prizes[12].prizeAddress = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
-        prizes[12].prizeAmount = 500e18;
-        prizes[12].winnersCount = 98;
+        prizes[3].prizeTier = 2;
+        prizes[3].prizeType = IRaffle.TokenType.ERC20;
+        prizes[3].prizeAddress = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
+        prizes[3].prizeId = 0;
+        prizes[3].prizeAmount = 5_000e18;
+        prizes[3].winnersCount = 100;
 
         console2.logBytes(
             abi.encodeCall(
                 IRaffle.createRaffle,
                 (
                     IRaffle.CreateRaffleCalldata({
-                        cutoffTime: uint40(block.timestamp + 50 hours),
+                        cutoffTime: uint40(block.timestamp + 5 days + 6 hours + 2 minutes),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 77_000,
-                        maximumEntriesPerParticipant: 15_000,
+                        minimumEntries: 169_000,
+                        maximumEntriesPerParticipant: 33_000,
                         protocolFeeBp: 0,
                         feeTokenAddress: address(0),
                         prizes: prizes,
