@@ -557,11 +557,12 @@ contract Raffle is
 
             Winner[] storage winners = raffle.winners;
             uint256[] calldata winnerIndices = perRaffleClaimPrizesCalldata.winnerIndices;
+            uint256 winnersCount = winners.length;
 
             for (uint256 j; j < winnerIndices.length; ) {
                 uint256 winnerIndex = winnerIndices[j];
 
-                if (winnerIndex >= winners.length) {
+                if (winnerIndex >= winnersCount) {
                     revert InvalidIndex();
                 }
 
