@@ -263,4 +263,34 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         vm.expectRevert(IRaffle.MaximumEntriesReached.selector);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
     }
+
+    function test_enterRaffles_Multiple_RevertIf_InvalidCurrency() public {
+        uint208 price = 0.025 ether;
+        vm.deal(user2, price);
+        deal(address(mockERC20), user2, price);
+
+        _mintStandardRafflePrizesToRaffleOwnerAndApprove();
+
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        for (uint256 i; i < 6; i++) {
+            params.prizes[i].prizeId = i + 6;
+        }
+        params.feeTokenAddress = address(mockERC20);
+
+        vm.prank(user1);
+        looksRareRaffle.createRaffle(params);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 0, count: 1});
+
+        vm.startPrank(user2);
+
+        mockERC20.approve(address(looksRareRaffle), price);
+
+        vm.expectRevert(IRaffle.InvalidCurrency.selector);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+
+        vm.stopPrank();
+    }
 }

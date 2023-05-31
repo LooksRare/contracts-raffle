@@ -84,6 +84,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Cancel", calls["cancel"]);
         console2.log("Cancel after randomness request", calls["cancelAfterRandomnessRequest"]);
         console2.log("Claim refund", calls["claimRefund"]);
+        console2.log("Rollover", calls["rollover"]);
         console2.log("Withdraw prizes", calls["withdrawPrizes"]);
         console2.log("-------------------");
 
@@ -408,6 +409,69 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             ghost_ETH_feesRefundedSum += amountPaid;
         } else if (feeTokenAddress == address(erc20)) {
             ghost_ERC20_feesRefundedSum += amountPaid;
+        }
+    }
+
+    function rollover(
+        uint256 refundableRaffleId,
+        uint256 openRaffleId,
+        uint256 seed
+    ) public countCall("rollover") {
+        uint256 rafflesCount = looksRareRaffle.rafflesCount();
+        if (rafflesCount == 0) return;
+
+        bound(refundableRaffleId, 1, rafflesCount);
+        bound(openRaffleId, 1, rafflesCount);
+
+        (, IRaffle.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(
+            refundableRaffleId
+        );
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Cancelled) return;
+
+        {
+            (, IRaffle.RaffleStatus status2, , , , , , address feeTokenAddress2, , ) = looksRareRaffle.raffles(
+                openRaffleId
+            );
+            if (callsMustBeValid && status2 != IRaffle.RaffleStatus.Open) return;
+
+            if (callsMustBeValid && feeTokenAddress != feeTokenAddress2) return;
+        }
+
+        IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(refundableRaffleId);
+        if (entries.length == 0) return;
+        IRaffle.Entry memory entry = entries[seed % entries.length];
+
+        (uint208 amountPaid, , ) = looksRareRaffle.rafflesParticipantsStats(refundableRaffleId, entry.participant);
+
+        uint256[] memory refundableRaffleIds = new uint256[](1);
+        refundableRaffleIds[0] = refundableRaffleId;
+
+        IRaffle.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(refundableRaffleId);
+        uint208 price = pricingOptions[seed % 5].price;
+
+        IRaffle.EntryCalldata[] memory entriesCalldata = new IRaffle.EntryCalldata[](1);
+        entriesCalldata[0] = IRaffle.EntryCalldata({raffleId: openRaffleId, pricingOptionIndex: seed % 5, count: 1});
+
+        address caller = (callsMustBeValid || seed % 2 == 0) ? entry.participant : actors[bound(seed, 0, 99)];
+        vm.prank(caller);
+        looksRareRaffle.rollover{value: price > amountPaid ? price - amountPaid : 0}(
+            refundableRaffleIds,
+            entriesCalldata,
+            address(0)
+        );
+
+        if (feeTokenAddress == ETH) {
+            if (price > amountPaid) {
+                ghost_ETH_feesCollectedSum += price;
+            } else {
+                ghost_ETH_feesCollectedSum -= (amountPaid - price);
+            }
+        } else if (feeTokenAddress == address(erc20)) {
+            if (price > amountPaid) {
+                ghost_ERC20_feesCollectedSum += price;
+            } else {
+                ghost_ERC20_feesCollectedSum -= (amountPaid - price);
+            }
         }
     }
 
