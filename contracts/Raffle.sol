@@ -555,7 +555,7 @@ contract Raffle is
         uint256[] calldata refundableRaffleIds,
         EntryCalldata[] calldata entries,
         address recipient
-    ) external payable {
+    ) external payable nonReentrant whenNotPaused {
         (address refundFeeTokenAddress, uint208 rolloverAmount) = _claimRefund(refundableRaffleIds);
         (address enterRafflesFeeTokenAddress, uint208 expectedValue) = _enterRaffles(entries, recipient);
 
