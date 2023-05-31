@@ -180,6 +180,35 @@ contract Raffle_Rollover_Test is TestHelpers {
         assertEq(user2.balance, 0);
     }
 
+    function test_rollover_RevertIf_DuplicatedRaffleIds() public {
+        uint256 price = 0.22 ether;
+        vm.deal(user2, price);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+
+        vm.prank(user2);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+
+        vm.warp(block.timestamp + 86_400 + 1);
+
+        looksRareRaffle.cancel(1);
+
+        _mintStandardRafflePrizesToRaffleOwnerAndApprove();
+
+        _createOpenRaffle();
+
+        uint256[] memory refundableRaffleIds = new uint256[](2);
+        refundableRaffleIds[0] = 1;
+        refundableRaffleIds[1] = 1;
+
+        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+
+        vm.expectRevert(IRaffle.NothingToClaim.selector);
+        vm.prank(user2);
+        looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
+    }
+
     function _createOpenRaffle() private {
         IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < 6; i++) {
