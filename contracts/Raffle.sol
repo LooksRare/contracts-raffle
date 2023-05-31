@@ -741,6 +741,17 @@ contract Raffle is
 
         uint40 lowestEntriesCount = pricingOptions[0].entriesCount;
 
+        uint256 pricingOptionsLengthSlot;
+        uint256 individualPricingOptionSlotOffset;
+        assembly {
+            mstore(0x00, raffleId)
+            mstore(0x20, raffles.slot)
+            pricingOptionsLengthSlot := add(keccak256(0x00, 0x40), 3)
+
+            mstore(0x00, pricingOptionsLengthSlot)
+            individualPricingOptionSlotOffset := keccak256(0x00, 0x20)
+        }
+
         for (uint256 i; i < count; ) {
             PricingOption memory pricingOption = pricingOptions[i];
 
@@ -767,11 +778,19 @@ contract Raffle is
                 }
             }
 
-            raffles[raffleId].pricingOptions.push(pricingOption);
+            assembly {
+                let pricingOptionValue := entriesCount
+                pricingOptionValue := or(pricingOptionValue, shl(40, price))
+                sstore(add(individualPricingOptionSlotOffset, i), pricingOptionValue)
+            }
 
             unchecked {
                 ++i;
             }
+        }
+
+        assembly {
+            sstore(pricingOptionsLengthSlot, count)
         }
     }
 
