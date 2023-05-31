@@ -308,15 +308,28 @@ contract Raffle is
 
         _validateAndSetPricingOptions(raffleId, minimumEntries, params.pricingOptions);
 
-        raffle.owner = msg.sender;
-        raffle.isMinimumEntriesFixed = params.isMinimumEntriesFixed;
-        raffle.cutoffTime = cutoffTime;
-        raffle.minimumEntries = minimumEntries;
-        raffle.maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        raffle.protocolFeeBp = agreedProtocolFeeBp;
-        raffle.feeTokenAddress = feeTokenAddress;
+        bool isMinimumEntriesFixed = params.isMinimumEntriesFixed;
+        uint40 maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        assembly {
+            let raffleSlotOneValue := caller() // owner
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(160, 1)) // RaffleStatus.Open
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(168, isMinimumEntriesFixed))
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(176, cutoffTime))
 
-        _setRaffleStatus(raffle, raffleId, RaffleStatus.Open);
+            let raffleSlotTwoValue := minimumEntries
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(40, maximumEntriesPerParticipant))
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(80, feeTokenAddress))
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(240, agreedProtocolFeeBp))
+
+            mstore(0x00, raffleId)
+            mstore(0x20, raffles.slot)
+            let raffleSlot := keccak256(0x00, 0x40)
+
+            sstore(raffleSlot, raffleSlotOneValue)
+            sstore(add(raffleSlot, 1), raffleSlotTwoValue)
+        }
+
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
     }
 
     /**
