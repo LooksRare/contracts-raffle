@@ -101,15 +101,15 @@ contract Raffle is
 {
     using Arrays for uint256[];
 
-    address public immutable WETH;
+    address private immutable WETH;
 
-    uint256 public constant ONE_DAY = 86_400 seconds;
-    uint256 public constant ONE_WEEK = 604_800 seconds;
+    uint256 private constant ONE_DAY = 86_400 seconds;
+    uint256 private constant ONE_WEEK = 604_800 seconds;
 
     /**
      * @notice 100% in basis points.
      */
-    uint256 public constant ONE_HUNDRED_PERCENT_BP = 10_000;
+    uint256 private constant ONE_HUNDRED_PERCENT_BP = 10_000;
 
     /**
      * @notice The number of raffles created.
@@ -149,7 +149,7 @@ contract Raffle is
     /**
      * @notice The key hash of the Chainlink VRF.
      */
-    bytes32 public immutable KEY_HASH;
+    bytes32 private immutable KEY_HASH;
 
     /**
      * @notice The subscription ID of the Chainlink VRF.
@@ -159,7 +159,7 @@ contract Raffle is
     /**
      * @notice The Chainlink VRF coordinator.
      */
-    VRFCoordinatorV2Interface public immutable VRF_COORDINATOR;
+    VRFCoordinatorV2Interface private immutable VRF_COORDINATOR;
 
     /**
      * @notice The randomness requests.
