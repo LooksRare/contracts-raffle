@@ -442,6 +442,17 @@ contract Raffle is
         uint256 randomWord = randomnessRequest.randomWord;
         uint256 winningEntry;
 
+        uint256 winnersLengthSlot;
+        uint256 individualWinnerSlotOffset;
+        assembly {
+            mstore(0x00, raffleId)
+            mstore(0x20, raffles.slot)
+            winnersLengthSlot := add(keccak256(0x00, 0x40), 6)
+
+            mstore(0x00, winnersLengthSlot)
+            individualWinnerSlotOffset := keccak256(0x00, 0x20)
+        }
+
         for (uint256 i; i < winnersCount; ) {
             (randomWord, winningEntry, winningEntriesBitmap) = _searchForWinningEntryUntilThereIsNotADuplicate(
                 randomWord,
@@ -449,20 +460,26 @@ contract Raffle is
                 winningEntriesBitmap
             );
 
-            raffle.winners.push(
-                Winner({
-                    participant: entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant,
-                    claimed: false,
-                    prizeIndex: uint8(cumulativeWinnersCountArray.findUpperBound(_unsafeAdd(i, 1))),
-                    entryIndex: uint40(winningEntry)
-                })
-            );
+            address participant = entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant;
+            uint256 prizeIndex = cumulativeWinnersCountArray.findUpperBound(_unsafeAdd(i, 1));
+
+            assembly {
+                let winnerSlotValue := participant
+                winnerSlotValue := or(winnerSlotValue, shl(168, prizeIndex)) // 160 (participant) + 8 (claimed)
+                winnerSlotValue := or(winnerSlotValue, shl(176, winningEntry))
+
+                sstore(add(individualWinnerSlotOffset, i), winnerSlotValue)
+            }
 
             randomWord = uint256(keccak256(abi.encodePacked(randomWord)));
 
             unchecked {
                 ++i;
             }
+        }
+
+        assembly {
+            sstore(winnersLengthSlot, winnersCount)
         }
     }
 
