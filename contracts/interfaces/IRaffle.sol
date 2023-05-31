@@ -286,12 +286,6 @@ interface IRaffle {
     function claimRefund(uint256[] calldata raffleIds) external;
 
     /**
-     * @notice Claims the protocol fees collected for a raffle.
-     * @param currency The currency of the fees to be claimed.
-     */
-    function claimProtocolFees(address currency) external;
-
-    /**
      * @notice Sets the protocol fee in basis points. Only callable by contract owner.
      * @param protocolFeeBp The protocol fee in basis points.
      */

@@ -81,7 +81,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Claim fees", calls["claimFees"]);
         console2.log("Claim single prize", calls["claimPrize"]);
         console2.log("Claim prizes", calls["claimPrizes"]);
-        console2.log("Claim protocol fees", calls["claimProtocolFees"]);
         console2.log("Cancel", calls["cancel"]);
         console2.log("Cancel after randomness request", calls["cancelAfterRandomnessRequest"]);
         console2.log("Claim refund", calls["claimRefund"]);
@@ -341,8 +340,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         if (feeTokenAddress == ETH) {
             ghost_ETH_feesClaimedSum += claimedSum;
+            ghost_ETH_protocolFeesClaimedSum += protocolFees;
         } else if (feeTokenAddress == address(erc20)) {
             ghost_ERC20_feesClaimedSum += claimedSum;
+            ghost_ERC20_protocolFeesClaimedSum += protocolFees;
         }
     }
 
@@ -519,18 +520,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         vm.warp(cutoffTime + 1);
 
         looksRareRaffle.cancel(raffleId);
-    }
-
-    function claimProtocolFees(uint256 seed) public countCall("claimProtocolFees") {
-        address feeTokenAddress = seed % 2 == 0 ? ETH : address(erc20);
-        uint256 claimableProtocolFees = looksRareRaffle.protocolFeeRecipientClaimableFees(feeTokenAddress);
-        vm.prank(looksRareRaffle.owner());
-        looksRareRaffle.claimProtocolFees(feeTokenAddress);
-        if (feeTokenAddress == ETH) {
-            ghost_ETH_protocolFeesClaimedSum += claimableProtocolFees;
-        } else {
-            ghost_ERC20_protocolFeesClaimedSum += claimableProtocolFees;
-        }
     }
 
     function cancelAfterRandomnessRequest(uint256 raffleId) public countCall("cancelAfterRandomnessRequest") {

@@ -63,7 +63,6 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
         uint256 raffleOwnerBalance = feeToken.balanceOf(user1);
 
         assertEq(feeToken.balanceOf(address(protocolFeeRecipient)), 0);
-        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(feeToken)), 0);
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
 
@@ -74,18 +73,9 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
         looksRareRaffle.claimFees(1);
 
         (, , , , , , , , , claimableFees) = looksRareRaffle.raffles(1);
-        assertEq(feeToken.balanceOf(address(looksRareRaffle)), 0.13375 ether);
         assertEq(claimableFees, 0);
         assertEq(feeToken.balanceOf(user1), raffleOwnerBalance + 2.54125 ether);
-        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(feeToken)), 0.13375 ether);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Complete);
-
-        vm.prank(owner);
-        looksRareRaffle.claimProtocolFees(address(feeToken));
-
-        // After the raffle fees are claimed, we can receive the protocol fees.
         assertEq(feeToken.balanceOf(address(protocolFeeRecipient)), 0.13375 ether);
-        assertEq(feeToken.balanceOf(address(looksRareRaffle)), 0);
-        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(feeToken)), 0);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Complete);
     }
 }
