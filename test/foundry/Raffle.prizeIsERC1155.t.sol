@@ -30,7 +30,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         looksRareRaffle.createRaffle(params);
     }
 
-    function test_claimPrizes_StatusIsDrawn() public {
+    function test_claimPrizes_PrizeIsERC1155_StatusIsDrawn() public {
         _transitionRaffleStatusToDrawing();
 
         _fulfillCurrentTestRandomWords();
@@ -41,7 +41,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         _assertPrizesTransferred();
     }
 
-    function test_claimPrizes_StatusIsComplete() public {
+    function test_claimPrizes_PrizeIsERC1155_StatusIsComplete() public {
         _transitionRaffleStatusToDrawing();
 
         _fulfillCurrentTestRandomWords();
@@ -54,7 +54,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         _assertPrizesTransferred();
     }
 
-    function test_claimPrizes_MultiplePrizes() public {
+    function test_claimPrizes_PrizeIsERC1155_MultiplePrizes() public {
         _subscribeRaffleToVRF();
 
         address participant = address(69);
@@ -93,7 +93,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         assertAllWinnersClaimed(winners);
     }
 
-    function test_claimPrizes_MultipleRaffles() public {
+    function test_claimPrizes_PrizeIsERC1155_MultipleRaffles() public {
         _mintRafflePrizesToRaffleOwnerAndApprove();
 
         IRaffle.CreateRaffleCalldata memory params = _createRaffleParamsWithERC1155AsPrize();

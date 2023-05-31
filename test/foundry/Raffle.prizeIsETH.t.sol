@@ -25,7 +25,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         looksRareRaffle.createRaffle{value: 5 ether}(params);
     }
 
-    function test_claimPrizes_StatusIsDrawn() public {
+    function test_claimPrizes_PrizeIsETH_StatusIsDrawn() public {
         _transitionRaffleStatusToDrawing();
 
         _fulfillCurrentTestRandomWords();
@@ -36,7 +36,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         _assertPrizesTransferred();
     }
 
-    function test_claimPrizes_StatusIsComplete() public {
+    function test_claimPrizes_PrizeIsETH_StatusIsComplete() public {
         _transitionRaffleStatusToDrawing();
 
         _fulfillCurrentTestRandomWords();
@@ -49,7 +49,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         _assertPrizesTransferred();
     }
 
-    function test_claimPrizes_MultiplePrizes() public {
+    function test_claimPrizes_PrizeIsETH_MultiplePrizes() public {
         _subscribeRaffleToVRF();
 
         address participant = address(69);
@@ -88,7 +88,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         assertAllWinnersClaimed(winners);
     }
 
-    function test_claimPrizes_MultipleRaffles() public {
+    function test_claimPrizes_PrizeIsETH_MultipleRaffles() public {
         _mintRafflePrizesToRaffleOwnerAndApprove();
 
         IRaffle.CreateRaffleCalldata memory params = _createRaffleParamsWithETHAsPrize();
