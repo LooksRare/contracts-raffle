@@ -164,7 +164,6 @@ interface IRaffle {
     }
 
     struct TransferAccumulator {
-        TokenType tokenType;
         address tokenAddress;
         uint256 accumulatedAmount;
     }

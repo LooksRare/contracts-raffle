@@ -574,10 +574,7 @@ contract Raffle is
 
                 Prize storage prize = raffle.prizes[winner.prizeIndex];
                 if (prize.prizeType > TokenType.ERC1155) {
-                    if (
-                        prize.prizeType == transferAccumulator.tokenType &&
-                        prize.prizeAddress == transferAccumulator.tokenAddress
-                    ) {
+                    if (prize.prizeAddress == transferAccumulator.tokenAddress) {
                         transferAccumulator.accumulatedAmount += prize.prizeAmount;
                     } else {
                         _transferFungibleTokens(
@@ -586,7 +583,6 @@ contract Raffle is
                             transferAccumulator.accumulatedAmount
                         );
 
-                        transferAccumulator.tokenType = prize.prizeType;
                         transferAccumulator.tokenAddress = prize.prizeAddress;
                         transferAccumulator.accumulatedAmount = prize.prizeAmount;
                     }
