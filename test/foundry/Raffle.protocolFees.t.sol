@@ -10,50 +10,36 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_ProtocolFees_Test is TestHelpers {
-    event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
-    event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
+    event ProtocolFeeParametersUpdated(uint16 protocolFeeBp, address protocolFeeRecipient);
 
     function setUp() public {
         _deployRaffle();
     }
 
-    function test_setProtocolFeeRecipient() public asPrankedUser(owner) {
+    function test_setProtocolFeeParameters() public asPrankedUser(owner) {
         address newRecipient = address(0x1);
         expectEmitCheckAll();
-        emit ProtocolFeeRecipientUpdated(newRecipient);
-        looksRareRaffle.setProtocolFeeRecipient(newRecipient);
+        emit ProtocolFeeParametersUpdated(2_409, newRecipient);
+        looksRareRaffle.setProtocolFeeParameters(2_409, newRecipient);
+        assertEq(looksRareRaffle.protocolFeeBp(), 2_409);
         assertEq(looksRareRaffle.protocolFeeRecipient(), newRecipient);
     }
 
-    function test_setProtocolFeeRecipient_RevertIf_NotOwner() public {
+    function test_setProtocolFeeParameters_RevertIf_NotOwner() public {
         address newRecipient = address(0x1);
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareRaffle.setProtocolFeeRecipient(newRecipient);
+        looksRareRaffle.setProtocolFeeParameters(2_409, newRecipient);
     }
 
-    function test_setProtocolFeeRecipient_RevertIf_InvalidProtocolFeeRecipient() public asPrankedUser(owner) {
+    function test_setProtocolFeeParameters_RevertIf_InvalidProtocolFeeRecipient() public asPrankedUser(owner) {
         address newRecipient = address(0);
         vm.expectRevert(IRaffle.InvalidProtocolFeeRecipient.selector);
-        looksRareRaffle.setProtocolFeeRecipient(newRecipient);
+        looksRareRaffle.setProtocolFeeParameters(2_409, newRecipient);
     }
 
-    function test_setProtocolFeeBp() public asPrankedUser(owner) {
-        uint16 newProtocolFeeBp = 2_409;
-        expectEmitCheckAll();
-        emit ProtocolFeeBpUpdated(newProtocolFeeBp);
-        looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
-        assertEq(looksRareRaffle.protocolFeeBp(), newProtocolFeeBp);
-    }
-
-    function test_setProtocolFeeBp_RevertIf_NotOwner() public {
-        uint16 newProtocolFeeBp = 2_409;
-        vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
-    }
-
-    function test_setProtocolFeeBp_RevertIf_InvalidProtocolFeeBp() public asPrankedUser(owner) {
+    function test_setProtocolFeeParameters_RevertIf_InvalidProtocolFeeBp() public asPrankedUser(owner) {
         uint16 newProtocolFeeBp = 2_501;
         vm.expectRevert(IRaffle.InvalidProtocolFeeBp.selector);
-        looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
+        looksRareRaffle.setProtocolFeeParameters(newProtocolFeeBp, address(0x1));
     }
 }

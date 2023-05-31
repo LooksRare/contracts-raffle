@@ -211,8 +211,7 @@ contract Raffle is
         address _protocolFeeRecipient,
         uint16 _protocolFeeBp
     ) VRFConsumerBaseV2(_vrfCoordinator) OwnableTwoSteps(_owner) {
-        _setProtocolFeeBp(_protocolFeeBp);
-        _setProtocolFeeRecipient(_protocolFeeRecipient);
+        _setProtocolFeeParameters(_protocolFeeBp, _protocolFeeRecipient);
 
         WETH = _weth;
         KEY_HASH = _keyHash;
@@ -573,15 +572,8 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
-    function setProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {
-        _setProtocolFeeRecipient(_protocolFeeRecipient);
-    }
-
-    /**
-     * @inheritdoc IRaffle
-     */
-    function setProtocolFeeBp(uint16 _protocolFeeBp) external onlyOwner {
-        _setProtocolFeeBp(_protocolFeeBp);
+    function setProtocolFeeParameters(uint16 _protocolFeeBp, address _protocolFeeRecipient) external onlyOwner {
+        _setProtocolFeeParameters(_protocolFeeBp, _protocolFeeRecipient);
     }
 
     /**
@@ -634,25 +626,21 @@ contract Raffle is
     }
 
     /**
+     * @param _protocolFeeBp The new protocol fee in basis points
      * @param _protocolFeeRecipient The new protocol fee recipient address
      */
-    function _setProtocolFeeRecipient(address _protocolFeeRecipient) private {
-        if (_protocolFeeRecipient == address(0)) {
-            revert InvalidProtocolFeeRecipient();
-        }
-        protocolFeeRecipient = _protocolFeeRecipient;
-        emit ProtocolFeeRecipientUpdated(_protocolFeeRecipient);
-    }
-
-    /**
-     * @param _protocolFeeBp The new protocol fee in basis points
-     */
-    function _setProtocolFeeBp(uint16 _protocolFeeBp) private {
+    function _setProtocolFeeParameters(uint16 _protocolFeeBp, address _protocolFeeRecipient) private {
         if (_protocolFeeBp > MAXIMUM_PROTOCOL_FEE_BP) {
             revert InvalidProtocolFeeBp();
         }
+        if (_protocolFeeRecipient == address(0)) {
+            revert InvalidProtocolFeeRecipient();
+        }
+
         protocolFeeBp = _protocolFeeBp;
-        emit ProtocolFeeBpUpdated(_protocolFeeBp);
+        protocolFeeRecipient = _protocolFeeRecipient;
+
+        emit ProtocolFeeParametersUpdated(_protocolFeeBp, _protocolFeeRecipient);
     }
 
     /**

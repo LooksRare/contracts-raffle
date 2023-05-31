@@ -168,8 +168,7 @@ interface IRaffle {
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
     event FeesClaimed(uint256 raffleId, uint256 amount);
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndex);
-    event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
-    event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
+    event ProtocolFeeParametersUpdated(uint16 protocolFeeBp, address protocolFeeRecipient);
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
     event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
@@ -274,16 +273,11 @@ interface IRaffle {
     function claimProtocolFees(address currency) external;
 
     /**
-     * @notice Sets the protocol fee in basis points. Only callable by contract owner.
+     * @notice Sets the protocol fee parameters. Only callable by contract owner.
      * @param protocolFeeBp The protocol fee in basis points.
-     */
-    function setProtocolFeeBp(uint16 protocolFeeBp) external;
-
-    /**
-     * @notice Sets the protocol fee recipient. Only callable by contract owner.
      * @param protocolFeeRecipient The protocol fee recipient.
      */
-    function setProtocolFeeRecipient(address protocolFeeRecipient) external;
+    function setProtocolFeeParameters(uint16 protocolFeeBp, address protocolFeeRecipient) external;
 
     /**
      * @notice This function allows the owner to update currency statuses.
