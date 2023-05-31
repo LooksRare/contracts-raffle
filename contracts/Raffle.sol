@@ -544,12 +544,74 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant whenNotPaused {
-        uint256 claimsCount = claimPrizesCalldata.length;
-        for (uint256 i; i < claimsCount; ) {
-            _claimPrizesPerRaffle(claimPrizesCalldata[i]);
+        TransferAccumulator memory transferAccumulator;
+
+        uint256 count = claimPrizesCalldata.length;
+        for (uint256 i; i < count; ) {
+            ClaimPrizesCalldata calldata perRaffleClaimPrizesCalldata = claimPrizesCalldata[i];
+            uint256 raffleId = perRaffleClaimPrizesCalldata.raffleId;
+            Raffle storage raffle = raffles[raffleId];
+            if (raffle.status != RaffleStatus.Drawn) {
+                _validateRaffleStatus(raffle, RaffleStatus.Complete);
+            }
+
+            Winner[] storage winners = raffle.winners;
+            uint256[] calldata winnerIndices = perRaffleClaimPrizesCalldata.winnerIndices;
+
+            for (uint256 j; j < winnerIndices.length; ) {
+                uint256 winnerIndex = winnerIndices[j];
+
+                if (winnerIndex >= winners.length) {
+                    revert InvalidIndex();
+                }
+
+                Winner storage winner = winners[winnerIndex];
+                if (winner.claimed) {
+                    revert NothingToClaim();
+                }
+                _validateCaller(winner.participant);
+                winner.claimed = true;
+
+                Prize storage prize = raffle.prizes[winner.prizeIndex];
+                if (prize.prizeType > TokenType.ERC1155) {
+                    if (
+                        prize.prizeType == transferAccumulator.tokenType &&
+                        prize.prizeAddress == transferAccumulator.tokenAddress
+                    ) {
+                        transferAccumulator.accumulatedAmount += prize.prizeAmount;
+                    } else {
+                        _transferFungibleTokens(
+                            transferAccumulator.tokenAddress,
+                            msg.sender,
+                            transferAccumulator.accumulatedAmount
+                        );
+
+                        transferAccumulator.tokenType = prize.prizeType;
+                        transferAccumulator.tokenAddress = prize.prizeAddress;
+                        transferAccumulator.accumulatedAmount = prize.prizeAmount;
+                    }
+                } else {
+                    _transferPrize({prize: prize, recipient: msg.sender, multiplier: 1});
+                }
+
+                unchecked {
+                    ++j;
+                }
+            }
+
+            emit PrizesClaimed(raffleId, winnerIndices);
+
             unchecked {
                 ++i;
             }
+        }
+
+        if (transferAccumulator.accumulatedAmount != 0) {
+            _transferFungibleTokens(
+                transferAccumulator.tokenAddress,
+                msg.sender,
+                transferAccumulator.accumulatedAmount
+            );
         }
     }
 
@@ -905,69 +967,6 @@ contract Raffle is
         } else {
             _executeERC20DirectTransfer(currency, recipient, amount);
         }
-    }
-
-    /**
-     * @param claimPrizesCalldata The calldata for claiming prizes.
-     */
-    function _claimPrizesPerRaffle(ClaimPrizesCalldata calldata claimPrizesCalldata) private {
-        uint256 raffleId = claimPrizesCalldata.raffleId;
-        Raffle storage raffle = raffles[raffleId];
-        if (raffle.status != RaffleStatus.Drawn) {
-            _validateRaffleStatus(raffle, RaffleStatus.Complete);
-        }
-
-        Winner[] storage winners = raffle.winners;
-        uint256[] calldata winnerIndices = claimPrizesCalldata.winnerIndices;
-        uint256 winnersCount = winners.length;
-        uint256 claimsCount = winnerIndices.length;
-
-        TokenType currentPrizeType;
-        address currentPrizeAddress;
-        uint256 accumulatedPrizeAmount;
-
-        for (uint256 i; i < claimsCount; ) {
-            uint256 winnerIndex = winnerIndices[i];
-
-            if (winnerIndex >= winnersCount) {
-                revert InvalidIndex();
-            }
-
-            Winner storage winner = winners[winnerIndex];
-            if (winner.claimed) {
-                revert NothingToClaim();
-            }
-            _validateCaller(winner.participant);
-            winner.claimed = true;
-
-            Prize storage prize = raffle.prizes[winner.prizeIndex];
-            TokenType prizeType = prize.prizeType;
-            if (prizeType > TokenType.ERC1155) {
-                address prizeAddress = prize.prizeAddress;
-                uint256 prizeAmount = prize.prizeAmount;
-                if (prizeType == currentPrizeType && prizeAddress == currentPrizeAddress) {
-                    accumulatedPrizeAmount += prizeAmount;
-                } else {
-                    _transferFungibleTokens(currentPrizeAddress, msg.sender, accumulatedPrizeAmount);
-
-                    currentPrizeType = prizeType;
-                    currentPrizeAddress = prizeAddress;
-                    accumulatedPrizeAmount = prizeAmount;
-                }
-            } else {
-                _transferPrize({prize: prize, recipient: msg.sender, multiplier: 1});
-            }
-
-            unchecked {
-                ++i;
-            }
-        }
-
-        if (accumulatedPrizeAmount != 0) {
-            _transferFungibleTokens(currentPrizeAddress, msg.sender, accumulatedPrizeAmount);
-        }
-
-        emit PrizesClaimed(raffleId, winnerIndices);
     }
 
     /**

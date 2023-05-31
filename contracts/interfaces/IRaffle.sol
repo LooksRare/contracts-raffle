@@ -163,6 +163,12 @@ interface IRaffle {
         uint256 raffleId;
     }
 
+    struct TransferAccumulator {
+        TokenType tokenType;
+        address tokenAddress;
+        uint256 accumulatedAmount;
+    }
+
     event CurrenciesStatusUpdated(address[] currencies, bool isAllowed);
     event EntryRefunded(uint256 raffleId, address buyer, uint208 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
