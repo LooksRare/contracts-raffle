@@ -577,11 +577,7 @@ contract Raffle is
                     if (prize.prizeAddress == transferAccumulator.tokenAddress) {
                         transferAccumulator.accumulatedAmount += prize.prizeAmount;
                     } else {
-                        _transferFungibleTokens(
-                            transferAccumulator.tokenAddress,
-                            msg.sender,
-                            transferAccumulator.accumulatedAmount
-                        );
+                        _transferFungibleTokens(transferAccumulator);
 
                         transferAccumulator.tokenAddress = prize.prizeAddress;
                         transferAccumulator.accumulatedAmount = prize.prizeAmount;
@@ -603,11 +599,7 @@ contract Raffle is
         }
 
         if (transferAccumulator.accumulatedAmount != 0) {
-            _transferFungibleTokens(
-                transferAccumulator.tokenAddress,
-                msg.sender,
-                transferAccumulator.accumulatedAmount
-            );
+            _transferFungibleTokens(transferAccumulator);
         }
     }
 
@@ -963,6 +955,10 @@ contract Raffle is
         } else {
             _executeERC20DirectTransfer(currency, recipient, amount);
         }
+    }
+
+    function _transferFungibleTokens(TransferAccumulator memory transferAccumulator) private {
+        _transferFungibleTokens(transferAccumulator.tokenAddress, msg.sender, transferAccumulator.accumulatedAmount);
     }
 
     /**
