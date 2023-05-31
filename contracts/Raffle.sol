@@ -139,12 +139,12 @@ contract Raffle is
      *         Each individual ERC-721 counts as one prize.
      *         Each ETH/ERC-20/ERC-1155 with winnersCount > 1 counts as one prize.
      */
-    uint256 public constant MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE = 20;
+    uint256 public constant MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE = 200;
 
     /**
      * @notice The maximum number of winners per raffle.
      */
-    uint40 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 110;
+    uint40 public constant MAXIMUM_NUMBER_OF_WINNERS_PER_RAFFLE = 200;
 
     /**
      * @notice The key hash of the Chainlink VRF.
