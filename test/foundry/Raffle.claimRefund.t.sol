@@ -127,6 +127,38 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         }
     }
 
+    function test_claimRefund_MultipleRaffles_RevertIf_DuplicatedRaffleIds() public {
+        _mintStandardRafflePrizesToRaffleOwnerAndApprove();
+
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        for (uint256 i; i < params.prizes.length; i++) {
+            params.prizes[i].prizeId = i + 6;
+        }
+        vm.prank(user1);
+        looksRareRaffle.createRaffle(params);
+
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
+        _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(2);
+
+        vm.warp(block.timestamp + 86_400 + 1);
+
+        looksRareRaffle.cancel(1);
+        looksRareRaffle.cancel(2);
+
+        uint256[] memory raffleIds = new uint256[](3);
+        raffleIds[0] = 1;
+        raffleIds[1] = 2;
+        raffleIds[2] = 1;
+
+        for (uint256 i = 10; i < 116; i++) {
+            address participant = address(uint160(i + 1));
+
+            vm.prank(participant);
+            vm.expectRevert(IRaffle.NothingToClaim.selector);
+            looksRareRaffle.claimRefund(raffleIds);
+        }
+    }
+
     function test_claimRefund_RevertIf_InvalidStatus() public {
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
 
