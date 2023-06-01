@@ -310,9 +310,29 @@ contract Raffle is
 
         bool isMinimumEntriesFixed = params.isMinimumEntriesFixed;
         uint40 maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        // The storage layout of a raffle's first 2 slots is as follows:
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        // | drawnAt (40 bits) | cutoffTime (40 bits) | isMinimumEntriesFixed (8 bits) | status (8 bits) | owner (160 bits)                 |
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        // | agreedProtocolFeeBp (16 bits) | feeTokenAddress (160 bits) | maximumEntriesPerParticipant (40 bits) | minimumEntries (40 bits) |
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        //
+        // And the slots for these values are calculated by the following formulas:
+        // slot 1 = keccak256(raffleId, rafflesSlot)
+        // slot 2 = keccak256(raffleId, rafflesSlot) + 1
+        //
+        // This assembly block is equivalent to
+        // raffle.owner = msg.sender;
+        // raffle.status = RaffleStatus.Open;
+        // raffle.isMinimumEntriesFixed = isMinimumEntriesFixed;
+        // raffle.cutoffTime = cutoffTime;
+        // raffle.minimumEntries = minimumEntries;
+        // raffle.maximumEntriesPerParticipant = maximumEntriesPerParticipant;
+        // raffle.protocolFeeBp = agreedProtocolFeeBp;
+        // raffle.feeTokenAddress = feeTokenAddress;
         assembly {
-            let raffleSlotOneValue := caller() // owner
-            raffleSlotOneValue := or(raffleSlotOneValue, shl(160, 1)) // RaffleStatus.Open
+            let raffleSlotOneValue := caller()
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(160, 1))
             raffleSlotOneValue := or(raffleSlotOneValue, shl(168, isMinimumEntriesFixed))
             raffleSlotOneValue := or(raffleSlotOneValue, shl(176, cutoffTime))
 
