@@ -254,7 +254,21 @@ contract Raffle is
             raffleId = ++rafflesCount;
         }
 
-        bytes32 raffleSlot;
+        // The storage layout of a prize struct (3 slots) is as follows:
+        // --------------------------------------------------------------------------------------------------------------------------------|
+        // | prizeAddress (160 bits) | prizeTier (8 bits) | prizeType (8 bits) | cumulativeWinnersCount (40 bits) | winnersCount (40 bits) |
+        // --------------------------------------------------------------------------------------------------------------------------------|
+        // | prizeId (256 bits)                                                                                                            |
+        // --------------------------------------------------------------------------------------------------------------------------------|
+        // | prizeAmount (256 bits)                                                                                                        |
+        //
+        // The slot keccak256(raffleId, rafflesSlot) + 4 is used to store the length of the prizes array.
+        // The slot keccak256(keccak256(raffleId, rafflesSlot) + 4) + i is used to store the prize at the i-th index.
+        //
+        // The assembly blocks are equivalent to `raffle.prizes.push(prize);`
+        //
+        // The primary benefit of using assembly is we only write the prizes length once instead of once per prize.
+        uint256 raffleSlot;
         uint256 prizesLengthSlot;
         uint256 individualPrizeSlotOffset;
         assembly {
