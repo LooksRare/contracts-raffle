@@ -146,6 +146,10 @@ interface IRaffle {
         PricingOption[] pricingOptions;
     }
 
+    /**
+     * @param raffleId The id of the raffle.
+     * @param winnerIndices The indices of the winners to be claimed.
+     */
     struct ClaimPrizesCalldata {
         uint256 raffleId;
         uint256[] winnerIndices;
