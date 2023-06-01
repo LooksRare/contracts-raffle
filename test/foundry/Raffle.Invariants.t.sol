@@ -79,6 +79,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Fulfill random words", calls["fulfillRandomWords"]);
         console2.log("Select winners", calls["selectWinners"]);
         console2.log("Claim fees", calls["claimFees"]);
+        console2.log("Claim single prize", calls["claimPrize"]);
         console2.log("Claim prizes", calls["claimPrizes"]);
         console2.log("Claim protocol fees", calls["claimProtocolFees"]);
         console2.log("Cancel", calls["cancel"]);
@@ -342,6 +343,37 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             ghost_ETH_feesClaimedSum += claimedSum;
         } else if (feeTokenAddress == address(erc20)) {
             ghost_ERC20_feesClaimedSum += claimedSum;
+        }
+    }
+
+    function claimPrize(uint256 raffleId, uint256 seed) public countCall("claimPrize") {
+        uint256 rafflesCount = looksRareRaffle.rafflesCount();
+        if (rafflesCount == 0) return;
+
+        bound(raffleId, 1, rafflesCount);
+
+        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawn && status != IRaffle.RaffleStatus.Complete) return;
+
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
+        uint256 winnerIndex = seed % winners.length;
+        IRaffle.Winner memory winner = winners[winnerIndex];
+
+        if (callsMustBeValid && winner.claimed) return;
+
+        address caller = (callsMustBeValid || seed % 2 == 0) ? winner.participant : actors[bound(seed, 0, 99)];
+        vm.prank(caller);
+        looksRareRaffle.claimPrize(raffleId, winnerIndex);
+
+        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+        IRaffle.Prize memory prize = prizes[winner.prizeIndex];
+
+        if (prize.prizeType == IRaffle.TokenType.ETH) {
+            ghost_ETH_prizesClaimedSum += prize.prizeAmount;
+        } else if (prize.prizeType == IRaffle.TokenType.ERC20) {
+            ghost_ERC20_prizesClaimedSum += prize.prizeAmount;
+        } else if (prize.prizeType == IRaffle.TokenType.ERC1155) {
+            ghost_ERC1155_prizesClaimedSum += prize.prizeAmount;
         }
     }
 

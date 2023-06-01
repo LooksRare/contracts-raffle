@@ -543,6 +543,32 @@ contract Raffle is
     /**
      * @inheritdoc IRaffle
      */
+    function claimPrize(uint256 raffleId, uint256 winnerIndex) external nonReentrant whenNotPaused {
+        Raffle storage raffle = raffles[raffleId];
+        if (raffle.status != RaffleStatus.Drawn) {
+            _validateRaffleStatus(raffle, RaffleStatus.Complete);
+        }
+
+        Winner[] storage winners = raffle.winners;
+        if (winnerIndex >= winners.length) {
+            revert InvalidIndex();
+        }
+
+        Winner storage winner = winners[winnerIndex];
+        if (winner.claimed) {
+            revert NothingToClaim();
+        }
+        _validateCaller(winner.participant);
+        winner.claimed = true;
+
+        _transferPrize({prize: raffle.prizes[winner.prizeIndex], recipient: msg.sender, multiplier: 1});
+
+        emit PrizeClaimed(raffleId, winnerIndex);
+    }
+
+    /**
+     * @inheritdoc IRaffle
+     */
     function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant whenNotPaused {
         TransferAccumulator memory transferAccumulator;
 
