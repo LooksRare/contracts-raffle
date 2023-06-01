@@ -577,12 +577,12 @@ contract Raffle is
                 if (prize.prizeType > TokenType.ERC1155) {
                     address prizeAddress = prize.prizeAddress;
                     if (prizeAddress == transferAccumulator.tokenAddress) {
-                        transferAccumulator.accumulatedAmount += prize.prizeAmount;
+                        transferAccumulator.amount += prize.prizeAmount;
                     } else {
                         _transferFungibleTokens(transferAccumulator);
 
                         transferAccumulator.tokenAddress = prizeAddress;
-                        transferAccumulator.accumulatedAmount = prize.prizeAmount;
+                        transferAccumulator.amount = prize.prizeAmount;
                     }
                 } else {
                     _transferPrize({prize: prize, recipient: msg.sender, multiplier: 1});
@@ -600,7 +600,7 @@ contract Raffle is
             }
         }
 
-        if (transferAccumulator.accumulatedAmount != 0) {
+        if (transferAccumulator.amount != 0) {
             _transferFungibleTokens(transferAccumulator);
         }
     }
@@ -960,7 +960,7 @@ contract Raffle is
     }
 
     function _transferFungibleTokens(TransferAccumulator memory transferAccumulator) private {
-        _transferFungibleTokens(transferAccumulator.tokenAddress, msg.sender, transferAccumulator.accumulatedAmount);
+        _transferFungibleTokens(transferAccumulator.tokenAddress, msg.sender, transferAccumulator.amount);
     }
 
     /**
