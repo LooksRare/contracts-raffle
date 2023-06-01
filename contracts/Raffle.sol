@@ -442,6 +442,25 @@ contract Raffle is
         uint256 randomWord = randomnessRequest.randomWord;
         uint256 winningEntry;
 
+        // The storage layout of a winner slot is as follows:
+        // ------------------------------------------------------------------------------------------------------------|
+        // | unused (40 bits) | entryIndex (40 bits) | prizeIndex (8 bits) | claimed (8 bits) | participant (160 bits) |
+        // ------------------------------------------------------------------------------------------------------------|
+        //
+        // The slot keccak256(raffleId, rafflesSlot) + 6 is used to store the length of the winners array.
+        // The slot keccak256(keccak256(raffleId, rafflesSlot) + 6) + i is used to store the winner at the i-th index.
+        //
+        // The assembly blocks are equivalent to
+        // raffle.winners.push(
+        //   Winner({
+        //     participant: entries[currentEntryIndexArray.findUpperBound(winningEntry)].participant,
+        //     claimed: false,
+        //     prizeIndex: uint8(cumulativeWinnersCountArray.findUpperBound(_unsafeAdd(i, 1))),
+        //     entryIndex: uint40(winningEntry)
+        //   })
+        // );
+        //
+        // The primary benefit of using assembly is we only write the winners length once instead of once per winner.
         uint256 winnersLengthSlot;
         uint256 individualWinnerSlotOffset;
         assembly {
@@ -465,7 +484,7 @@ contract Raffle is
 
             assembly {
                 let winnerSlotValue := participant
-                winnerSlotValue := or(winnerSlotValue, shl(168, prizeIndex)) // 160 (participant) + 8 (claimed)
+                winnerSlotValue := or(winnerSlotValue, shl(168, prizeIndex))
                 winnerSlotValue := or(winnerSlotValue, shl(176, winningEntry))
 
                 sstore(add(individualWinnerSlotOffset, i), winnerSlotValue)
