@@ -544,12 +544,66 @@ contract Raffle is
      * @inheritdoc IRaffle
      */
     function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant whenNotPaused {
-        uint256 claimsCount = claimPrizesCalldata.length;
-        for (uint256 i; i < claimsCount; ) {
-            _claimPrizesPerRaffle(claimPrizesCalldata[i]);
+        TransferAccumulator memory transferAccumulator;
+
+        for (uint256 i; i < claimPrizesCalldata.length; ) {
+            ClaimPrizesCalldata calldata perRaffleClaimPrizesCalldata = claimPrizesCalldata[i];
+            uint256 raffleId = perRaffleClaimPrizesCalldata.raffleId;
+            Raffle storage raffle = raffles[raffleId];
+            if (raffle.status != RaffleStatus.Drawn) {
+                _validateRaffleStatus(raffle, RaffleStatus.Complete);
+            }
+
+            Winner[] storage winners = raffle.winners;
+            uint256[] calldata winnerIndices = perRaffleClaimPrizesCalldata.winnerIndices;
+            uint256 winnersCount = winners.length;
+            uint256 claimsCount = winnerIndices.length;
+
+            for (uint256 j; j < claimsCount; ) {
+                uint256 winnerIndex = winnerIndices[j];
+
+                if (winnerIndex >= winnersCount) {
+                    revert InvalidIndex();
+                }
+
+                Winner storage winner = winners[winnerIndex];
+                if (winner.claimed) {
+                    revert NothingToClaim();
+                }
+                _validateCaller(winner.participant);
+                winner.claimed = true;
+
+                Prize storage prize = raffle.prizes[winner.prizeIndex];
+                if (prize.prizeType > TokenType.ERC1155) {
+                    address prizeAddress = prize.prizeAddress;
+                    if (prizeAddress == transferAccumulator.tokenAddress) {
+                        transferAccumulator.amount += prize.prizeAmount;
+                    } else {
+                        if (transferAccumulator.amount != 0) {
+                            _transferFungibleTokens(transferAccumulator);
+                        }
+
+                        transferAccumulator.tokenAddress = prizeAddress;
+                        transferAccumulator.amount = prize.prizeAmount;
+                    }
+                } else {
+                    _transferPrize({prize: prize, recipient: msg.sender, multiplier: 1});
+                }
+
+                unchecked {
+                    ++j;
+                }
+            }
+
+            emit PrizesClaimed(raffleId, winnerIndices);
+
             unchecked {
                 ++i;
             }
+        }
+
+        if (transferAccumulator.amount != 0) {
+            _transferFungibleTokens(transferAccumulator);
         }
     }
 
@@ -908,41 +962,10 @@ contract Raffle is
     }
 
     /**
-     * @param claimPrizesCalldata The calldata for claiming prizes.
+     * @param transferAccumulator The transfer accumulator.
      */
-    function _claimPrizesPerRaffle(ClaimPrizesCalldata calldata claimPrizesCalldata) private {
-        uint256 raffleId = claimPrizesCalldata.raffleId;
-        Raffle storage raffle = raffles[raffleId];
-        if (raffle.status != RaffleStatus.Drawn) {
-            _validateRaffleStatus(raffle, RaffleStatus.Complete);
-        }
-
-        Winner[] storage winners = raffle.winners;
-        uint256[] calldata winnerIndices = claimPrizesCalldata.winnerIndices;
-        uint256 winnersCount = winners.length;
-        uint256 claimsCount = winnerIndices.length;
-        for (uint256 i; i < claimsCount; ) {
-            uint256 winnerIndex = winnerIndices[i];
-
-            if (winnerIndex >= winnersCount) {
-                revert InvalidIndex();
-            }
-
-            Winner storage winner = winners[winnerIndex];
-            if (winner.claimed) {
-                revert NothingToClaim();
-            }
-            _validateCaller(winner.participant);
-            winner.claimed = true;
-
-            _transferPrize({prize: raffle.prizes[winner.prizeIndex], recipient: msg.sender, multiplier: 1});
-
-            unchecked {
-                ++i;
-            }
-        }
-
-        emit PrizesClaimed(raffleId, winnerIndices);
+    function _transferFungibleTokens(TransferAccumulator memory transferAccumulator) private {
+        _transferFungibleTokens(transferAccumulator.tokenAddress, msg.sender, transferAccumulator.amount);
     }
 
     /**

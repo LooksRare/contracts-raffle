@@ -11,6 +11,8 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 contract Raffle_ClaimPrizes_Test is TestHelpers {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
     function setUp() public {
         _forkSepolia();
 
@@ -76,6 +78,9 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         expectEmitCheckAll();
         emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
+
+        expectEmitCheckAll();
+        emit Transfer({from: address(looksRareRaffle), to: participant, value: 5_000 ether});
 
         vm.prank(participant);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
@@ -143,6 +148,9 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         expectEmitCheckAll();
         emit PrizesClaimed({raffleId: 2, winnerIndices: winnerIndices});
 
+        expectEmitCheckAll();
+        emit Transfer({from: address(looksRareRaffle), to: participant, value: 10_000 ether});
+
         vm.prank(participant);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
@@ -154,6 +162,106 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         assertAllWinnersClaimed(winners);
 
         winners = looksRareRaffle.getWinners(2);
+        assertAllWinnersClaimed(winners);
+    }
+
+    function test_claimPrizes_MultipleRaffles_ETHAndERC20() public {
+        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+
+        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](4);
+        prizes[0].prizeType = IRaffle.TokenType.ETH;
+        prizes[0].prizeTier = 0;
+        prizes[0].prizeAddress = address(0);
+        prizes[0].prizeAmount = 69 ether;
+        prizes[0].winnersCount = 1;
+
+        prizes[1].prizeType = IRaffle.TokenType.ERC20;
+        prizes[1].prizeTier = 1;
+        prizes[1].prizeAddress = address(mockERC20);
+        prizes[1].prizeAmount = 6_900 ether;
+        prizes[1].winnersCount = 6;
+
+        prizes[2].prizeType = IRaffle.TokenType.ETH;
+        prizes[2].prizeTier = 2;
+        prizes[2].prizeAddress = address(0);
+        prizes[2].prizeAmount = 6.9 ether;
+        prizes[2].winnersCount = 9;
+
+        prizes[3].prizeType = IRaffle.TokenType.ERC20;
+        prizes[3].prizeTier = 3;
+        prizes[3].prizeAddress = address(mockERC20);
+        prizes[3].prizeAmount = 69 ether;
+        prizes[3].winnersCount = 69;
+
+        params.prizes = prizes;
+
+        vm.deal(user1, 262.2 ether);
+        mockERC20.mint(user1, 92_322 ether);
+
+        vm.startPrank(user1);
+        looksRareRaffle.createRaffle{value: 131.1 ether}(params);
+        looksRareRaffle.createRaffle{value: 131.1 ether}(params);
+        vm.stopPrank();
+
+        _subscribeRaffleToVRF();
+
+        address participant = address(69);
+        uint256 price = 2.34 ether;
+
+        vm.deal(participant, price);
+
+        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](4);
+        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[1] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
+        entries[2] = IRaffle.EntryCalldata({raffleId: 3, pricingOptionIndex: 1, count: 1});
+        entries[3] = IRaffle.EntryCalldata({raffleId: 3, pricingOptionIndex: 4, count: 1});
+
+        vm.prank(participant);
+        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        _fulfillRandomWords();
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        uint256 requestIdTwo = 85515638196678878690676495157441001314050408446307572596225226339745087437433;
+        uint256[] memory randomWords = _generateRandomWordForRaffle();
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(requestIdTwo, randomWords);
+        looksRareRaffle.selectWinners(requestIdTwo);
+
+        uint256[] memory winnerIndices = new uint256[](85);
+        for (uint256 i; i < 85; i++) {
+            winnerIndices[i] = i;
+        }
+        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](2);
+        claimPrizesCalldata[0].raffleId = 2;
+        claimPrizesCalldata[0].winnerIndices = winnerIndices;
+        claimPrizesCalldata[1].raffleId = 3;
+        claimPrizesCalldata[1].winnerIndices = winnerIndices;
+
+        expectEmitCheckAll();
+        emit PrizesClaimed({raffleId: 2, winnerIndices: winnerIndices});
+
+        expectEmitCheckAll();
+        emit PrizesClaimed({raffleId: 3, winnerIndices: winnerIndices});
+
+        // NOTE: Ideally we should be testing this as well, there is another Transfer event after
+        // this so this will fail. By running the test with the verbose flag turned on, you will see
+        // Transfer events with 41_400 * 10**18 being emitted.
+        // expectEmitCheckAll();
+        // emit Transfer({from: address(looksRareRaffle), to: participant, value: 41_400 ether});
+
+        expectEmitCheckAll();
+        emit Transfer({from: address(looksRareRaffle), to: participant, value: 4_761 ether});
+
+        vm.prank(participant);
+        looksRareRaffle.claimPrizes(claimPrizesCalldata);
+
+        assertEq(participant.balance, 262.2 ether);
+        assertEq(mockERC20.balanceOf(participant), 92_322 ether);
+
+        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(2);
+        assertAllWinnersClaimed(winners);
+
+        winners = looksRareRaffle.getWinners(3);
         assertAllWinnersClaimed(winners);
     }
 
