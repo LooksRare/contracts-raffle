@@ -11,6 +11,8 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 contract Raffle_ClaimPrizes_Test is TestHelpers {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
     function setUp() public {
         _forkSepolia();
 
@@ -77,6 +79,9 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         expectEmitCheckAll();
         emit PrizesClaimed({raffleId: 1, winnerIndices: winnerIndices});
 
+        expectEmitCheckAll();
+        emit Transfer({from: address(looksRareRaffle), to: participant, value: 5_000 ether});
+
         vm.prank(participant);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
@@ -142,6 +147,9 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         expectEmitCheckAll();
         emit PrizesClaimed({raffleId: 2, winnerIndices: winnerIndices});
+
+        expectEmitCheckAll();
+        emit Transfer({from: address(looksRareRaffle), to: participant, value: 10_000 ether});
 
         vm.prank(participant);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
