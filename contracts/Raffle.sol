@@ -308,15 +308,48 @@ contract Raffle is
 
         _validateAndSetPricingOptions(raffleId, minimumEntries, params.pricingOptions);
 
-        raffle.owner = msg.sender;
-        raffle.isMinimumEntriesFixed = params.isMinimumEntriesFixed;
-        raffle.cutoffTime = cutoffTime;
-        raffle.minimumEntries = minimumEntries;
-        raffle.maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        raffle.protocolFeeBp = agreedProtocolFeeBp;
-        raffle.feeTokenAddress = feeTokenAddress;
+        bool isMinimumEntriesFixed = params.isMinimumEntriesFixed;
+        uint40 maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        // The storage layout of a raffle's first 2 slots is as follows:
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        // | drawnAt (40 bits) | cutoffTime (40 bits) | isMinimumEntriesFixed (8 bits) | status (8 bits) | owner (160 bits)                 |
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        // | agreedProtocolFeeBp (16 bits) | feeTokenAddress (160 bits) | maximumEntriesPerParticipant (40 bits) | minimumEntries (40 bits) |
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        //
+        // And the slots for these values are calculated by the following formulas:
+        // slot 1 = keccak256(raffleId, rafflesSlot)
+        // slot 2 = keccak256(raffleId, rafflesSlot) + 1
+        //
+        // This assembly block is equivalent to
+        // raffle.owner = msg.sender;
+        // raffle.status = RaffleStatus.Open;
+        // raffle.isMinimumEntriesFixed = isMinimumEntriesFixed;
+        // raffle.cutoffTime = cutoffTime;
+        // raffle.minimumEntries = minimumEntries;
+        // raffle.maximumEntriesPerParticipant = maximumEntriesPerParticipant;
+        // raffle.protocolFeeBp = agreedProtocolFeeBp;
+        // raffle.feeTokenAddress = feeTokenAddress;
+        assembly {
+            let raffleSlotOneValue := caller()
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(160, 1))
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(168, isMinimumEntriesFixed))
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(176, cutoffTime))
 
-        _setRaffleStatus(raffle, raffleId, RaffleStatus.Open);
+            let raffleSlotTwoValue := minimumEntries
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(40, maximumEntriesPerParticipant))
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(80, feeTokenAddress))
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(240, agreedProtocolFeeBp))
+
+            mstore(0x00, raffleId)
+            mstore(0x20, raffles.slot)
+            let raffleSlot := keccak256(0x00, 0x40)
+
+            sstore(raffleSlot, raffleSlotOneValue)
+            sstore(add(raffleSlot, 1), raffleSlotTwoValue)
+        }
+
+        emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
     }
 
     /**
