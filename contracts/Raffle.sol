@@ -741,6 +741,28 @@ contract Raffle is
 
         uint40 lowestEntriesCount = pricingOptions[0].entriesCount;
 
+        // The storage layout of a pricing option slot is as follows:
+        // ---------------------------------------------------------------|
+        // | unused (8 bits) | price (208 bits) | entries count (40 bits) |
+        // ---------------------------------------------------------------|
+        //
+        // The slot keccak256(raffleId, rafflesSlot) + 3 is used to store the length of the pricing options array.
+        // The slot keccak256(keccak256(raffleId, rafflesSlot) + 3) + i is used to store the pricing option at the i-th index.
+        //
+        // The assembly blocks are equivalent to `raffles[raffleId].pricingOptions.push(pricingOption);`
+        //
+        // The primary benefit of using assembly is we only write the pricing options length once instead of once per pricing option.
+        uint256 pricingOptionsLengthSlot;
+        uint256 individualPricingOptionSlotOffset;
+        assembly {
+            mstore(0x00, raffleId)
+            mstore(0x20, raffles.slot)
+            pricingOptionsLengthSlot := add(keccak256(0x00, 0x40), 3)
+
+            mstore(0x00, pricingOptionsLengthSlot)
+            individualPricingOptionSlotOffset := keccak256(0x00, 0x20)
+        }
+
         for (uint256 i; i < count; ) {
             PricingOption memory pricingOption = pricingOptions[i];
 
@@ -767,11 +789,19 @@ contract Raffle is
                 }
             }
 
-            raffles[raffleId].pricingOptions.push(pricingOption);
+            assembly {
+                let pricingOptionValue := entriesCount
+                pricingOptionValue := or(pricingOptionValue, shl(40, price))
+                sstore(add(individualPricingOptionSlotOffset, i), pricingOptionValue)
+            }
 
             unchecked {
                 ++i;
             }
+        }
+
+        assembly {
+            sstore(pricingOptionsLengthSlot, count)
         }
     }
 
