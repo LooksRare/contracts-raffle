@@ -263,7 +263,8 @@ contract Raffle is
         // | prizeAmount (256 bits)                                                                                                        |
         //
         // The slot keccak256(raffleId, rafflesSlot) + 4 is used to store the length of the prizes array.
-        // The slot keccak256(keccak256(raffleId, rafflesSlot) + 4) + i is used to store the prize at the i-th index.
+        // The slot keccak256(keccak256(raffleId, rafflesSlot) + 4) + i * 3 is used to store the prize at the i-th index
+        // (x 3 because each prize consumes 3 slots).
         //
         // The assembly blocks are equivalent to `raffle.prizes.push(prize);`
         //
