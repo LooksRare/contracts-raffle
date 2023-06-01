@@ -579,7 +579,9 @@ contract Raffle is
                     if (prizeAddress == transferAccumulator.tokenAddress) {
                         transferAccumulator.amount += prize.prizeAmount;
                     } else {
-                        _transferFungibleTokens(transferAccumulator);
+                        if (transferAccumulator.amount != 0) {
+                            _transferFungibleTokens(transferAccumulator);
+                        }
 
                         transferAccumulator.tokenAddress = prizeAddress;
                         transferAccumulator.amount = prize.prizeAmount;
