@@ -177,6 +177,7 @@ interface IRaffle {
     event EntryRefunded(uint256 raffleId, address buyer, uint208 amount);
     event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
     event FeesClaimed(uint256 raffleId, uint256 amount);
+    event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndex);
     event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
@@ -225,6 +226,13 @@ interface IRaffle {
      * @param requestId The request id returned by Chainlink.
      */
     function selectWinners(uint256 requestId) external;
+
+    /**
+     * @notice Claims a single prize for a winner.
+     * @param raffleId The id of the raffle.
+     * @param winnerIndex The index of the winner.
+     */
+    function claimPrize(uint256 raffleId, uint256 winnerIndex) external;
 
     /**
      * @notice Claims the prizes for a winner. A winner can claim multiple prizes
