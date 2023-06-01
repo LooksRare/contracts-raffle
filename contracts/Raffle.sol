@@ -741,6 +741,17 @@ contract Raffle is
 
         uint40 lowestEntriesCount = pricingOptions[0].entriesCount;
 
+        // The storage layout of a pricing option slot is as follows:
+        // ---------------------------------------------------------------|
+        // | unused (8 bits) | price (208 bits) | entries count (40 bits) |
+        // ---------------------------------------------------------------|
+        //
+        // The slot keccak256(raffleId, rafflesSlot) + 3 is used to store the length of the pricing options array.
+        // The slot keccak256(keccak256(raffleId, rafflesSlot) + 3) + i is used to store the pricing option at the i-th index.
+        //
+        // The assembly blocks are equivalent to `raffles[raffleId].pricingOptions.push(pricingOption);`
+        //
+        // The primary benefit of using assembly is we only write the pricing options length once instead of once per pricing option.
         uint256 pricingOptionsLengthSlot;
         uint256 individualPricingOptionSlotOffset;
         assembly {
