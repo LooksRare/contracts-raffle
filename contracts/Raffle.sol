@@ -254,51 +254,93 @@ contract Raffle is
             raffleId = ++rafflesCount;
         }
 
-        Raffle storage raffle = raffles[raffleId];
-        uint256 expectedEthValue;
-        uint40 cumulativeWinnersCount;
-        uint8 currentPrizeTier;
-        for (uint256 i; i < prizesCount; ) {
-            Prize memory prize = params.prizes[i];
-            uint8 prizeTier = prize.prizeTier;
-            if (prizeTier < currentPrizeTier) {
-                revert InvalidPrize();
-            }
-            _validatePrize(prize);
+        // The storage layout of a prize struct (3 slots) is as follows:
+        // --------------------------------------------------------------------------------------------------------------------------------|
+        // | prizeAddress (160 bits) | prizeTier (8 bits) | prizeType (8 bits) | cumulativeWinnersCount (40 bits) | winnersCount (40 bits) |
+        // --------------------------------------------------------------------------------------------------------------------------------|
+        // | prizeId (256 bits)                                                                                                            |
+        // --------------------------------------------------------------------------------------------------------------------------------|
+        // | prizeAmount (256 bits)                                                                                                        |
+        //
+        // The slot keccak256(raffleId, rafflesSlot) + 4 is used to store the length of the prizes array.
+        // The slot keccak256(keccak256(raffleId, rafflesSlot) + 4) + i * 3 is used to store the prize at the i-th index
+        // (x 3 because each prize consumes 3 slots).
+        //
+        // The assembly blocks are equivalent to `raffle.prizes.push(prize);`
+        //
+        // The primary benefit of using assembly is we only write the prizes length once instead of once per prize.
+        uint256 raffleSlot;
+        uint256 prizesLengthSlot;
+        uint256 individualPrizeSlotOffset;
+        assembly {
+            mstore(0x00, raffleId)
+            mstore(0x20, raffles.slot)
+            raffleSlot := keccak256(0x00, 0x40)
 
-            TokenType prizeType = prize.prizeType;
-            uint40 winnersCount = prize.winnersCount;
-            if (prizeType == TokenType.ERC721) {
-                _executeERC721TransferFrom(prize.prizeAddress, msg.sender, address(this), prize.prizeId);
-            } else if (prizeType == TokenType.ERC20) {
-                _executeERC20TransferFrom(
-                    prize.prizeAddress,
-                    msg.sender,
-                    address(this),
-                    prize.prizeAmount * winnersCount
-                );
-            } else if (prizeType == TokenType.ETH) {
-                expectedEthValue += (prize.prizeAmount * winnersCount);
-            } else {
-                _executeERC1155SafeTransferFrom(
-                    prize.prizeAddress,
-                    msg.sender,
-                    address(this),
-                    prize.prizeId,
-                    prize.prizeAmount * winnersCount
-                );
-            }
+            prizesLengthSlot := add(keccak256(0x00, 0x40), 4)
 
-            cumulativeWinnersCount += winnersCount;
-            prize.cumulativeWinnersCount = cumulativeWinnersCount;
-            currentPrizeTier = prizeTier;
-            raffle.prizes.push(prize);
-
-            unchecked {
-                ++i;
-            }
+            mstore(0x00, prizesLengthSlot)
+            individualPrizeSlotOffset := keccak256(0x00, 0x20)
         }
 
+        uint256 expectedEthValue;
+        uint40 cumulativeWinnersCount;
+        {
+            uint8 currentPrizeTier;
+            for (uint256 i; i < prizesCount; ) {
+                Prize memory prize = params.prizes[i];
+                uint8 prizeTier = prize.prizeTier;
+                if (prizeTier < currentPrizeTier) {
+                    revert InvalidPrize();
+                }
+                _validatePrize(prize);
+
+                TokenType prizeType = prize.prizeType;
+                uint40 winnersCount = prize.winnersCount;
+                address prizeAddress = prize.prizeAddress;
+                uint256 prizeId = prize.prizeId;
+                uint256 prizeAmount = prize.prizeAmount;
+                if (prizeType == TokenType.ERC721) {
+                    _executeERC721TransferFrom(prizeAddress, msg.sender, address(this), prizeId);
+                } else if (prizeType == TokenType.ERC20) {
+                    _executeERC20TransferFrom(prizeAddress, msg.sender, address(this), prizeAmount * winnersCount);
+                } else if (prizeType == TokenType.ETH) {
+                    expectedEthValue += (prizeAmount * winnersCount);
+                } else {
+                    _executeERC1155SafeTransferFrom(
+                        prizeAddress,
+                        msg.sender,
+                        address(this),
+                        prizeId,
+                        prizeAmount * winnersCount
+                    );
+                }
+
+                cumulativeWinnersCount += winnersCount;
+                currentPrizeTier = prizeTier;
+
+                assembly {
+                    let prizeSlotOne := winnersCount
+                    prizeSlotOne := or(prizeSlotOne, shl(40, cumulativeWinnersCount))
+                    prizeSlotOne := or(prizeSlotOne, shl(80, prizeType))
+                    prizeSlotOne := or(prizeSlotOne, shl(88, prizeTier))
+                    prizeSlotOne := or(prizeSlotOne, shl(96, prizeAddress))
+
+                    let currentPrizeSlotOffset := add(individualPrizeSlotOffset, mul(i, 3))
+                    sstore(currentPrizeSlotOffset, prizeSlotOne)
+                    sstore(add(currentPrizeSlotOffset, 1), prizeId)
+                    sstore(add(currentPrizeSlotOffset, 2), prizeAmount)
+                }
+
+                unchecked {
+                    ++i;
+                }
+            }
+
+            assembly {
+                sstore(prizesLengthSlot, prizesCount)
+            }
+        }
         _validateExpectedEthValueOrRefund(expectedEthValue);
 
         uint40 minimumEntries = params.minimumEntries;
@@ -340,10 +382,6 @@ contract Raffle is
             raffleSlotTwoValue := or(raffleSlotTwoValue, shl(40, maximumEntriesPerParticipant))
             raffleSlotTwoValue := or(raffleSlotTwoValue, shl(80, feeTokenAddress))
             raffleSlotTwoValue := or(raffleSlotTwoValue, shl(240, agreedProtocolFeeBp))
-
-            mstore(0x00, raffleId)
-            mstore(0x20, raffles.slot)
-            let raffleSlot := keccak256(0x00, 0x40)
 
             sstore(raffleSlot, raffleSlotOneValue)
             sstore(add(raffleSlot, 1), raffleSlotTwoValue)
