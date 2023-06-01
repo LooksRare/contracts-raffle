@@ -30,7 +30,7 @@ interface IRaffle {
     }
 
     /**
-     * @param currentEntryIndex The cumulative number of entries in the raffle.
+     * @param currentEntryIndex The cumulative number of entries in the raffle minus one.
      * @param participant The address of the participant.
      */
     struct Entry {

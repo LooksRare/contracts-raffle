@@ -1207,6 +1207,11 @@ contract Raffle is
         emit RaffleStatusUpdated(raffleId, status);
     }
 
+    /**
+     * @param raffle The raffle to add the entry to.
+     * @param currentEntryIndex The cumulative number of entries in the raffle minus one.
+     * @param recipient The recipient of the entry.
+     */
     function _pushEntry(
         Raffle storage raffle,
         uint40 currentEntryIndex,
