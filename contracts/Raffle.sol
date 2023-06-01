@@ -959,6 +959,9 @@ contract Raffle is
         }
     }
 
+    /**
+     * @param transferAccumulator The transfer accumulator.
+     */
     function _transferFungibleTokens(TransferAccumulator memory transferAccumulator) private {
         _transferFungibleTokens(transferAccumulator.tokenAddress, msg.sender, transferAccumulator.amount);
     }
