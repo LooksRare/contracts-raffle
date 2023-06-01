@@ -163,6 +163,11 @@ interface IRaffle {
         uint256 raffleId;
     }
 
+    /**
+     * @notice This is used to accumulate the amount of tokens to be transferred.
+     * @param tokenAddress The address of the token.
+     * @param accumulatedAmount The amount of tokens accumulated.
+     */
     struct TransferAccumulator {
         address tokenAddress;
         uint256 accumulatedAmount;
