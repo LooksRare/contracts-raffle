@@ -546,8 +546,7 @@ contract Raffle is
     function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant whenNotPaused {
         TransferAccumulator memory transferAccumulator;
 
-        uint256 count = claimPrizesCalldata.length;
-        for (uint256 i; i < count; ) {
+        for (uint256 i; i < claimPrizesCalldata.length; ) {
             ClaimPrizesCalldata calldata perRaffleClaimPrizesCalldata = claimPrizesCalldata[i];
             uint256 raffleId = perRaffleClaimPrizesCalldata.raffleId;
             Raffle storage raffle = raffles[raffleId];
@@ -558,8 +557,9 @@ contract Raffle is
             Winner[] storage winners = raffle.winners;
             uint256[] calldata winnerIndices = perRaffleClaimPrizesCalldata.winnerIndices;
             uint256 winnersCount = winners.length;
+            uint256 claimsCount = winnerIndices.length;
 
-            for (uint256 j; j < winnerIndices.length; ) {
+            for (uint256 j; j < claimsCount; ) {
                 uint256 winnerIndex = winnerIndices[j];
 
                 if (winnerIndex >= winnersCount) {
