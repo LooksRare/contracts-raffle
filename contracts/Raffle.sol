@@ -282,7 +282,6 @@ contract Raffle is
             individualPrizeSlotOffset := keccak256(0x00, 0x20)
         }
 
-        Raffle storage raffle = raffles[raffleId];
         uint256 expectedEthValue;
         uint40 cumulativeWinnersCount;
         {
