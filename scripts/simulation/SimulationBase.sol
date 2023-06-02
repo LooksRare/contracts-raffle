@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity 0.8.20;
 
 // Core contracts
 import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
