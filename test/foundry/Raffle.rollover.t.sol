@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -23,8 +23,8 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256 price = 0.22 ether;
         vm.deal(user2, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -40,7 +40,7 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
@@ -64,8 +64,8 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256 price = 0.22 ether;
         vm.deal(user2, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -81,7 +81,7 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 0, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 0, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
@@ -105,8 +105,8 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256 price = 0.22 ether;
         vm.deal(user2, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -122,7 +122,7 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 2, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 2, count: 1});
 
         vm.deal(user2, 0.28 ether);
 
@@ -148,8 +148,8 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256 price = 0.22 ether;
         vm.deal(user2, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -160,7 +160,7 @@ contract Raffle_Rollover_Test is TestHelpers {
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < 6; i++) {
             params.prizes[i].prizeId = i + 6;
         }
@@ -171,10 +171,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
 
         vm.prank(user2);
-        vm.expectRevert(IRaffle.InvalidCurrency.selector);
+        vm.expectRevert(IRaffleV2.InvalidCurrency.selector);
         looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
 
         assertEq(user2.balance, 0);
@@ -184,8 +184,8 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256 price = 0.22 ether;
         vm.deal(user2, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -202,15 +202,15 @@ contract Raffle_Rollover_Test is TestHelpers {
         refundableRaffleIds[0] = 1;
         refundableRaffleIds[1] = 1;
 
-        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
 
-        vm.expectRevert(IRaffle.NothingToClaim.selector);
+        vm.expectRevert(IRaffleV2.NothingToClaim.selector);
         vm.prank(user2);
         looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
     }
 
     function _createOpenRaffle() private {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < 6; i++) {
             params.prizes[i].prizeId = i + 6;
         }

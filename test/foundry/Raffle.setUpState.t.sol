@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC721} from "./mock/MockERC721.sol";

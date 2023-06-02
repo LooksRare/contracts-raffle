@@ -3,8 +3,8 @@ pragma solidity 0.8.17;
 
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -24,7 +24,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest() public {
         _transitionRaffleStatusToDrawing();
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Refundable);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Refundable);
 
         (, , , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(1);
         vm.warp(drawnAt + 86_400 + 1);
@@ -32,7 +32,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         vm.prank(owner);
         looksRareRaffle.cancelAfterRandomnessRequest(1);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Refundable);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Refundable);
     }
 
     function test_cancelAfterRandomnessRequest_RevertIf_NotOwner() public {
@@ -48,7 +48,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
     function test_cancelAfterRandomnessRequest_RevertIf_InvalidStatus() public {
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
         vm.prank(owner);
-        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        vm.expectRevert(IRaffleV2.InvalidStatus.selector);
         looksRareRaffle.cancelAfterRandomnessRequest(1);
     }
 
@@ -59,7 +59,7 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         vm.warp(drawnAt + 86_399);
 
         vm.prank(owner);
-        vm.expectRevert(IRaffle.DrawExpirationTimeNotReached.selector);
+        vm.expectRevert(IRaffleV2.DrawExpirationTimeNotReached.selector);
         looksRareRaffle.cancelAfterRandomnessRequest(1);
     }
 }

@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC721} from "./mock/MockERC721.sol";
@@ -33,7 +33,7 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
 
     function test_setProtocolFeeRecipient_RevertIf_InvalidProtocolFeeRecipient() public asPrankedUser(owner) {
         address newRecipient = address(0);
-        vm.expectRevert(IRaffle.InvalidProtocolFeeRecipient.selector);
+        vm.expectRevert(IRaffleV2.InvalidProtocolFeeRecipient.selector);
         looksRareRaffle.setProtocolFeeRecipient(newRecipient);
     }
 
@@ -53,7 +53,7 @@ contract Raffle_ProtocolFees_Test is TestHelpers {
 
     function test_setProtocolFeeBp_RevertIf_InvalidProtocolFeeBp() public asPrankedUser(owner) {
         uint16 newProtocolFeeBp = 2_501;
-        vm.expectRevert(IRaffle.InvalidProtocolFeeBp.selector);
+        vm.expectRevert(IRaffleV2.InvalidProtocolFeeBp.selector);
         looksRareRaffle.setProtocolFeeBp(newProtocolFeeBp);
     }
 }

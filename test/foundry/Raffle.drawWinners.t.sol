@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -27,16 +27,16 @@ contract Raffle_DrawWinners_Test is TestHelpers {
     function test_drawWinners() public {
         _subscribeRaffleToVRF();
 
-        IRaffle.PricingOption[] memory pricingOptions = _generateStandardPricings();
+        IRaffleV2.PricingOption[] memory pricingOptions = _generateStandardPricings();
 
         for (uint256 i; i < 5; i++) {
             address participant = address(uint160(i + 1));
 
             vm.deal(participant, 1 ether);
 
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
+            IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
             uint256 pricingOptionIndex = i % 5;
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
+            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
 
             uint208 price = pricingOptions[pricingOptionIndex].price;
 
@@ -45,7 +45,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
             // 1 + 10 + 25 + 50 = 86, adding another 100 will trigger the draw
             if (pricingOptionIndex == 4) {
-                assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawing);
+                assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Drawing);
 
                 _expectChainlinkCall();
 
@@ -65,15 +65,15 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         assertEq(raffleId, 1);
         assertEq(randomWord, 0);
 
-        (, IRaffle.RaffleStatus status, , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(1);
-        assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Drawing));
+        (, IRaffleV2.RaffleStatus status, , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(1);
+        assertEq(uint8(status), uint8(IRaffleV2.RaffleStatus.Drawing));
         assertEq(drawnAt, block.timestamp);
     }
 
     function test_drawWinners_RevertIf_RandomnessRequestAlreadyExists() public {
         _subscribeRaffleToVRF();
 
-        IRaffle.PricingOption[] memory pricingOptions = _generateStandardPricings();
+        IRaffleV2.PricingOption[] memory pricingOptions = _generateStandardPricings();
 
         _expectChainlinkCall();
 
@@ -84,13 +84,13 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
         uint256 price = pricingOptions[4].price;
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
 
-        vm.expectRevert(IRaffle.RandomnessRequestAlreadyExists.selector);
+        vm.expectRevert(IRaffleV2.RandomnessRequestAlreadyExists.selector);
         vm.prank(user3);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
     }

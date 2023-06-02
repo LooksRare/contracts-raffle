@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -19,7 +19,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
 
@@ -54,7 +54,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
     function test_claimPrize_RevertIf_InvalidStatus() public {
         _transitionRaffleStatusToDrawing();
 
-        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        vm.expectRevert(IRaffleV2.InvalidStatus.selector);
         vm.prank(user2);
         looksRareRaffle.claimPrize(1, 0);
     }
@@ -66,7 +66,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
 
         for (uint256 i; i < 11; i++) {
             assertFalse(winners[i].claimed);
@@ -75,7 +75,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
             looksRareRaffle.claimPrize(1, i);
 
             vm.prank(winners[i].participant);
-            vm.expectRevert(IRaffle.NothingToClaim.selector);
+            vm.expectRevert(IRaffleV2.NothingToClaim.selector);
             looksRareRaffle.claimPrize(1, i);
         }
     }
@@ -87,10 +87,10 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
 
         vm.prank(winners[10].participant);
-        vm.expectRevert(IRaffle.InvalidIndex.selector);
+        vm.expectRevert(IRaffleV2.InvalidIndex.selector);
         looksRareRaffle.claimPrize(1, 11);
     }
 
@@ -103,7 +103,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
 
         for (uint256 i; i < 11; i++) {
             vm.prank(address(42));
-            vm.expectRevert(IRaffle.InvalidCaller.selector);
+            vm.expectRevert(IRaffleV2.InvalidCaller.selector);
             looksRareRaffle.claimPrize(1, i);
         }
     }
@@ -119,7 +119,7 @@ contract Raffle_ClaimPrize_Test is TestHelpers {
             assertEq(mockERC20.balanceOf(expectedWinners[i]), 1_000 ether);
         }
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertAllWinnersClaimed(winners);
     }
 }

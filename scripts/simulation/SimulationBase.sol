@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract SimulationBase {
     address public constant MAINNET_ERC_721 = 0xee726929543222D755145B1063c38eFba87bE601;

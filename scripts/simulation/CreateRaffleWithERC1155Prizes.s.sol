@@ -7,7 +7,7 @@ import "forge-std/console2.sol";
 import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 interface ITestERC20 {
     function approve(address operator, uint256 amount) external;
@@ -35,12 +35,12 @@ contract CreateRaffleWithERC1155Prizes is Script, SimulationBase {
 
         IRaffle raffle = getRaffle(chainId);
 
-        IRaffle.PricingOption[] memory pricingOptions = new IRaffle.PricingOption[](5);
-        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.0000025 ether});
-        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.000022 ether});
-        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.00005 ether});
-        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.000075 ether});
-        pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.000095 ether});
+        IRaffleV2.PricingOption[] memory pricingOptions = new IRaffleV2.PricingOption[](5);
+        pricingOptions[0] = IRaffleV2.PricingOption({entriesCount: 1, price: 0.0000025 ether});
+        pricingOptions[1] = IRaffleV2.PricingOption({entriesCount: 10, price: 0.000022 ether});
+        pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 25, price: 0.00005 ether});
+        pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 50, price: 0.000075 ether});
+        pricingOptions[4] = IRaffleV2.PricingOption({entriesCount: 100, price: 0.000095 ether});
 
         ITestERC1155 nft = ITestERC1155(getERC1155(chainId));
         nft.setApprovalForAll(address(raffle), true);
@@ -53,7 +53,7 @@ contract CreateRaffleWithERC1155Prizes is Script, SimulationBase {
 
         looks.approve(address(raffle), 3_000e18);
 
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](7);
         for (uint256 i; i < 6; ) {
             nft.mint(RAFFLE_OWNER, i, 4);
 
@@ -61,7 +61,7 @@ contract CreateRaffleWithERC1155Prizes is Script, SimulationBase {
                 prizes[i].prizeTier = 1;
             }
 
-            prizes[i].prizeType = IRaffle.TokenType.ERC1155;
+            prizes[i].prizeType = IRaffleV2.TokenType.ERC1155;
             prizes[i].prizeAddress = address(nft);
             prizes[i].prizeId = i;
             prizes[i].prizeAmount = 2;
@@ -72,13 +72,13 @@ contract CreateRaffleWithERC1155Prizes is Script, SimulationBase {
             }
         }
         prizes[6].prizeTier = 2;
-        prizes[6].prizeType = IRaffle.TokenType.ERC20;
+        prizes[6].prizeType = IRaffleV2.TokenType.ERC20;
         prizes[6].prizeAddress = address(looks);
         prizes[6].prizeAmount = 1_000e18;
         prizes[6].winnersCount = 3;
 
         uint256 raffleId = raffle.createRaffle(
-            IRaffle.CreateRaffleCalldata({
+            IRaffleV2.CreateRaffleCalldata({
                 cutoffTime: uint40(block.timestamp + 5 days),
                 isMinimumEntriesFixed: true,
                 minimumEntries: 20,

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -19,7 +19,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
 
@@ -59,9 +59,9 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         vm.deal(participant, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](2);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](2);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -72,7 +72,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         for (uint256 i; i < 11; i++) {
             winnerIndices[i] = i;
         }
-        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
         claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
@@ -89,19 +89,19 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         assertEq(mockERC20.balanceOf(participant), 5_000 ether);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertAllWinnersClaimed(winners);
     }
 
     function test_claimPrizes_MultipleRaffles() public {
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
+        IRaffleV2.Prize[] memory prizes = _generateStandardRafflePrizes(address(mockERC20), address(mockERC721));
         for (uint256 i; i < prizes.length; i++) {
             prizes[i].prizeId = i + 6;
         }
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         prizes[6].winnersCount = 5;
         params.prizes = prizes;
 
@@ -115,11 +115,11 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         vm.deal(participant, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](4);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
-        entries[2] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
-        entries[3] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](4);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
+        entries[2] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[3] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -136,7 +136,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         for (uint256 i; i < 11; i++) {
             winnerIndices[i] = i;
         }
-        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](2);
+        IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](2);
         claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
         claimPrizesCalldata[1].raffleId = 2;
@@ -158,7 +158,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         assertEq(mockERC20.balanceOf(participant), 10_000 ether);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertAllWinnersClaimed(winners);
 
         winners = looksRareRaffle.getWinners(2);
@@ -166,28 +166,28 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
     }
 
     function test_claimPrizes_MultipleRaffles_ETHAndERC20() public {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
 
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](4);
-        prizes[0].prizeType = IRaffle.TokenType.ETH;
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](4);
+        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
         prizes[0].prizeTier = 0;
         prizes[0].prizeAddress = address(0);
         prizes[0].prizeAmount = 69 ether;
         prizes[0].winnersCount = 1;
 
-        prizes[1].prizeType = IRaffle.TokenType.ERC20;
+        prizes[1].prizeType = IRaffleV2.TokenType.ERC20;
         prizes[1].prizeTier = 1;
         prizes[1].prizeAddress = address(mockERC20);
         prizes[1].prizeAmount = 6_900 ether;
         prizes[1].winnersCount = 6;
 
-        prizes[2].prizeType = IRaffle.TokenType.ETH;
+        prizes[2].prizeType = IRaffleV2.TokenType.ETH;
         prizes[2].prizeTier = 2;
         prizes[2].prizeAddress = address(0);
         prizes[2].prizeAmount = 6.9 ether;
         prizes[2].winnersCount = 9;
 
-        prizes[3].prizeType = IRaffle.TokenType.ERC20;
+        prizes[3].prizeType = IRaffleV2.TokenType.ERC20;
         prizes[3].prizeTier = 3;
         prizes[3].prizeAddress = address(mockERC20);
         prizes[3].prizeAmount = 69 ether;
@@ -210,11 +210,11 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         vm.deal(participant, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](4);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
-        entries[1] = IRaffle.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
-        entries[2] = IRaffle.EntryCalldata({raffleId: 3, pricingOptionIndex: 1, count: 1});
-        entries[3] = IRaffle.EntryCalldata({raffleId: 3, pricingOptionIndex: 4, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](4);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[1] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
+        entries[2] = IRaffleV2.EntryCalldata({raffleId: 3, pricingOptionIndex: 1, count: 1});
+        entries[3] = IRaffleV2.EntryCalldata({raffleId: 3, pricingOptionIndex: 4, count: 1});
 
         vm.prank(participant);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
@@ -231,7 +231,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         for (uint256 i; i < 85; i++) {
             winnerIndices[i] = i;
         }
-        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](2);
+        IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](2);
         claimPrizesCalldata[0].raffleId = 2;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
         claimPrizesCalldata[1].raffleId = 3;
@@ -258,7 +258,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         assertEq(participant.balance, 262.2 ether);
         assertEq(mockERC20.balanceOf(participant), 92_322 ether);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(2);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(2);
         assertAllWinnersClaimed(winners);
 
         winners = looksRareRaffle.getWinners(3);
@@ -271,11 +271,11 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
         uint256[] memory winnerIndices = new uint256[](1);
         winnerIndices[0] = 0;
 
-        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
         claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
-        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        vm.expectRevert(IRaffleV2.InvalidStatus.selector);
         vm.prank(user2);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
     }
@@ -287,7 +287,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
 
         for (uint256 i; i < 11; i++) {
             assertFalse(winners[i].claimed);
@@ -295,7 +295,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             uint256[] memory winnerIndices = new uint256[](1);
             winnerIndices[0] = i;
 
-            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+            IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
             claimPrizesCalldata[0].raffleId = 1;
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
@@ -303,7 +303,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
             vm.prank(winners[i].participant);
-            vm.expectRevert(IRaffle.NothingToClaim.selector);
+            vm.expectRevert(IRaffleV2.NothingToClaim.selector);
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
         }
     }
@@ -315,17 +315,17 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
 
         uint256[] memory winnerIndices = new uint256[](1);
         winnerIndices[0] = 11;
 
-        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
         claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
         vm.prank(winners[10].participant);
-        vm.expectRevert(IRaffle.InvalidIndex.selector);
+        vm.expectRevert(IRaffleV2.InvalidIndex.selector);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
     }
 
@@ -340,12 +340,12 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             uint256[] memory winnerIndices = new uint256[](1);
             winnerIndices[0] = i;
 
-            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+            IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
             claimPrizesCalldata[0].raffleId = 1;
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
             vm.prank(address(42));
-            vm.expectRevert(IRaffle.InvalidCaller.selector);
+            vm.expectRevert(IRaffleV2.InvalidCaller.selector);
             looksRareRaffle.claimPrizes(claimPrizesCalldata);
         }
     }
@@ -361,7 +361,7 @@ contract Raffle_ClaimPrizes_Test is TestHelpers {
             assertEq(mockERC20.balanceOf(expectedWinners[i]), 1_000 ether);
         }
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertAllWinnersClaimed(winners);
     }
 }

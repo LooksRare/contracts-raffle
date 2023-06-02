@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -17,7 +17,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
         params.maximumEntriesPerParticipant = 100;
@@ -30,7 +30,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
     }
 
     function test_fulfillRandomWords() public {
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.RandomnessFulfilled);
 
         _fulfillRandomWords();
 
@@ -41,7 +41,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         assertEq(raffleId, 1);
         assertEq(randomWord, 3_14159);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.RandomnessFulfilled);
     }
 
     function test_fulfillRandomWords_RequestIdDoesNotExists() public {
@@ -57,11 +57,11 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         assertEq(raffleId, 0);
         assertEq(randomWord, 0);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawing);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Drawing);
     }
 
     function test_fulfillRandomWords_RaffleStatusIsNotDrawing() public {
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.RandomnessFulfilled);
 
         _fulfillRandomWords();
 
@@ -81,6 +81,6 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
         assertEq(raffleId, 1);
         assertEq(randomWord, 3_14159);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.RandomnessFulfilled);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.RandomnessFulfilled);
     }
 }

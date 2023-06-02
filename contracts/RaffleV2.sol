@@ -16,7 +16,7 @@ import {Arrays} from "./libraries/Arrays.sol";
 
 import {WinningEntrySearchLogic} from "./WinningEntrySearchLogic.sol";
 
-import "./interfaces/IRaffle.sol";
+import "./interfaces/IRaffleV2.sol";
 
 // ....................................................................................................
 // .......................................,,,,,,.......................................................
@@ -83,12 +83,12 @@ import "./interfaces/IRaffle.sol";
 // ...................... [Calling the blockchain to get provably fair results] .......................
 
 /**
- * @title Raffle
+ * @title RaffleV2
  * @notice This contract allows anyone to permissionlessly host raffles on LooksRare.
  * @author LooksRare protocol team (👀,💎)
  */
-contract Raffle is
-    IRaffle,
+contract RaffleV2 is
+    IRaffleV2,
     LowLevelWETH,
     LowLevelERC20Transfer,
     LowLevelERC721Transfer,
@@ -215,7 +215,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function createRaffle(CreateRaffleCalldata calldata params)
         external
@@ -398,7 +398,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      * @notice If it is a delegated recipient, the amount paid should still be accrued to the payer.
      *         If a raffle is cancelled, the payer should be refunded and not the recipient.
      */
@@ -430,7 +430,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function selectWinners(uint256 requestId) external {
         RandomnessRequest memory randomnessRequest = randomnessRequests[requestId];
@@ -535,7 +535,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function claimPrize(uint256 raffleId, uint256 winnerIndex) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
@@ -561,7 +561,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function claimPrizes(ClaimPrizesCalldata[] calldata claimPrizesCalldata) external nonReentrant whenNotPaused {
         TransferAccumulator memory transferAccumulator;
@@ -628,7 +628,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function claimFees(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
@@ -660,7 +660,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function cancel(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
@@ -674,7 +674,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function cancelAfterRandomnessRequest(uint256 raffleId) external onlyOwner nonReentrant {
         Raffle storage raffle = raffles[raffleId];
@@ -689,7 +689,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function withdrawPrizes(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
@@ -710,7 +710,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      * @dev Refundable and Cancelled are the only statuses that allow refunds.
      */
     function claimRefund(uint256[] calldata raffleIds) external nonReentrant whenNotPaused {
@@ -719,7 +719,7 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      * @notice The fee token address for all the raffles involved must be the same.
      * @dev Refundable and Cancelled are the only statuses that allow refunds.
      */
@@ -743,21 +743,21 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function setProtocolFeeRecipient(address _protocolFeeRecipient) external onlyOwner {
         _setProtocolFeeRecipient(_protocolFeeRecipient);
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function setProtocolFeeBp(uint16 _protocolFeeBp) external onlyOwner {
         _setProtocolFeeBp(_protocolFeeBp);
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function updateCurrenciesStatus(address[] calldata currencies, bool isAllowed) external onlyOwner {
         uint256 count = currencies.length;
@@ -771,35 +771,35 @@ contract Raffle is
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function togglePaused() external onlyOwner {
         paused() ? _unpause() : _pause();
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function getWinners(uint256 raffleId) external view returns (Winner[] memory winners) {
         winners = raffles[raffleId].winners;
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function getPrizes(uint256 raffleId) external view returns (Prize[] memory prizes) {
         prizes = raffles[raffleId].prizes;
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function getEntries(uint256 raffleId) external view returns (Entry[] memory entries) {
         entries = raffles[raffleId].entries;
     }
 
     /**
-     * @inheritdoc IRaffle
+     * @inheritdoc IRaffleV2
      */
     function getPricingOptions(uint256 raffleId) external view returns (PricingOption[] memory pricingOptions) {
         pricingOptions = raffles[raffleId].pricingOptions;

@@ -7,7 +7,7 @@ import "forge-std/console2.sol";
 import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract CancelRaffle is Script, SimulationBase {
     function run() external {

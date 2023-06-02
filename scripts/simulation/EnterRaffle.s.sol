@@ -7,7 +7,7 @@ import "forge-std/console2.sol";
 import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract EnterRaffle is Script, SimulationBase {
     error ChainIdInvalid(uint256 chainId);
@@ -22,9 +22,9 @@ contract EnterRaffle is Script, SimulationBase {
         uint256 count = 0;
         uint256 raffleId = 0;
         uint256 price = 0;
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](count);
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](count);
         for (uint256 i; i < count; i++) {
-            entries[i] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0, count: 1});
+            entries[i] = IRaffleV2.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0, count: 1});
         }
 
         raffle.enterRaffles{value: price * count}(entries, address(0));

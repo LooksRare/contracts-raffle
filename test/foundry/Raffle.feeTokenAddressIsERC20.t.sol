@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -27,7 +27,7 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
         vm.prank(owner);
         looksRareRaffle.updateCurrenciesStatus(currencies, true);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.feeTokenAddress = address(feeToken);
 
         vm.prank(user1);
@@ -44,8 +44,8 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
 
             deal(address(feeToken), participant, price);
 
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
+            IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
 
             vm.startPrank(participant);
             feeToken.approve(address(looksRareRaffle), price);
@@ -64,7 +64,7 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
 
         assertEq(feeToken.balanceOf(address(protocolFeeRecipient)), 0);
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Complete);
 
         expectEmitCheckAll();
         emit FeesClaimed(1, 2.54125 ether);
@@ -76,6 +76,6 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
         assertEq(claimableFees, 0);
         assertEq(feeToken.balanceOf(user1), raffleOwnerBalance + 2.54125 ether);
         assertEq(feeToken.balanceOf(address(protocolFeeRecipient)), 0.13375 ether);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Complete);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Complete);
     }
 }

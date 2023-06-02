@@ -3,8 +3,8 @@ pragma solidity 0.8.17;
 
 import {ProtocolFeeRecipient} from "@looksrare/contracts-exchange-v2/contracts/ProtocolFeeRecipient.sol";
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC721} from "./mock/MockERC721.sol";
@@ -22,7 +22,7 @@ import {console2} from "forge-std/console2.sol";
 contract Handler is CommonBase, StdCheats, StdUtils {
     bool public callsMustBeValid;
 
-    Raffle public looksRareRaffle;
+    RaffleV2 public looksRareRaffle;
     MockERC721 public erc721;
     MockERC20 public erc20;
     MockERC1155 public erc1155;
@@ -113,7 +113,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     }
 
     constructor(
-        Raffle _looksRareRaffle,
+        RaffleV2 _looksRareRaffle,
         MockVRFCoordinatorV2 _vrfCoordinatorV2,
         MockERC721 _erc721,
         MockERC20 _erc20,
@@ -139,7 +139,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     }
 
     function createRaffle(uint256 seed) public useActor(seed) countCall("createRaffle") {
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](7);
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](7);
 
         uint40 minimumEntries;
 
@@ -151,14 +151,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             prizes[i].prizeTier = uint8(i);
 
             if (seed % 4 == 0) {
-                prizes[i].prizeType = IRaffle.TokenType.ETH;
+                prizes[i].prizeType = IRaffleV2.TokenType.ETH;
                 prizes[i].prizeAddress = ETH;
                 prizes[i].prizeAmount = 1 ether;
                 prizes[i].winnersCount = 10;
 
                 ethValue += 10 ether;
             } else if (seed % 4 == 1) {
-                prizes[i].prizeType = IRaffle.TokenType.ERC20;
+                prizes[i].prizeType = IRaffleV2.TokenType.ERC20;
                 prizes[i].prizeAddress = address(erc20);
                 prizes[i].prizeAmount = 1 ether;
                 prizes[i].winnersCount = 10;
@@ -167,14 +167,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             } else if (seed % 4 == 2) {
                 uint256 tokenId = erc721.totalSupply();
                 erc721.mint(currentActor, tokenId);
-                prizes[i].prizeType = IRaffle.TokenType.ERC721;
+                prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
                 prizes[i].prizeAddress = address(erc721);
                 prizes[i].prizeId = tokenId;
                 prizes[i].prizeAmount = 1;
                 prizes[i].winnersCount = 1;
             } else {
                 erc1155.mint(currentActor, erc1155TokenId, 4);
-                prizes[i].prizeType = IRaffle.TokenType.ERC1155;
+                prizes[i].prizeType = IRaffleV2.TokenType.ERC1155;
                 prizes[i].prizeAddress = address(erc1155);
                 prizes[i].prizeId = erc1155TokenId;
                 prizes[i].prizeAmount = 2;
@@ -191,12 +191,12 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         minimumEntries = (minimumEntries * 10_500) / 10_000;
 
-        IRaffle.PricingOption[] memory pricingOptions = new IRaffle.PricingOption[](5);
-        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
-        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});
-        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.5 ether});
-        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.75 ether});
-        pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.95 ether});
+        IRaffleV2.PricingOption[] memory pricingOptions = new IRaffleV2.PricingOption[](5);
+        pricingOptions[0] = IRaffleV2.PricingOption({entriesCount: 1, price: 0.025 ether});
+        pricingOptions[1] = IRaffleV2.PricingOption({entriesCount: 10, price: 0.22 ether});
+        pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 25, price: 0.5 ether});
+        pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 50, price: 0.75 ether});
+        pricingOptions[4] = IRaffleV2.PricingOption({entriesCount: 100, price: 0.95 ether});
 
         if (minimumEntries < pricingOptions[4].entriesCount) {
             minimumEntries = pricingOptions[4].entriesCount;
@@ -206,7 +206,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         erc20.approve(address(looksRareRaffle), erc20Value);
         erc1155.setApprovalForAll(address(looksRareRaffle), true);
 
-        IRaffle.CreateRaffleCalldata memory params = IRaffle.CreateRaffleCalldata({
+        IRaffleV2.CreateRaffleCalldata memory params = IRaffleV2.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
             isMinimumEntriesFixed: uint256(keccak256(abi.encodePacked(keccak256(abi.encodePacked(seed))))) % 2 == 0,
             minimumEntries: minimumEntries,
@@ -232,7 +232,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         (
             ,
-            IRaffle.RaffleStatus status,
+            IRaffleV2.RaffleStatus status,
             bool isMinimumEntriesFixed,
             uint40 cutoffTime,
             ,
@@ -243,16 +243,16 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         ) = looksRareRaffle.raffles(raffleId);
         if (callsMustBeValid) {
-            if (status != IRaffle.RaffleStatus.Open) return;
+            if (status != IRaffleV2.RaffleStatus.Open) return;
             if (block.timestamp >= cutoffTime) return;
         }
 
         uint256 pricingOptionIndex = seed % 5;
-        IRaffle.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(raffleId);
+        IRaffleV2.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(raffleId);
         uint208 price = pricingOptions[pricingOptionIndex].price;
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex, count: 1});
 
         if (callsMustBeValid) {
             (, uint40 entriesCount, ) = looksRareRaffle.rafflesParticipantsStats(raffleId, currentActor);
@@ -261,7 +261,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             if (entriesCount + pricingOptionEntriesCount > maximumEntriesPerParticipant) return;
 
             if (isMinimumEntriesFixed) {
-                IRaffle.Entry[] memory currentEntries = looksRareRaffle.getEntries(raffleId);
+                IRaffleV2.Entry[] memory currentEntries = looksRareRaffle.getEntries(raffleId);
                 if (currentEntries.length != 0) {
                     uint40 currentEntryIndex = currentEntries[currentEntries.length - 1].currentEntryIndex;
                     if (currentEntryIndex + pricingOptionEntriesCount >= minimumEntries) return;
@@ -304,8 +304,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         if (callsMustBeValid) {
             (, , uint256 raffleId) = looksRareRaffle.randomnessRequests(requestId);
-            (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-            if (status != IRaffle.RaffleStatus.Drawing) return;
+            (, IRaffleV2.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+            if (status != IRaffleV2.RaffleStatus.Drawing) return;
         }
 
         looksRareRaffle.selectWinners(requestId);
@@ -319,7 +319,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         (
             address raffleOwner,
-            IRaffle.RaffleStatus status,
+            IRaffleV2.RaffleStatus status,
             ,
             ,
             ,
@@ -329,7 +329,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             uint16 protocolFeeBp,
             uint208 claimableFees
         ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawn) return;
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Drawn) return;
 
         address caller = (callsMustBeValid || seed % 2 == 0) ? raffleOwner : actors[bound(seed, 0, 99)];
         vm.prank(caller);
@@ -353,12 +353,13 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawn && status != IRaffle.RaffleStatus.Complete) return;
+        (, IRaffleV2.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Drawn && status != IRaffleV2.RaffleStatus.Complete)
+            return;
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
         uint256 winnerIndex = seed % winners.length;
-        IRaffle.Winner memory winner = winners[winnerIndex];
+        IRaffleV2.Winner memory winner = winners[winnerIndex];
 
         if (callsMustBeValid && winner.claimed) return;
 
@@ -366,14 +367,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         vm.prank(caller);
         looksRareRaffle.claimPrize(raffleId, winnerIndex);
 
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
-        IRaffle.Prize memory prize = prizes[winner.prizeIndex];
+        IRaffleV2.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+        IRaffleV2.Prize memory prize = prizes[winner.prizeIndex];
 
-        if (prize.prizeType == IRaffle.TokenType.ETH) {
+        if (prize.prizeType == IRaffleV2.TokenType.ETH) {
             ghost_ETH_prizesClaimedSum += prize.prizeAmount;
-        } else if (prize.prizeType == IRaffle.TokenType.ERC20) {
+        } else if (prize.prizeType == IRaffleV2.TokenType.ERC20) {
             ghost_ERC20_prizesClaimedSum += prize.prizeAmount;
-        } else if (prize.prizeType == IRaffle.TokenType.ERC1155) {
+        } else if (prize.prizeType == IRaffleV2.TokenType.ERC1155) {
             ghost_ERC1155_prizesClaimedSum += prize.prizeAmount;
         }
     }
@@ -384,19 +385,20 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawn && status != IRaffle.RaffleStatus.Complete) return;
+        (, IRaffleV2.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Drawn && status != IRaffleV2.RaffleStatus.Complete)
+            return;
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
         uint256 winnerIndex = seed % winners.length;
-        IRaffle.Winner memory winner = winners[winnerIndex];
+        IRaffleV2.Winner memory winner = winners[winnerIndex];
 
         if (callsMustBeValid && winner.claimed) return;
 
         uint256[] memory winnerIndices = new uint256[](1);
         winnerIndices[0] = winnerIndex;
 
-        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
         claimPrizesCalldata[0].raffleId = raffleId;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 
@@ -404,14 +406,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         vm.prank(caller);
         looksRareRaffle.claimPrizes(claimPrizesCalldata);
 
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
-        IRaffle.Prize memory prize = prizes[winner.prizeIndex];
+        IRaffleV2.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+        IRaffleV2.Prize memory prize = prizes[winner.prizeIndex];
 
-        if (prize.prizeType == IRaffle.TokenType.ETH) {
+        if (prize.prizeType == IRaffleV2.TokenType.ETH) {
             ghost_ETH_prizesClaimedSum += prize.prizeAmount;
-        } else if (prize.prizeType == IRaffle.TokenType.ERC20) {
+        } else if (prize.prizeType == IRaffleV2.TokenType.ERC20) {
             ghost_ERC20_prizesClaimedSum += prize.prizeAmount;
-        } else if (prize.prizeType == IRaffle.TokenType.ERC1155) {
+        } else if (prize.prizeType == IRaffleV2.TokenType.ERC1155) {
             ghost_ERC1155_prizesClaimedSum += prize.prizeAmount;
         }
     }
@@ -422,12 +424,12 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Cancelled) return;
+        (, IRaffleV2.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Cancelled) return;
 
-        IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(raffleId);
+        IRaffleV2.Entry[] memory entries = looksRareRaffle.getEntries(raffleId);
         if (entries.length == 0) return;
-        IRaffle.Entry memory entry = entries[seed % entries.length];
+        IRaffleV2.Entry memory entry = entries[seed % entries.length];
 
         (uint208 amountPaid, , ) = looksRareRaffle.rafflesParticipantsStats(raffleId, entry.participant);
 
@@ -456,34 +458,34 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         bound(refundableRaffleId, 1, rafflesCount);
         bound(openRaffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(
+        (, IRaffleV2.RaffleStatus status, , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(
             refundableRaffleId
         );
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Cancelled) return;
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Cancelled) return;
 
         {
-            (, IRaffle.RaffleStatus status2, , , , , , address feeTokenAddress2, , ) = looksRareRaffle.raffles(
+            (, IRaffleV2.RaffleStatus status2, , , , , , address feeTokenAddress2, , ) = looksRareRaffle.raffles(
                 openRaffleId
             );
-            if (callsMustBeValid && status2 != IRaffle.RaffleStatus.Open) return;
+            if (callsMustBeValid && status2 != IRaffleV2.RaffleStatus.Open) return;
 
             if (callsMustBeValid && feeTokenAddress != feeTokenAddress2) return;
         }
 
-        IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(refundableRaffleId);
+        IRaffleV2.Entry[] memory entries = looksRareRaffle.getEntries(refundableRaffleId);
         if (entries.length == 0) return;
-        IRaffle.Entry memory entry = entries[seed % entries.length];
+        IRaffleV2.Entry memory entry = entries[seed % entries.length];
 
         (uint208 amountPaid, , ) = looksRareRaffle.rafflesParticipantsStats(refundableRaffleId, entry.participant);
 
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = refundableRaffleId;
 
-        IRaffle.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(refundableRaffleId);
+        IRaffleV2.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(refundableRaffleId);
         uint208 price = pricingOptions[seed % 5].price;
 
-        IRaffle.EntryCalldata[] memory entriesCalldata = new IRaffle.EntryCalldata[](1);
-        entriesCalldata[0] = IRaffle.EntryCalldata({raffleId: openRaffleId, pricingOptionIndex: seed % 5, count: 1});
+        IRaffleV2.EntryCalldata[] memory entriesCalldata = new IRaffleV2.EntryCalldata[](1);
+        entriesCalldata[0] = IRaffleV2.EntryCalldata({raffleId: openRaffleId, pricingOptionIndex: seed % 5, count: 1});
 
         address caller = (callsMustBeValid || seed % 2 == 0) ? entry.participant : actors[bound(seed, 0, 99)];
         vm.prank(caller);
@@ -514,8 +516,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , uint40 cutoffTime, , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Open) return;
+        (, IRaffleV2.RaffleStatus status, , uint40 cutoffTime, , , , , , ) = looksRareRaffle.raffles(raffleId);
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Open) return;
 
         vm.warp(cutoffTime + 1);
 
@@ -528,8 +530,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Drawing) return;
+        (, IRaffleV2.RaffleStatus status, , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(raffleId);
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Drawing) return;
 
         vm.warp(drawnAt + 1 days + 1 seconds);
 
@@ -543,23 +545,23 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-        if (callsMustBeValid && status != IRaffle.RaffleStatus.Refundable) return;
+        (, IRaffleV2.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Refundable) return;
 
         vm.prank(looksRareRaffle.owner());
         looksRareRaffle.withdrawPrizes(raffleId);
 
-        ghost_ETH_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ETH);
-        ghost_ERC20_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC20);
-        ghost_ERC1155_prizesReturnedSum += _prizesValue(raffleId, IRaffle.TokenType.ERC1155);
+        ghost_ETH_prizesReturnedSum += _prizesValue(raffleId, IRaffleV2.TokenType.ETH);
+        ghost_ERC20_prizesReturnedSum += _prizesValue(raffleId, IRaffleV2.TokenType.ERC20);
+        ghost_ERC1155_prizesReturnedSum += _prizesValue(raffleId, IRaffleV2.TokenType.ERC1155);
     }
 
-    function _prizesValue(uint256 raffleId, IRaffle.TokenType prizeType) private view returns (uint256 value) {
-        if (prizeType == IRaffle.TokenType.ERC721) {
+    function _prizesValue(uint256 raffleId, IRaffleV2.TokenType prizeType) private view returns (uint256 value) {
+        if (prizeType == IRaffleV2.TokenType.ERC721) {
             revert("Invalid token type");
         }
 
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+        IRaffleV2.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
         for (uint256 i; i < prizes.length; i++) {
             if (prizes[i].prizeType == prizeType) {
                 value += prizes[i].prizeAmount * prizes[i].winnersCount;
@@ -578,7 +580,7 @@ contract Raffle_Invariants is TestHelpers {
 
         protocolFeeRecipient = new ProtocolFeeRecipient(address(weth), address(69_420));
 
-        looksRareRaffle = new Raffle(
+        looksRareRaffle = new RaffleV2(
             address(weth),
             KEY_HASH,
             SUBSCRIPTION_ID,
@@ -637,12 +639,12 @@ contract Raffle_Invariants is TestHelpers {
     function invariant_C() public {
         uint256 rafflesCount = looksRareRaffle.rafflesCount();
         for (uint256 raffleId; raffleId < rafflesCount; raffleId++) {
-            (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-            if (status >= IRaffle.RaffleStatus.Open && status <= IRaffle.RaffleStatus.RandomnessFulfilled) {
-                IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+            (, IRaffleV2.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+            if (status >= IRaffleV2.RaffleStatus.Open && status <= IRaffleV2.RaffleStatus.RandomnessFulfilled) {
+                IRaffleV2.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
                 for (uint256 i; i < prizes.length; i++) {
-                    IRaffle.Prize memory prize = prizes[i];
-                    if (prize.prizeType == IRaffle.TokenType.ERC721) {
+                    IRaffleV2.Prize memory prize = prizes[i];
+                    if (prize.prizeType == IRaffleV2.TokenType.ERC721) {
                         assertEq(MockERC721(prize.prizeAddress).ownerOf(prize.prizeId), address(looksRareRaffle));
                     }
                 }
@@ -656,12 +658,12 @@ contract Raffle_Invariants is TestHelpers {
     function invariant_D() public {
         uint256 rafflesCount = looksRareRaffle.rafflesCount();
         for (uint256 raffleId; raffleId < rafflesCount; raffleId++) {
-            (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
-            if (status >= IRaffle.RaffleStatus.Open && status <= IRaffle.RaffleStatus.RandomnessFulfilled) {
-                IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+            (, IRaffleV2.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+            if (status >= IRaffleV2.RaffleStatus.Open && status <= IRaffleV2.RaffleStatus.RandomnessFulfilled) {
+                IRaffleV2.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
                 for (uint256 i; i < prizes.length; i++) {
-                    IRaffle.Prize memory prize = prizes[i];
-                    if (prize.prizeType == IRaffle.TokenType.ERC1155) {
+                    IRaffleV2.Prize memory prize = prizes[i];
+                    if (prize.prizeType == IRaffleV2.TokenType.ERC1155) {
                         assertGe(
                             MockERC1155(prize.prizeAddress).balanceOf(address(looksRareRaffle), prize.prizeId),
                             handler.ghost_ERC1155_prizesDepositedSum() -
