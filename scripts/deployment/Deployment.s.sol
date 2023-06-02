@@ -77,7 +77,7 @@ contract Deployment is Script {
                 )
             });
         } else {
-            Raffle raffle = new RaffleV2(
+            RaffleV2 raffle = new RaffleV2(
                 weth,
                 keyHash,
                 subscriptionId,
