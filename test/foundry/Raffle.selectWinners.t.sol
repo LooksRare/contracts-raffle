@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -17,7 +17,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // Make it 11 winners in total instead of 106 winners for easier testing.
         params.prizes[6].winnersCount = 5;
         params.maximumEntriesPerParticipant = 100;
@@ -36,11 +36,11 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Drawn);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
         address[] memory expectedWinners = _expected11Winners();
@@ -50,7 +50,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         _assertERC721Winners(winners);
         _assertERC20Winners(winners);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Drawn);
     }
 
     mapping(uint256 => bool) private winningEntries;
@@ -58,7 +58,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
     function testFuzz_selectWinners(uint256 randomWord) public {
         _subscribeRaffleToVRF();
 
-        IRaffle.PricingOption[] memory pricingOptions = _generateStandardPricings();
+        IRaffleV2.PricingOption[] memory pricingOptions = _generateStandardPricings();
         uint256 userIndex;
         uint256 currentEntryIndex;
         while (currentEntryIndex < 107) {
@@ -66,8 +66,8 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             vm.deal(participant, 1 ether);
 
             uint256 pricingOptionIndex = userIndex % 5;
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
+            IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries, address(0));
@@ -85,11 +85,11 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Drawn);
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
 
         _assertERC721Winners(winners);
@@ -103,7 +103,7 @@ contract Raffle_SelectWinners_Test is TestHelpers {
             winningEntries[entryIndex] = true;
         }
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Drawn);
     }
 
     function test_selectWinners_RevertIf_InvalidStatus() public {
@@ -117,25 +117,25 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Drawn);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Drawn);
 
-        vm.expectRevert(IRaffle.InvalidStatus.selector);
+        vm.expectRevert(IRaffleV2.InvalidStatus.selector);
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
     }
 
     function test_selectWinners_RevertIf_RandomnessRequestDoesNotExist(uint256 requestId) public {
-        vm.expectRevert(IRaffle.RandomnessRequestDoesNotExist.selector);
+        vm.expectRevert(IRaffleV2.RandomnessRequestDoesNotExist.selector);
         looksRareRaffle.selectWinners(requestId);
     }
 
-    function _assertERC721Winners(IRaffle.Winner[] memory winners) private {
+    function _assertERC721Winners(IRaffleV2.Winner[] memory winners) private {
         for (uint256 i; i < 6; i++) {
             assertEq(winners[i].prizeIndex, i);
             assertFalse(winners[i].claimed);
         }
     }
 
-    function _assertERC20Winners(IRaffle.Winner[] memory winners) private {
+    function _assertERC20Winners(IRaffleV2.Winner[] memory winners) private {
         for (uint256 i = 6; i < winners.length; i++) {
             assertEq(winners[i].prizeIndex, 6);
             assertFalse(winners[i].claimed);

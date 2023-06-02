@@ -7,7 +7,7 @@ import "forge-std/console2.sol";
 import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract ClaimPrizes is Script, SimulationBase {
     function run() external {
@@ -17,7 +17,7 @@ contract ClaimPrizes is Script, SimulationBase {
 
         IRaffle raffle = getRaffle(block.chainid);
 
-        // IRaffle.Winner[] memory winners = raffle.getWinners(1);
+        // IRaffleV2.Winner[] memory winners = raffle.getWinners(1);
         // for (uint256 i; i < winners.length; i++) {
         //     console2.log(i);
         //     console2.log(winners[i].participant);
@@ -29,7 +29,7 @@ contract ClaimPrizes is Script, SimulationBase {
         winnerIndices[1] = 3;
         winnerIndices[2] = 5;
 
-        IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+        IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
         claimPrizesCalldata[0].raffleId = 1;
         claimPrizesCalldata[0].winnerIndices = winnerIndices;
 

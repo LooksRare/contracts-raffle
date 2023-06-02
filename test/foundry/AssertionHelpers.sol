@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import {Test} from "../../lib/forge-std/src/Test.sol";
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
@@ -12,24 +12,24 @@ import {MockERC721} from "./mock/MockERC721.sol";
 abstract contract AssertionHelpers is Test {
     event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndices);
-    event RaffleStatusUpdated(uint256 raffleId, IRaffle.RaffleStatus status);
+    event RaffleStatusUpdated(uint256 raffleId, IRaffleV2.RaffleStatus status);
 
     function assertRaffleStatus(
-        Raffle looksRareRaffle,
+        RaffleV2 looksRareRaffle,
         uint256 raffleId,
-        IRaffle.RaffleStatus expectedStatus
+        IRaffleV2.RaffleStatus expectedStatus
     ) internal {
-        (, IRaffle.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
+        (, IRaffleV2.RaffleStatus status, , , , , , , , ) = looksRareRaffle.raffles(raffleId);
         assertEq(uint8(status), uint8(expectedStatus));
     }
 
-    function assertAllWinnersClaimed(IRaffle.Winner[] memory winners) internal {
+    function assertAllWinnersClaimed(IRaffleV2.Winner[] memory winners) internal {
         for (uint256 i; i < winners.length; i++) {
             assertTrue(winners[i].claimed);
         }
     }
 
-    function assertRaffleStatusUpdatedEventEmitted(uint256 raffleId, IRaffle.RaffleStatus status) internal {
+    function assertRaffleStatusUpdatedEventEmitted(uint256 raffleId, IRaffleV2.RaffleStatus status) internal {
         expectEmitCheckAll();
         emit RaffleStatusUpdated(raffleId, status);
     }

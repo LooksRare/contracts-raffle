@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -26,7 +26,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         looksRareRaffle.cancel(1);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Refundable);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Refundable);
 
         uint256[] memory raffleIds = new uint256[](1);
         raffleIds[0] = 1;
@@ -37,8 +37,8 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         uint256 price = 0.025 ether;
         vm.deal(user2, price);
 
-        IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-        entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
 
         vm.prank(user2);
         looksRareRaffle.enterRaffles{value: price}(entries, user3);
@@ -47,13 +47,13 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         looksRareRaffle.cancel(1);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Refundable);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Refundable);
 
         uint256[] memory raffleIds = new uint256[](1);
         raffleIds[0] = 1;
 
         vm.prank(user3);
-        vm.expectRevert(IRaffle.NothingToClaim.selector);
+        vm.expectRevert(IRaffleV2.NothingToClaim.selector);
         looksRareRaffle.claimRefund(raffleIds);
         assertEq(user3.balance, 0);
 
@@ -69,7 +69,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     function test_claimRefund_MultipleRaffles() public {
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < params.prizes.length; i++) {
             params.prizes[i].prizeId = i + 6;
         }
@@ -86,8 +86,8 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         looksRareRaffle.withdrawPrizes(1);
 
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Cancelled);
-        assertRaffleStatus(looksRareRaffle, 2, IRaffle.RaffleStatus.Refundable);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Cancelled);
+        assertRaffleStatus(looksRareRaffle, 2, IRaffleV2.RaffleStatus.Refundable);
 
         uint256[] memory raffleIds = new uint256[](2);
         raffleIds[0] = 1;
@@ -98,7 +98,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     function test_claimRefund_MultipleRaffles_RevertIf_InvalidCurrency() public {
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.feeTokenAddress = address(mockERC20);
         for (uint256 i; i < params.prizes.length; i++) {
             params.prizes[i].prizeId = i + 6;
@@ -122,7 +122,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             address participant = address(uint160(i + 1));
 
             vm.prank(participant);
-            vm.expectRevert(IRaffle.InvalidCurrency.selector);
+            vm.expectRevert(IRaffleV2.InvalidCurrency.selector);
             looksRareRaffle.claimRefund(raffleIds);
         }
     }
@@ -130,7 +130,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
     function test_claimRefund_MultipleRaffles_RevertIf_DuplicatedRaffleIds() public {
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         for (uint256 i; i < params.prizes.length; i++) {
             params.prizes[i].prizeId = i + 6;
         }
@@ -154,7 +154,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             address participant = address(uint160(i + 1));
 
             vm.prank(participant);
-            vm.expectRevert(IRaffle.NothingToClaim.selector);
+            vm.expectRevert(IRaffleV2.NothingToClaim.selector);
             looksRareRaffle.claimRefund(raffleIds);
         }
     }
@@ -168,7 +168,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
             uint256[] memory raffleIds = new uint256[](1);
             raffleIds[0] = 1;
 
-            vm.expectRevert(IRaffle.InvalidStatus.selector);
+            vm.expectRevert(IRaffleV2.InvalidStatus.selector);
             vm.prank(participant);
             looksRareRaffle.claimRefund(raffleIds);
         }
@@ -188,7 +188,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         for (uint256 i = 10; i < 116; i++) {
             address participant = address(uint160(i + 1));
 
-            vm.expectRevert(IRaffle.NothingToClaim.selector);
+            vm.expectRevert(IRaffleV2.NothingToClaim.selector);
             vm.prank(participant);
             looksRareRaffle.claimRefund(raffleIds);
         }

@@ -7,14 +7,14 @@ import "forge-std/console2.sol";
 import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract EntriesLeft is Script, SimulationBase {
     function run() external view {
         IRaffle raffle = getRaffle(block.chainid);
-        IRaffle.Entry[] memory entries = raffle.getEntries(0);
-        IRaffle.Entry memory lastEntry = entries[entries.length - 1];
+        IRaffleV2.Entry[] memory entries = raffle.getEntries(0);
+        IRaffleV2.Entry memory lastEntry = entries[entries.length - 1];
         console2.logUint(lastEntry.currentEntryIndex);
     }
 }

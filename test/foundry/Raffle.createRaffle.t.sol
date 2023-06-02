@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -15,7 +15,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     }
 
     function test_createRaffle() public asPrankedUser(user1) {
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Open);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Open);
         uint256 raffleId = looksRareRaffle.createRaffle(
             _baseCreateRaffleParams(address(mockERC20), address(mockERC721))
         );
@@ -24,7 +24,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
         (
             address owner,
-            IRaffle.RaffleStatus status,
+            IRaffleV2.RaffleStatus status,
             bool isMinimumEntriesFixed,
             uint40 cutoffTime,
             uint40 drawnAt,
@@ -35,7 +35,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             uint256 claimableFees
         ) = looksRareRaffle.raffles(1);
         assertEq(owner, user1);
-        assertEq(uint8(status), uint8(IRaffle.RaffleStatus.Open));
+        assertEq(uint8(status), uint8(IRaffleV2.RaffleStatus.Open));
         assertFalse(isMinimumEntriesFixed);
         assertEq(cutoffTime, uint40(block.timestamp + 86_400));
         assertEq(drawnAt, 0);
@@ -45,13 +45,13 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(feeTokenAddress, address(0));
         assertEq(claimableFees, 0);
 
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(1);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, 0);
 
-        IRaffle.Prize[] memory prizes = looksRareRaffle.getPrizes(1);
+        IRaffleV2.Prize[] memory prizes = looksRareRaffle.getPrizes(1);
         assertEq(prizes.length, 7);
         for (uint256 i; i < 6; i++) {
-            assertEq(uint8(prizes[i].prizeType), uint8(IRaffle.TokenType.ERC721));
+            assertEq(uint8(prizes[i].prizeType), uint8(IRaffleV2.TokenType.ERC721));
             if (i == 0) {
                 assertEq(prizes[i].prizeTier, 0);
             } else {
@@ -63,7 +63,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
             assertEq(prizes[i].winnersCount, 1);
             assertEq(prizes[i].cumulativeWinnersCount, i + 1);
         }
-        assertEq(uint8(prizes[6].prizeType), uint8(IRaffle.TokenType.ERC20));
+        assertEq(uint8(prizes[6].prizeType), uint8(IRaffleV2.TokenType.ERC20));
         assertEq(prizes[6].prizeTier, 2);
         assertEq(prizes[6].prizeAddress, address(mockERC20));
         assertEq(prizes[6].prizeId, 0);
@@ -71,7 +71,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(prizes[6].winnersCount, 100);
         assertEq(prizes[6].cumulativeWinnersCount, 106);
 
-        IRaffle.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(1);
+        IRaffleV2.PricingOption[] memory pricingOptions = looksRareRaffle.getPricingOptions(1);
 
         assertEq(pricingOptions[0].entriesCount, 1);
         assertEq(pricingOptions[1].entriesCount, 10);
@@ -85,153 +85,153 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertEq(pricingOptions[3].price, 0.75 ether);
         assertEq(pricingOptions[4].price, 0.95 ether);
 
-        IRaffle.Entry[] memory entries = looksRareRaffle.getEntries(1);
+        IRaffleV2.Entry[] memory entries = looksRareRaffle.getEntries(1);
         assertEq(entries.length, 0);
 
         assertEq(looksRareRaffle.rafflesCount(), 1);
 
         assertEq(mockERC20.balanceOf(address(looksRareRaffle)), 100_000 ether);
         assertERC721Balance(mockERC721, address(looksRareRaffle), 6);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Open);
     }
 
     function test_createRaffle_PrizesAreETH() public asPrankedUser(user1) {
         vm.deal(user1, 1.5 ether);
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](2);
-        prizes[0].prizeType = IRaffle.TokenType.ETH;
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](2);
+        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
         prizes[0].prizeAddress = address(0);
         prizes[0].prizeId = 0;
         prizes[0].prizeAmount = 1 ether;
         prizes[0].winnersCount = 1;
-        prizes[1].prizeType = IRaffle.TokenType.ETH;
+        prizes[1].prizeType = IRaffleV2.TokenType.ETH;
         prizes[1].prizeAddress = address(0);
         prizes[1].prizeId = 0;
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes = prizes;
         looksRareRaffle.createRaffle{value: 1.5 ether}(params);
 
         assertEq(user1.balance, 0);
         assertEq(address(looksRareRaffle).balance, 1.5 ether);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Open);
     }
 
     function testFuzz_createRaffle_PrizesAreETH_RefundExtraETH(uint256 extra) public asPrankedUser(user1) {
         uint256 prizesValue = 1.5 ether;
         vm.assume(extra != 0 && extra < type(uint256).max - prizesValue);
         vm.deal(user1, prizesValue + extra);
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](2);
-        prizes[0].prizeType = IRaffle.TokenType.ETH;
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](2);
+        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
         prizes[0].prizeAddress = address(0);
         prizes[0].prizeId = 0;
         prizes[0].prizeAmount = 1 ether;
         prizes[0].winnersCount = 1;
-        prizes[1].prizeType = IRaffle.TokenType.ETH;
+        prizes[1].prizeType = IRaffleV2.TokenType.ETH;
         prizes[1].prizeAddress = address(0);
         prizes[1].prizeId = 0;
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes = prizes;
         looksRareRaffle.createRaffle{value: prizesValue + extra}(params);
 
         assertEq(user1.balance, extra);
         assertEq(address(looksRareRaffle).balance, prizesValue);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Open);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Open);
     }
 
     function test_createRaffle_RevertIf_InsufficientNativeTokensSupplied() public asPrankedUser(user1) {
         vm.deal(user1, 1.49 ether);
-        IRaffle.Prize[] memory prizes = new IRaffle.Prize[](2);
-        prizes[0].prizeType = IRaffle.TokenType.ETH;
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](2);
+        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
         prizes[0].prizeAddress = address(0);
         prizes[0].prizeId = 0;
         prizes[0].prizeAmount = 1 ether;
         prizes[0].winnersCount = 1;
-        prizes[1].prizeType = IRaffle.TokenType.ETH;
+        prizes[1].prizeType = IRaffleV2.TokenType.ETH;
         prizes[1].prizeAddress = address(0);
         prizes[1].prizeId = 0;
         prizes[1].prizeAmount = 0.5 ether;
         prizes[1].winnersCount = 1;
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes = prizes;
 
-        vm.expectRevert(IRaffle.InsufficientNativeTokensSupplied.selector);
+        vm.expectRevert(IRaffleV2.InsufficientNativeTokensSupplied.selector);
         looksRareRaffle.createRaffle{value: 1.49 ether}(params);
     }
 
     function test_createRaffle_RevertIf_InvalidPrizesCount_TooManyPrizes() public {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.prizes = new IRaffle.Prize[](201);
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes = new IRaffleV2.Prize[](201);
 
-        vm.expectRevert(IRaffle.InvalidPrizesCount.selector);
+        vm.expectRevert(IRaffleV2.InvalidPrizesCount.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_InvalidPrizeTier() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[2].prizeTier = 2;
 
-        vm.expectRevert(IRaffle.InvalidPrize.selector);
+        vm.expectRevert(IRaffleV2.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_InvalidProtocolFeeBp(uint16 protocolFeeBp) public {
         vm.assume(protocolFeeBp != 500);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.protocolFeeBp = protocolFeeBp;
 
-        vm.expectRevert(IRaffle.InvalidProtocolFeeBp.selector);
+        vm.expectRevert(IRaffleV2.InvalidProtocolFeeBp.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_InvalidCutoffTime_TooShort(uint256 lifespan) public {
         vm.assume(lifespan < 86_400);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.cutoffTime = uint40(block.timestamp + lifespan);
 
-        vm.expectRevert(IRaffle.InvalidCutoffTime.selector);
+        vm.expectRevert(IRaffleV2.InvalidCutoffTime.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_InvalidPrizesCount_ZeroPrizes() public {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.prizes = new IRaffle.Prize[](0);
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.prizes = new IRaffleV2.Prize[](0);
 
-        vm.expectRevert(IRaffle.InvalidPrizesCount.selector);
+        vm.expectRevert(IRaffleV2.InvalidPrizesCount.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_InvalidCutoffTime_TooLong(uint256 lifespan) public {
         vm.assume(lifespan > 86_400 * 7);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.cutoffTime = uint40(block.timestamp + lifespan);
 
-        vm.expectRevert(IRaffle.InvalidCutoffTime.selector);
+        vm.expectRevert(IRaffleV2.InvalidCutoffTime.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_PrizeIsERC721_InvalidPrizeAmount(uint256 prizeAmount) public {
         vm.assume(prizeAmount != 1);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[0].prizeAmount = prizeAmount;
 
-        vm.expectRevert(IRaffle.InvalidPrize.selector);
+        vm.expectRevert(IRaffleV2.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_PrizeIsERC721_InvalidWinnersCount(uint40 winnersCount) public {
         vm.assume(winnersCount != 1);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[0].winnersCount = winnersCount;
 
-        vm.expectRevert(IRaffle.InvalidPrize.selector);
+        vm.expectRevert(IRaffleV2.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -241,29 +241,29 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
     function test_createRaffle_RevertIf_PrizeIsERC1155_InvalidWinnersCount() public {}
 
     function test_createRaffle_RevertIf_PrizeIsERC20_InvalidPrizeAmount() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[6].prizeAmount = 0;
 
-        vm.expectRevert(IRaffle.InvalidPrize.selector);
+        vm.expectRevert(IRaffleV2.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PrizeIsERC20_InvalidWinnersCount() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[6].winnersCount = 0;
 
-        vm.expectRevert(IRaffle.InvalidPrize.selector);
+        vm.expectRevert(IRaffleV2.InvalidPrize.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PrizeIsETH_InvalidPrizeAmount() public {}
 
     function test_createRaffle_RevertIf_PrizeIsETH_InvalidWinnersCount() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.minimumEntries = 105;
         params.maximumEntriesPerParticipant = 100;
 
-        vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
+        vm.expectRevert(IRaffleV2.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -271,29 +271,29 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         public
         asPrankedUser(user1)
     {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.prizes[6].winnersCount = 105; // 1 + 5 + 105 = 111 > 110
 
         mockERC20.mint(user1, 5_000e18);
         mockERC20.approve(address(looksRareRaffle), 105_000e18);
 
-        vm.expectRevert(IRaffle.InvalidWinnersCount.selector);
+        vm.expectRevert(IRaffleV2.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_NoPricingOptions() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.pricingOptions = new IRaffle.PricingOption[](0);
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions = new IRaffleV2.PricingOption[](0);
 
-        vm.expectRevert(IRaffle.InvalidPricingOptionsCount.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOptionsCount.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_TooManyPricingOptions() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.pricingOptions = new IRaffle.PricingOption[](6);
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.pricingOptions = new IRaffleV2.PricingOption[](6);
 
-        vm.expectRevert(IRaffle.InvalidPricingOptionsCount.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOptionsCount.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -301,37 +301,37 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         public
         asPrankedUser(user1)
     {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.pricingOptions[1].entriesCount = 2;
 
-        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PricingOptionPriceIsNotDivisibleByEntriesCount() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.pricingOptions[4].entriesCount = 123;
 
-        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function testFuzz_createRaffle_RevertIf_MinimumEntriesIsNotDivisibleByFirstPricingOptionEntriesCount(
         uint40 entriesCount
     ) public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         vm.assume(entriesCount != 0 && params.minimumEntries % entriesCount != 0);
         params.pricingOptions[0].entriesCount = entriesCount;
 
-        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_FirstPricingOptionPriceIsZero() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.pricingOptions[0].price = 0;
 
-        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -339,14 +339,14 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         uint8 entriesCount
     ) public asPrankedUser(user1) {
         for (uint256 index = 1; index <= 4; index++) {
-            IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(
+            IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(
                 address(mockERC20),
                 address(mockERC721)
             );
             params.pricingOptions[0].entriesCount = 10;
             vm.assume(uint40(entriesCount) % 10 != 0);
             params.pricingOptions[index].entriesCount = uint40(entriesCount);
-            vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+            vm.expectRevert(IRaffleV2.InvalidPricingOption.selector);
             looksRareRaffle.createRaffle(params);
         }
     }
@@ -355,20 +355,20 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         public
         asPrankedUser(user1)
     {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // params.pricingOptions[1].entriesCount == 10
         params.pricingOptions[2].entriesCount = 9;
 
-        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
     function test_createRaffle_RevertIf_PricingPriceIsNotGreaterThanLastPrice() public asPrankedUser(user1) {
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         // params.pricingOptions[1].price == 0.22 ether
         params.pricingOptions[2].price = 0.219 ether;
 
-        vm.expectRevert(IRaffle.InvalidPricingOption.selector);
+        vm.expectRevert(IRaffleV2.InvalidPricingOption.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -379,10 +379,10 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.prank(owner);
         looksRareRaffle.updateCurrenciesStatus(currencies, false);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.feeTokenAddress = address(mockERC20);
 
-        vm.expectRevert(IRaffle.InvalidCurrency.selector);
+        vm.expectRevert(IRaffleV2.InvalidCurrency.selector);
         looksRareRaffle.createRaffle(params);
     }
 
@@ -394,7 +394,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         looksRareRaffle.updateCurrenciesStatus(currencies, false);
 
         vm.prank(user1);
-        vm.expectRevert(IRaffle.InvalidCurrency.selector);
+        vm.expectRevert(IRaffleV2.InvalidCurrency.selector);
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
     }
 }

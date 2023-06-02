@@ -7,7 +7,7 @@ import "forge-std/console2.sol";
 import {SimulationBase} from "./SimulationBase.sol";
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract ClaimRefund is Script, SimulationBase {
     error ChainIdInvalid(uint256 chainId);
@@ -24,7 +24,7 @@ contract ClaimRefund is Script, SimulationBase {
         raffleIds[1] = 3;
         raffle.claimRefund(raffleIds);
 
-        // bytes memory data = abi.encodeCall(IRaffle.claimRefund, raffleIds);
+        // bytes memory data = abi.encodeCall(IRaffleV2.claimRefund, raffleIds);
         // console2.logBytes(data);
 
         vm.stopBroadcast();

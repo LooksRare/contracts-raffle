@@ -5,7 +5,7 @@ pragma solidity 0.8.17;
 import {Script} from "../../lib/forge-std/src/Script.sol";
 
 // Core contracts
-import {Raffle} from "../../contracts/Raffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
 
 // Create2 factory interface
 import {IImmutableCreate2Factory} from "../../contracts/interfaces/IImmutableCreate2Factory.sol";
@@ -77,7 +77,7 @@ contract Deployment is Script {
                 )
             });
         } else {
-            Raffle raffle = new Raffle(
+            RaffleV2 raffle = new RaffleV2(
                 weth,
                 keyHash,
                 subscriptionId,
