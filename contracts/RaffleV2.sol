@@ -119,9 +119,10 @@ contract RaffleV2 is
 
     /**
      * @notice The participants stats of the raffles.
-     * @dev The key is the raffle ID and the nested key is the participant address.
+     * @dev The key is the combination between the raffle ID (first 96 bits)
+     *      and the participant address (next 160 bits).
      */
-    mapping(uint256 => mapping(address => ParticipantStats)) public rafflesParticipantsStats;
+    mapping(uint256 => ParticipantStats) public rafflesParticipantsStats;
 
     /**
      * @notice It checks whether the currency is allowed.
@@ -1066,12 +1067,13 @@ contract RaffleV2 is
                 entriesCount = pricingOption.entriesCount * multiplier;
                 price = pricingOption.price * multiplier;
 
-                uint40 newParticipantEntriesCount = rafflesParticipantsStats[raffleId][recipient].entriesCount +
+                uint256 rafflesParticipantsStatsKey = _rafflesParticipantsStatsKey(raffleId, recipient);
+                uint40 newParticipantEntriesCount = rafflesParticipantsStats[rafflesParticipantsStatsKey].entriesCount +
                     entriesCount;
                 if (newParticipantEntriesCount > raffle.maximumEntriesPerParticipant) {
                     revert MaximumEntriesPerParticipantReached();
                 }
-                rafflesParticipantsStats[raffleId][recipient].entriesCount = newParticipantEntriesCount;
+                rafflesParticipantsStats[rafflesParticipantsStatsKey].entriesCount = newParticipantEntriesCount;
             }
 
             expectedValue += price;
@@ -1095,7 +1097,7 @@ contract RaffleV2 is
             _pushEntry(raffle, currentEntryIndex, recipient);
             raffle.claimableFees += price;
 
-            rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
+            rafflesParticipantsStats[_rafflesParticipantsStatsKey(raffleId, msg.sender)].amountPaid += price;
 
             emit EntrySold(raffleId, recipient, entriesCount, price);
 
@@ -1138,7 +1140,9 @@ contract RaffleV2 is
                 revert InvalidStatus();
             }
 
-            ParticipantStats storage stats = rafflesParticipantsStats[raffleId][msg.sender];
+            ParticipantStats storage stats = rafflesParticipantsStats[
+                _rafflesParticipantsStatsKey(raffleId, msg.sender)
+            ];
             uint208 amountPaid = stats.amountPaid;
 
             if (stats.refunded || amountPaid == 0) {
@@ -1236,6 +1240,12 @@ contract RaffleV2 is
     function _unsafeSubtract(uint256 a, uint256 b) private pure returns (uint256) {
         unchecked {
             return a - b;
+        }
+    }
+
+    function _rafflesParticipantsStatsKey(uint256 raffleId, address participant) private pure returns (uint256 key) {
+        assembly {
+            key := or(shl(160, raffleId), participant)
         }
     }
 }

@@ -254,7 +254,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         entries[0] = IRaffleV2.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex, count: 1});
 
         if (callsMustBeValid) {
-            (, uint40 entriesCount, ) = looksRareRaffle.rafflesParticipantsStats(raffleId, currentActor);
+            (, uint40 entriesCount, ) = looksRareRaffle.rafflesParticipantsStats(
+                (raffleId << 160) | uint256(uint160(currentActor))
+            );
             uint40 pricingOptionEntriesCount = pricingOptions[pricingOptionIndex].entriesCount;
 
             if (entriesCount + pricingOptionEntriesCount > maximumEntriesPerParticipant) return;
@@ -430,7 +432,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         if (entries.length == 0) return;
         IRaffleV2.Entry memory entry = entries[seed % entries.length];
 
-        (uint208 amountPaid, , ) = looksRareRaffle.rafflesParticipantsStats(raffleId, entry.participant);
+        (uint208 amountPaid, , ) = looksRareRaffle.rafflesParticipantsStats(
+            (raffleId << 160) | uint256(uint160(entry.participant))
+        );
 
         uint256[] memory raffleIds = new uint256[](1);
         raffleIds[0] = raffleId;
@@ -475,7 +479,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         if (entries.length == 0) return;
         IRaffleV2.Entry memory entry = entries[seed % entries.length];
 
-        (uint208 amountPaid, , ) = looksRareRaffle.rafflesParticipantsStats(refundableRaffleId, entry.participant);
+        (uint208 amountPaid, , ) = looksRareRaffle.rafflesParticipantsStats(
+            (refundableRaffleId << 160) | uint256(uint160(currentActor))
+        );
 
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = refundableRaffleId;

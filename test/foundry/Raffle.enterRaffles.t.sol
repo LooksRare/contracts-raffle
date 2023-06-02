@@ -37,7 +37,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, 0);
         assertEq(address(looksRareRaffle).balance, price);
 
-        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 1);
@@ -73,7 +75,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, 0);
         assertEq(address(looksRareRaffle).balance, price);
 
-        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 120);
@@ -109,13 +113,17 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, 0);
         assertEq(address(looksRareRaffle).balance, price);
 
-        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 0);
         assertFalse(refunded);
 
-        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(1, user3);
+        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user3))
+        );
 
         assertEq(amountPaid, 0);
         assertEq(entriesCount, 120);
@@ -143,7 +151,9 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         assertEq(user2.balance, extra);
         assertEq(address(looksRareRaffle).balance, price);
 
-        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 1);

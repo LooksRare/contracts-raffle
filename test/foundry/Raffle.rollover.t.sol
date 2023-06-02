@@ -45,13 +45,17 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.prank(user2);
         looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
 
-        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 10);
         assertTrue(refunded);
 
-        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(2, user2);
+        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (2 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 10);
@@ -86,13 +90,17 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.prank(user2);
         looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
 
-        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 10);
         assertTrue(refunded);
 
-        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(2, user2);
+        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (2 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, 0.025 ether);
         assertEq(entriesCount, 1);
@@ -129,13 +137,17 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.prank(user2);
         looksRareRaffle.rollover{value: 0.28 ether}(refundableRaffleIds, entries, address(0));
 
-        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
+        (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (1 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, price);
         assertEq(entriesCount, 10);
         assertTrue(refunded);
 
-        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(2, user2);
+        (amountPaid, entriesCount, refunded) = looksRareRaffle.rafflesParticipantsStats(
+            (2 << 160) | uint256(uint160(user2))
+        );
 
         assertEq(amountPaid, 0.5 ether);
         assertEq(entriesCount, 25);

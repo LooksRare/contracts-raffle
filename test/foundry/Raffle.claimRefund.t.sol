@@ -205,8 +205,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
             for (uint256 j; j < rafflesCount; j++) {
                 (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(
-                    raffleIds[j],
-                    participant
+                    (raffleIds[j] << 160) | uint256(uint160(participant))
                 );
 
                 assertEq(amountPaid, 0.025 ether);
