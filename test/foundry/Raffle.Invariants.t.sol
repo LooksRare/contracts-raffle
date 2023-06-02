@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
-
-import {ProtocolFeeRecipient} from "@looksrare/contracts-exchange-v2/contracts/ProtocolFeeRecipient.sol";
+pragma solidity 0.8.20;
 
 import {RaffleV2} from "../../contracts/RaffleV2.sol";
 import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
@@ -12,6 +10,7 @@ import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC1155} from "./mock/MockERC1155.sol";
 import {MockWETH} from "./mock/MockWETH.sol";
 import {MockVRFCoordinatorV2} from "./mock/MockVRFCoordinatorV2.sol";
+import {ProtocolFeeRecipient} from "./mock/ProtocolFeeRecipient.sol";
 
 import {StdInvariant} from "forge-std/StdInvariant.sol";
 import {CommonBase} from "forge-std/Base.sol";

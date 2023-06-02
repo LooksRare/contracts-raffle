@@ -4,8 +4,6 @@ pragma solidity ^0.8.0;
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
-import {ProtocolFeeRecipient} from "@looksrare/contracts-exchange-v2/contracts/ProtocolFeeRecipient.sol";
-
 import {AssertionHelpers} from "./AssertionHelpers.sol";
 import {TestParameters} from "./TestParameters.sol";
 
@@ -15,6 +13,7 @@ import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 import {MockWETH} from "./mock/MockWETH.sol";
+import {ProtocolFeeRecipient} from "./mock/ProtocolFeeRecipient.sol";
 
 abstract contract TestHelpers is AssertionHelpers, TestParameters {
     RaffleV2 internal looksRareRaffle;
