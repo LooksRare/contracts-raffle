@@ -214,7 +214,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _stubRaffleStatus(uint256 raffleId, uint8 status) internal {
         address raffle = address(looksRareRaffle);
-        bytes32 slot = bytes32(keccak256(abi.encode(raffleId, uint256(3))));
+        bytes32 slot = bytes32(keccak256(abi.encode(raffleId, uint256(2))));
         uint256 value = uint256(vm.load(raffle, slot));
         uint256 mask = 0xff << 160;
         uint256 statusBits = uint256(status) << 160;
@@ -224,7 +224,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _stubRandomnessRequestExistence(uint256 requestId, bool exists) internal {
         address raffle = address(looksRareRaffle);
-        bytes32 slot = bytes32(keccak256(abi.encode(requestId, uint256(6))));
+        bytes32 slot = bytes32(keccak256(abi.encode(requestId, uint256(5))));
         uint256 value = exists ? 1 : 0;
 
         vm.store(raffle, slot, bytes32(value));

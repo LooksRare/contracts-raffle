@@ -112,11 +112,6 @@ contract RaffleV2 is
     uint256 private constant ONE_HUNDRED_PERCENT_BP = 10_000;
 
     /**
-     * @notice The number of raffles created.
-     */
-    uint256 public rafflesCount;
-
-    /**
      * @notice The raffles created.
      * @dev The key is the raffle ID.
      */
@@ -171,6 +166,14 @@ contract RaffleV2 is
      * @notice The maximum protocol fee in basis points, which is 25%.
      */
     uint16 public constant MAXIMUM_PROTOCOL_FEE_BP = 2_500;
+
+    /**
+     * @notice The number of raffles created.
+     * @dev In this smart contract, raffleId is an uint256 but its
+     *      max value can only be 2^80 - 1. Realistically we will still
+     *      not reach this number.
+     */
+    uint80 public rafflesCount;
 
     /**
      * @notice The protocol fee recipient.
