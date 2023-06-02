@@ -14,7 +14,7 @@ import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2
 
 import {Arrays} from "./libraries/Arrays.sol";
 
-import {WinningEntrySearchLogic} from "./WinningEntrySearchLogic.sol";
+import {WinningEntrySearchLogicV2} from "./WinningEntrySearchLogicV2.sol";
 
 import "./interfaces/IRaffleV2.sol";
 
@@ -97,7 +97,7 @@ contract RaffleV2 is
     OwnableTwoSteps,
     PackableReentrancyGuard,
     Pausable,
-    WinningEntrySearchLogic
+    WinningEntrySearchLogicV2
 {
     using Arrays for uint256[];
 

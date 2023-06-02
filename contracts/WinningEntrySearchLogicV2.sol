@@ -2,41 +2,42 @@
 pragma solidity 0.8.17;
 
 /**
- * @title WinningEntrySearchLogic
+ * @title WinningEntrySearchLogicV2
  * @notice This contract contains the logic to search for a winning entry.
  * @author LooksRare protocol team (👀,💎)
  */
-contract WinningEntrySearchLogic {
+contract WinningEntrySearchLogicV2 {
     /**
+     * @param randomWord The random word.
      * @param currentEntryIndex The current entry index.
-     * @param winningEntry The winning entry.
      * @param winningEntriesBitmap The bitmap of winning entries.
      */
-    function _incrementWinningEntryUntilThereIsNotADuplicate(
+    function _searchForWinningEntryUntilThereIsNotADuplicate(
+        uint256 randomWord,
         uint256 currentEntryIndex,
-        uint256 winningEntry,
         uint256[] memory winningEntriesBitmap
-    ) internal pure returns (uint256, uint256[] memory) {
+    )
+        internal
+        pure
+        returns (
+            uint256,
+            uint256,
+            uint256[] memory
+        )
+    {
+        uint256 winningEntry = randomWord % (currentEntryIndex + 1);
+
         uint256 bucket = winningEntry >> 8;
         uint256 mask = 1 << (winningEntry & 0xff);
         while (winningEntriesBitmap[bucket] & mask != 0) {
-            if (winningEntry == currentEntryIndex) {
-                bucket = 0;
-                winningEntry = 0;
-            } else {
-                winningEntry += 1;
-                if (winningEntry % 256 == 0) {
-                    unchecked {
-                        bucket += 1;
-                    }
-                }
-            }
-
+            randomWord = uint256(keccak256(abi.encodePacked(randomWord)));
+            winningEntry = randomWord % (currentEntryIndex + 1);
+            bucket = winningEntry >> 8;
             mask = 1 << (winningEntry & 0xff);
         }
 
         winningEntriesBitmap[bucket] |= mask;
 
-        return (winningEntry, winningEntriesBitmap);
+        return (randomWord, winningEntry, winningEntriesBitmap);
     }
 }
