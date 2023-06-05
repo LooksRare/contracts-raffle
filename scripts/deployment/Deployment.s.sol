@@ -64,7 +64,7 @@ contract Deployment is Script {
             IMMUTABLE_CREATE2_FACTORY.safeCreate2({
                 salt: vm.envBytes32("RAFFLE_SALT"),
                 initializationCode: abi.encodePacked(
-                    type(Raffle).creationCode,
+                    type(RaffleV2).creationCode,
                     abi.encode(
                         weth,
                         keyHash,
