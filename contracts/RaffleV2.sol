@@ -1204,6 +1204,9 @@ contract RaffleV2 is
         }
     }
 
+    /**
+     * @param raffle The raffle to validate.
+     */
     function _validateRafflePostCutoffTimeStatusTransferability(Raffle storage raffle) private view {
         _validateRaffleStatus(raffle, RaffleStatus.Open);
 
