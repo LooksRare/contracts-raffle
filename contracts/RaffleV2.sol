@@ -667,13 +667,21 @@ contract RaffleV2 is
      */
     function cancel(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
-        _validateRaffleStatus(raffle, RaffleStatus.Open);
-
-        if (raffle.cutoffTime > block.timestamp) {
-            revert CutoffTimeNotReached();
+        _validateRafflePostCutoffTimeStatusTransferability(raffle);
+        if (block.timestamp < raffle.cutoffTime + 1 hours) {
+            _validateCaller(raffle.owner);
         }
-
         _setRaffleStatus(raffle, raffleId, RaffleStatus.Refundable);
+    }
+
+    /**
+     * @inheritdoc IRaffleV2
+     */
+    function drawWinners(uint256 raffleId) external nonReentrant whenNotPaused {
+        Raffle storage raffle = raffles[raffleId];
+        _validateRafflePostCutoffTimeStatusTransferability(raffle);
+        _validateCaller(raffle.owner);
+        _drawWinners(raffleId, raffle);
     }
 
     /**
@@ -1193,6 +1201,14 @@ contract RaffleV2 is
                 _unsafeSubtract(msg.value, expectedEthValue),
                 gasleft()
             );
+        }
+    }
+
+    function _validateRafflePostCutoffTimeStatusTransferability(Raffle storage raffle) private view {
+        _validateRaffleStatus(raffle, RaffleStatus.Open);
+
+        if (raffle.cutoffTime > block.timestamp) {
+            revert CutoffTimeNotReached();
         }
     }
 

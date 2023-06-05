@@ -23,6 +23,7 @@ contract Raffle_WithdrawPrizes_Test is TestHelpers {
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Cancelled);

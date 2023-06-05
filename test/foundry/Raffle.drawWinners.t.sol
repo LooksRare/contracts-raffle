@@ -11,9 +11,6 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 contract Raffle_DrawWinners_Test is TestHelpers {
-    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
-    event RandomnessRequested(uint256 raffleId, uint256 requestId);
-
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_915);
 
@@ -93,21 +90,5 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         vm.expectRevert(IRaffleV2.RandomnessRequestAlreadyExists.selector);
         vm.prank(user3);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
-    }
-
-    function _expectChainlinkCall() private {
-        vm.expectCall(
-            0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
-            abi.encodeCall(
-                VRFCoordinatorV2Interface.requestRandomWords,
-                (
-                    hex"474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c",
-                    uint64(1_122),
-                    uint16(3),
-                    500_000,
-                    uint32(1)
-                )
-            )
-        );
     }
 }
