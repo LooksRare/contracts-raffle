@@ -29,7 +29,7 @@ Each raffle consists of the following states:
 
 3. `Drawing`
    When a raffle's minimum entries has reached before the cutoff time, the smart contract calls Chainlink VRF
-   to draw multiple random numbers to determine the winners. The state `Drawing` represents the intermediary state
+   to draw a random number to determine the winners. Raffle owners also have the option to draw the winners if the minimum entries is not met after the cutoff time. The state `Drawing` represents the intermediary state
    of waiting for Chainlink VRF's callback.
 
 4. `RandomnessFulfilled`
