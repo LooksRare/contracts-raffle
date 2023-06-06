@@ -81,6 +81,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         console2.log("Claim single prize", calls["claimPrize"]);
         console2.log("Claim prizes", calls["claimPrizes"]);
         console2.log("Cancel", calls["cancel"]);
+        console2.log("Draw winners", calls["drawWinners"]);
         console2.log("Cancel after randomness request", calls["cancelAfterRandomnessRequest"]);
         console2.log("Claim refund", calls["claimRefund"]);
         console2.log("Rollover", calls["rollover"]);
@@ -515,12 +516,35 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         bound(raffleId, 1, rafflesCount);
 
-        (, IRaffleV2.RaffleStatus status, , uint40 cutoffTime, , , , , , ) = looksRareRaffle.raffles(raffleId);
+        (address raffleOwner, IRaffleV2.RaffleStatus status, , uint40 cutoffTime, , , , , , ) = looksRareRaffle.raffles(
+            raffleId
+        );
+        if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Open) return;
+
+        if (raffleId % 2 == 0) {
+            vm.warp(cutoffTime + 1 hours - 1 seconds);
+            vm.prank(raffleOwner);
+        } else {
+            vm.warp(cutoffTime + 1 hours + 1 seconds);
+        }
+        looksRareRaffle.cancel(raffleId);
+    }
+
+    function drawWinners(uint256 raffleId) public countCall("drawWinners") {
+        uint256 rafflesCount = looksRareRaffle.rafflesCount();
+        if (rafflesCount == 0) return;
+
+        bound(raffleId, 1, rafflesCount);
+
+        (address raffleOwner, IRaffleV2.RaffleStatus status, , uint40 cutoffTime, , , , , , ) = looksRareRaffle.raffles(
+            raffleId
+        );
         if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Open) return;
 
         vm.warp(cutoffTime + 1);
 
-        looksRareRaffle.cancel(raffleId);
+        vm.prank(raffleOwner);
+        looksRareRaffle.drawWinners(raffleId);
     }
 
     function cancelAfterRandomnessRequest(uint256 raffleId) public countCall("cancelAfterRandomnessRequest") {
