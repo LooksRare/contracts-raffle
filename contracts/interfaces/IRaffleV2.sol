@@ -208,6 +208,7 @@ interface IRaffleV2 {
     error MaximumEntriesPerParticipantReached();
     error MaximumEntriesReached();
     error NothingToClaim();
+    error NotEnoughEntries();
     error RandomnessRequestAlreadyExists();
     error RandomnessRequestDoesNotExist();
 

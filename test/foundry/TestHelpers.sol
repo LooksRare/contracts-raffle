@@ -168,10 +168,15 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(uint256 raffleId) internal {
+        _enterRafflesWithSingleEntry(raffleId, 106);
+    }
+
+    function _enterRafflesWithSingleEntry(uint256 raffleId, uint256 count) internal {
         (, , , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
 
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 116; i++) {
+        uint256 end = 10 + count;
+        for (uint256 i = 10; i < end; i++) {
             address participant = address(uint160(i + 1));
 
             uint256 price = 0.025 ether;
