@@ -676,9 +676,23 @@ contract RaffleV2 is
 
     /**
      * @inheritdoc IRaffleV2
+     * @notice A raffle cannot be drawn if there are less entries than prizes.
      */
     function drawWinners(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
+
+        Entry[] storage entries = raffle.entries;
+        uint256 entriesCount = entries.length;
+        if (entriesCount == 0) {
+            revert NotEnoughEntries();
+        }
+
+        Prize[] storage prizes = raffle.prizes;
+
+        if (prizes[prizes.length - 1].cumulativeWinnersCount > entries[entriesCount - 1].currentEntryIndex + 1) {
+            revert NotEnoughEntries();
+        }
+
         _validateRafflePostCutoffTimeStatusTransferability(raffle);
         _validateCaller(raffle.owner);
         _drawWinners(raffleId, raffle);

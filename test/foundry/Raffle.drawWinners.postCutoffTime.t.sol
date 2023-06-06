@@ -65,4 +65,20 @@ contract Raffle_DrawWinners_PostCutoffTime_Test is TestHelpers {
         vm.expectRevert(IRaffleV2.InvalidCaller.selector);
         looksRareRaffle.drawWinners(1);
     }
+
+    function test_drawWinners_RevertIf_NotEnoughEntries_ZeroEntries() public {
+        vm.warp(block.timestamp + 86_400 + 1 hours);
+
+        vm.expectRevert(IRaffleV2.NotEnoughEntries.selector);
+        looksRareRaffle.drawWinners(1);
+    }
+
+    function test_drawWinners_RevertIf_NotEnoughEntries_EntriesLessThanWinners() public {
+        _enterRafflesWithSingleEntry(1, 105);
+
+        vm.warp(block.timestamp + 86_400 + 1 hours);
+
+        vm.expectRevert(IRaffleV2.NotEnoughEntries.selector);
+        looksRareRaffle.drawWinners(1);
+    }
 }

@@ -53,6 +53,45 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Drawn);
     }
 
+    function test_selectWinners_EntriesCountIsEqualToWinnersCount() public {
+        uint256 winnersCount = 200;
+
+        mockERC20.mint(user1, 194_000 ether);
+        mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
+
+        vm.startPrank(user1);
+        mockERC20.approve(address(looksRareRaffle), 194_000 ether);
+        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        vm.stopPrank();
+
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        params.minimumEntries = uint40(winnersCount);
+        for (uint256 i; i < params.prizes.length; i++) {
+            params.prizes[i].prizeId = i + 6;
+        }
+        params.prizes[params.prizes.length - 1].winnersCount = 194;
+
+        vm.prank(user1);
+        looksRareRaffle.createRaffle(params);
+
+        _subscribeRaffleToVRF();
+        _enterRafflesWithSingleEntry(2, params.minimumEntries);
+
+        uint256[] memory randomWords = _generateRandomWordForRaffle();
+
+        vm.prank(VRF_COORDINATOR);
+        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+
+        assertRaffleStatusUpdatedEventEmitted(2, IRaffleV2.RaffleStatus.Drawn);
+
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(2);
+        assertEq(winners.length, winnersCount);
+
+        assertRaffleStatus(looksRareRaffle, 2, IRaffleV2.RaffleStatus.Drawn);
+    }
+
     mapping(uint256 => bool) private winningEntries;
 
     function testFuzz_selectWinners(uint256 randomWord) public {

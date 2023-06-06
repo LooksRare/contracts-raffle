@@ -541,6 +541,15 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         );
         if (callsMustBeValid && status != IRaffleV2.RaffleStatus.Open) return;
 
+        IRaffleV2.Entry[] memory entries = looksRareRaffle.getEntries(raffleId);
+        if (callsMustBeValid && entries.length == 0) return;
+
+        IRaffleV2.Prize[] memory prizes = looksRareRaffle.getPrizes(raffleId);
+        if (
+            callsMustBeValid &&
+            prizes[prizes.length - 1].cumulativeWinnersCount > (entries[entries.length - 1].currentEntryIndex + 1)
+        ) return;
+
         vm.warp(cutoffTime + 1);
 
         vm.prank(raffleOwner);
