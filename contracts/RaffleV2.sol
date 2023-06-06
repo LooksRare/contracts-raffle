@@ -405,13 +405,8 @@ contract RaffleV2 is
      * @notice If it is a delegated recipient, the amount paid should still be accrued to the payer.
      *         If a raffle is cancelled, the payer should be refunded and not the recipient.
      */
-    function enterRaffles(EntryCalldata[] calldata entries, address recipient)
-        external
-        payable
-        nonReentrant
-        whenNotPaused
-    {
-        (address feeTokenAddress, uint208 expectedValue) = _enterRaffles(entries, recipient);
+    function enterRaffles(EntryCalldata[] calldata entries) external payable nonReentrant whenNotPaused {
+        (address feeTokenAddress, uint208 expectedValue) = _enterRaffles(entries);
         _chargeUser(feeTokenAddress, expectedValue);
     }
 
@@ -748,13 +743,14 @@ contract RaffleV2 is
      * @notice The fee token address for all the raffles involved must be the same.
      * @dev Refundable and Cancelled are the only statuses that allow refunds.
      */
-    function rollover(
-        uint256[] calldata refundableRaffleIds,
-        EntryCalldata[] calldata entries,
-        address recipient
-    ) external payable nonReentrant whenNotPaused {
+    function rollover(uint256[] calldata refundableRaffleIds, EntryCalldata[] calldata entries)
+        external
+        payable
+        nonReentrant
+        whenNotPaused
+    {
         (address refundFeeTokenAddress, uint208 rolloverAmount) = _claimRefund(refundableRaffleIds);
-        (address enterRafflesFeeTokenAddress, uint208 expectedValue) = _enterRaffles(entries, recipient);
+        (address enterRafflesFeeTokenAddress, uint208 expectedValue) = _enterRaffles(entries);
 
         if (refundFeeTokenAddress != enterRafflesFeeTokenAddress) {
             revert InvalidCurrency();
@@ -1042,19 +1038,16 @@ contract RaffleV2 is
 
     /**
      * @param entries The entries to enter.
-     * @param recipient The recipient of the entries.
      */
-    function _enterRaffles(EntryCalldata[] calldata entries, address recipient)
+    function _enterRaffles(EntryCalldata[] calldata entries)
         private
         returns (address feeTokenAddress, uint208 expectedValue)
     {
-        if (recipient == address(0)) {
-            recipient = msg.sender;
-        }
-
         uint256 count = entries.length;
         for (uint256 i; i < count; ) {
             EntryCalldata calldata entry = entries[i];
+
+            address recipient = entry.recipient == address(0) ? msg.sender : entry.recipient;
 
             uint256 raffleId = entry.raffleId;
             Raffle storage raffle = raffles[raffleId];

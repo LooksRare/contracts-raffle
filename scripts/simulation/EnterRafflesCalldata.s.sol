@@ -13,7 +13,7 @@ import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 contract EnterRafflesCalldata is Script, SimulationBase {
     function run() external view {
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1, recipient: address(0)});
 
         bytes memory data = abi.encodeCall(IRaffleV2.enterRaffles, entries);
         console2.logBytes(data);

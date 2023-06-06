@@ -177,14 +177,19 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             }
 
             IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-            entries[0] = IRaffleV2.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0, count: 1});
+            entries[0] = IRaffleV2.EntryCalldata({
+                raffleId: raffleId,
+                pricingOptionIndex: 0,
+                count: 1,
+                recipient: address(0)
+            });
 
             vm.startPrank(participant);
             if (feeTokenAddress == address(0)) {
-                looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+                looksRareRaffle.enterRaffles{value: price}(entries);
             } else {
                 mockERC20.approve(address(looksRareRaffle), price);
-                looksRareRaffle.enterRaffles(entries, address(0));
+                looksRareRaffle.enterRaffles(entries);
             }
             vm.stopPrank();
         }

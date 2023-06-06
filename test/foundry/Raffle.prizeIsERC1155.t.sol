@@ -63,11 +63,11 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         vm.deal(participant, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](2);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
-        entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1, recipient: address(0)});
+        entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1, recipient: address(0)});
 
         vm.prank(participant);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
         _fulfillCurrentTestRandomWords();
         looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
 
@@ -112,13 +112,13 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         vm.deal(participant, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](4);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
-        entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
-        entries[2] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
-        entries[3] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1, recipient: address(0)});
+        entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1, recipient: address(0)});
+        entries[2] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1, recipient: address(0)});
+        entries[3] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 4, count: 1, recipient: address(0)});
 
         vm.prank(participant);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
         _fulfillCurrentTestRandomWords();
         looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
 

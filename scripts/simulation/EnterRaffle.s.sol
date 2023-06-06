@@ -24,10 +24,15 @@ contract EnterRaffle is Script, SimulationBase {
         uint256 price = 0;
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](count);
         for (uint256 i; i < count; i++) {
-            entries[i] = IRaffleV2.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0, count: 1});
+            entries[i] = IRaffleV2.EntryCalldata({
+                raffleId: raffleId,
+                pricingOptionIndex: 0,
+                count: 1,
+                recipient: address(0)
+            });
         }
 
-        raffle.enterRaffles{value: price * count}(entries, address(0));
+        raffle.enterRaffles{value: price * count}(entries);
 
         vm.stopBroadcast();
     }

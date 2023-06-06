@@ -118,11 +118,13 @@ interface IRaffleV2 {
      * @param raffleId The id of the raffle.
      * @param pricingOptionIndex The index of the selected pricing option.
      * @param count The number of entries to be purchased.
+     * @param recipient The recipient of the entries.
      */
     struct EntryCalldata {
         uint256 raffleId;
         uint256 pricingOptionIndex;
         uint40 count;
+        address recipient;
     }
 
     /**
@@ -222,9 +224,8 @@ interface IRaffleV2 {
     /**
      * @notice Enters a raffle or multiple raffles.
      * @param entries The entries to be made.
-     * @param recipient The entries' recipient address.
      */
-    function enterRaffles(EntryCalldata[] calldata entries, address recipient) external payable;
+    function enterRaffles(EntryCalldata[] calldata entries) external payable;
 
     /**
      * @notice Select the winners for a raffle based on the random words returned by Chainlink.
@@ -282,13 +283,8 @@ interface IRaffleV2 {
      * @notice Rollover entries from cancelled raffles to open raffles.
      * @param refundableRaffleIds The ids of the refundable raffles.
      * @param entries The entries to be made.
-     * @param recipient The entries' recipient address.
      */
-    function rollover(
-        uint256[] calldata refundableRaffleIds,
-        EntryCalldata[] calldata entries,
-        address recipient
-    ) external payable;
+    function rollover(uint256[] calldata refundableRaffleIds, EntryCalldata[] calldata entries) external payable;
 
     /**
      * @notice Claims the refund for a cancelled raffle.

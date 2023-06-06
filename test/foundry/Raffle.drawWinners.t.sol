@@ -33,7 +33,12 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
             IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
             uint256 pricingOptionIndex = i % 5;
-            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
+            entries[0] = IRaffleV2.EntryCalldata({
+                raffleId: 1,
+                pricingOptionIndex: pricingOptionIndex,
+                count: 1,
+                recipient: address(0)
+            });
 
             uint208 price = pricingOptions[pricingOptionIndex].price;
 
@@ -51,7 +56,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             }
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+            looksRareRaffle.enterRaffles{value: price}(entries);
         }
 
         (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(
@@ -82,13 +87,13 @@ contract Raffle_DrawWinners_Test is TestHelpers {
         uint256 price = pricingOptions[4].price;
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
 
         vm.expectRevert(IRaffleV2.RandomnessRequestAlreadyExists.selector);
         vm.prank(user3);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
     }
 }

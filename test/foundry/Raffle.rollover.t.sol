@@ -24,10 +24,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.deal(user2, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -41,10 +41,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
+        looksRareRaffle.rollover(refundableRaffleIds, entries);
 
         (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
 
@@ -66,10 +66,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.deal(user2, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -83,10 +83,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 0, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 0, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
+        looksRareRaffle.rollover(refundableRaffleIds, entries);
 
         (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
 
@@ -108,10 +108,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.deal(user2, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -125,12 +125,12 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 2, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 2, count: 1, recipient: address(0)});
 
         vm.deal(user2, 0.28 ether);
 
         vm.prank(user2);
-        looksRareRaffle.rollover{value: 0.28 ether}(refundableRaffleIds, entries, address(0));
+        looksRareRaffle.rollover{value: 0.28 ether}(refundableRaffleIds, entries);
 
         (uint208 amountPaid, uint40 entriesCount, bool refunded) = looksRareRaffle.rafflesParticipantsStats(1, user2);
 
@@ -152,10 +152,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.deal(user2, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -175,11 +175,11 @@ contract Raffle_Rollover_Test is TestHelpers {
         uint256[] memory refundableRaffleIds = new uint256[](1);
         refundableRaffleIds[0] = 1;
 
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.prank(user2);
         vm.expectRevert(IRaffleV2.InvalidCurrency.selector);
-        looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
+        looksRareRaffle.rollover(refundableRaffleIds, entries);
 
         assertEq(user2.balance, 0);
     }
@@ -189,10 +189,10 @@ contract Raffle_Rollover_Test is TestHelpers {
         vm.deal(user2, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries, address(0));
+        looksRareRaffle.enterRaffles{value: price}(entries);
 
         vm.warp(block.timestamp + 86_400 + 1);
 
@@ -207,11 +207,11 @@ contract Raffle_Rollover_Test is TestHelpers {
         refundableRaffleIds[0] = 1;
         refundableRaffleIds[1] = 1;
 
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 2, pricingOptionIndex: 1, count: 1, recipient: address(0)});
 
         vm.expectRevert(IRaffleV2.NothingToClaim.selector);
         vm.prank(user2);
-        looksRareRaffle.rollover(refundableRaffleIds, entries, address(0));
+        looksRareRaffle.rollover(refundableRaffleIds, entries);
     }
 
     function _createOpenRaffle() private {
