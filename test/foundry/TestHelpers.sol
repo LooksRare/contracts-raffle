@@ -126,17 +126,17 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _expected11Winners() internal pure returns (address[] memory winners) {
         winners = new address[](11);
-        winners[0] = address(8);
-        winners[1] = address(64);
-        winners[2] = address(67);
-        winners[3] = address(57);
-        winners[4] = address(48);
-        winners[5] = address(61);
-        winners[6] = address(103);
-        winners[7] = address(98);
-        winners[8] = address(4);
-        winners[9] = address(72);
-        winners[10] = address(27);
+        winners[0] = address(18);
+        winners[1] = address(74);
+        winners[2] = address(77);
+        winners[3] = address(67);
+        winners[4] = address(58);
+        winners[5] = address(71);
+        winners[6] = address(113);
+        winners[7] = address(108);
+        winners[8] = address(14);
+        winners[9] = address(82);
+        winners[10] = address(37);
     }
 
     function _mintStandardRafflePrizesToRaffleOwnerAndApprove() internal {
@@ -154,17 +154,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntries() internal {
-        for (uint256 i; i < 107; i++) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries, address(0));
-        }
+        _enterRafflesWithSingleEntry(1, 107);
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(uint256 raffleId) internal {
