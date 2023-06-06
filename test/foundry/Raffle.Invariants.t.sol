@@ -252,7 +252,12 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         uint208 price = pricingOptions[pricingOptionIndex].price;
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: raffleId, pricingOptionIndex: pricingOptionIndex, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({
+            raffleId: raffleId,
+            pricingOptionIndex: pricingOptionIndex,
+            count: 1,
+            recipient: address(0)
+        });
 
         if (callsMustBeValid) {
             (, uint40 entriesCount, ) = looksRareRaffle.rafflesParticipantsStats(raffleId, currentActor);
@@ -272,12 +277,12 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         if (feeTokenAddress == ETH) {
             // Pseudorandomly add 1 wei to test refund, not using seed because stack too deep :(
             vm.deal(currentActor, price + (block.timestamp % 2));
-            looksRareRaffle.enterRaffles{value: price + (block.timestamp % 2)}(entries, address(0));
+            looksRareRaffle.enterRaffles{value: price + (block.timestamp % 2)}(entries);
             ghost_ETH_feesCollectedSum += price;
         } else if (feeTokenAddress == address(erc20)) {
             erc20.mint(currentActor, price);
             erc20.approve(address(looksRareRaffle), price);
-            looksRareRaffle.enterRaffles(entries, address(0));
+            looksRareRaffle.enterRaffles(entries);
             ghost_ERC20_feesCollectedSum += price;
         }
     }
@@ -485,14 +490,18 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         uint208 price = pricingOptions[seed % 5].price;
 
         IRaffleV2.EntryCalldata[] memory entriesCalldata = new IRaffleV2.EntryCalldata[](1);
-        entriesCalldata[0] = IRaffleV2.EntryCalldata({raffleId: openRaffleId, pricingOptionIndex: seed % 5, count: 1});
+        entriesCalldata[0] = IRaffleV2.EntryCalldata({
+            raffleId: openRaffleId,
+            pricingOptionIndex: seed % 5,
+            count: 1,
+            recipient: address(0)
+        });
 
         address caller = (callsMustBeValid || seed % 2 == 0) ? entry.participant : actors[bound(seed, 0, 99)];
         vm.prank(caller);
         looksRareRaffle.rollover{value: price > amountPaid ? price - amountPaid : 0}(
             refundableRaffleIds,
-            entriesCalldata,
-            address(0)
+            entriesCalldata
         );
 
         if (feeTokenAddress == ETH) {

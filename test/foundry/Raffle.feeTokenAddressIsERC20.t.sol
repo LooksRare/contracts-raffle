@@ -45,11 +45,11 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
             deal(address(feeToken), participant, price);
 
             IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
+            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1, recipient: address(0)});
 
             vm.startPrank(participant);
             feeToken.approve(address(looksRareRaffle), price);
-            looksRareRaffle.enterRaffles(entries, address(0));
+            looksRareRaffle.enterRaffles(entries);
             vm.stopPrank();
         }
 

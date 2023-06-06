@@ -39,10 +39,10 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
         vm.deal(user2, price);
 
         IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1});
+        entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1, recipient: user3});
 
         vm.prank(user2);
-        looksRareRaffle.enterRaffles{value: price}(entries, user3);
+        looksRareRaffle.enterRaffles{value: price}(entries);
 
         vm.warp(block.timestamp + 86_400 + 1);
 

@@ -106,10 +106,15 @@ contract Raffle_SelectWinners_Test is TestHelpers {
 
             uint256 pricingOptionIndex = userIndex % 5;
             IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
-            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: pricingOptionIndex, count: 1});
+            entries[0] = IRaffleV2.EntryCalldata({
+                raffleId: 1,
+                pricingOptionIndex: pricingOptionIndex,
+                count: 1,
+                recipient: address(0)
+            });
 
             vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries, address(0));
+            looksRareRaffle.enterRaffles{value: pricingOptions[pricingOptionIndex].price}(entries);
 
             unchecked {
                 currentEntryIndex += pricingOptions[pricingOptionIndex].entriesCount;
