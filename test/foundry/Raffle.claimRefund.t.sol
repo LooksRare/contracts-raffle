@@ -24,6 +24,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Refundable);
@@ -45,6 +46,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Refundable);
@@ -81,8 +83,10 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.startPrank(user1);
         looksRareRaffle.cancel(1);
         looksRareRaffle.cancel(2);
+        vm.stopPrank();
 
         looksRareRaffle.withdrawPrizes(1);
 
@@ -111,8 +115,10 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.startPrank(user1);
         looksRareRaffle.cancel(1);
         looksRareRaffle.cancel(2);
+        vm.stopPrank();
 
         uint256[] memory raffleIds = new uint256[](2);
         raffleIds[0] = 1;
@@ -142,8 +148,10 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.startPrank(user1);
         looksRareRaffle.cancel(1);
         looksRareRaffle.cancel(2);
+        vm.stopPrank();
 
         uint256[] memory raffleIds = new uint256[](3);
         raffleIds[0] = 1;
@@ -179,6 +187,7 @@ contract Raffle_ClaimRefund_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         uint256[] memory raffleIds = new uint256[](1);

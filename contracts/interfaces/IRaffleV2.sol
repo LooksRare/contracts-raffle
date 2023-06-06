@@ -258,6 +258,12 @@ interface IRaffleV2 {
     function cancel(uint256 raffleId) external;
 
     /**
+     * @notice Draws winners for a raffle beyond cut-off time without meeting minimum entries.
+     * @param raffleId The id of the raffle.
+     */
+    function drawWinners(uint256 raffleId) external;
+
+    /**
      * @notice Cancels a raffle after randomness request if the randomness request
      *         does not arrive after a certain amount of time.
      *         Only callable by contract owner.

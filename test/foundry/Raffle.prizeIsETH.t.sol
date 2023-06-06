@@ -10,9 +10,6 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 contract Raffle_PrizeIsETH_Test is TestHelpers {
-    uint256 private constant CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID =
-        76894510284611345647476587488494855240041797425274913275941122182751455536258;
-
     function setUp() public {
         _forkSepolia();
 
@@ -30,7 +27,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
 
         _fulfillCurrentTestRandomWords();
 
-        looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         _claimPrizes(1);
         _assertPrizesTransferred();
@@ -41,7 +38,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
 
         _fulfillCurrentTestRandomWords();
 
-        looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
         vm.prank(user1);
         looksRareRaffle.claimFees(1);
 
@@ -64,7 +61,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         vm.prank(participant);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         _fulfillCurrentTestRandomWords();
-        looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         uint256[] memory winnerIndices = new uint256[](11);
         for (uint256 i; i < 11; i++) {
@@ -116,7 +113,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         vm.prank(participant);
         looksRareRaffle.enterRaffles{value: price}(entries, address(0));
         _fulfillCurrentTestRandomWords();
-        looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
         uint256 requestIdTwo = 85515638196678878690676495157441001314050408446307572596225226339745087437433;
         uint256[] memory randomWords = _generateRandomWordForRaffle();
@@ -192,9 +189,6 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         uint256[] memory randomWords = _generateRandomWordForRaffle();
 
         vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(
-            CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID,
-            randomWords
-        );
+        VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
     }
 }

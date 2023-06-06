@@ -9,8 +9,6 @@ import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_EnterRaffles_Test is TestHelpers {
-    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
-
     function setUp() public {
         _forkSepolia();
 

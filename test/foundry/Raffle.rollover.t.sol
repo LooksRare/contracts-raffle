@@ -31,6 +31,7 @@ contract Raffle_Rollover_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
@@ -72,6 +73,7 @@ contract Raffle_Rollover_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
@@ -113,6 +115,7 @@ contract Raffle_Rollover_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
@@ -156,6 +159,7 @@ contract Raffle_Rollover_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
@@ -192,6 +196,7 @@ contract Raffle_Rollover_Test is TestHelpers {
 
         vm.warp(block.timestamp + 86_400 + 1);
 
+        vm.prank(user1);
         looksRareRaffle.cancel(1);
 
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
