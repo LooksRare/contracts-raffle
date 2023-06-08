@@ -89,7 +89,7 @@ contract CreateRaffle is Script, SimulationBase {
         prizes[6].prizeAmount = 1 ether;
         prizes[6].winnersCount = 3;
 
-        uint256 raffleId = raffle.createRaffle(
+        raffle.createRaffle(
             IRaffleV2.CreateRaffleCalldata({
                 cutoffTime: uint40(block.timestamp + 5 days),
                 isMinimumEntriesFixed: true,
@@ -101,8 +101,6 @@ contract CreateRaffle is Script, SimulationBase {
                 pricingOptions: pricingOptions
             })
         );
-
-        raffle.depositPrizes(raffleId);
 
         vm.stopBroadcast();
     }
