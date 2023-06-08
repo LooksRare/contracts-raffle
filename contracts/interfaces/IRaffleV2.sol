@@ -181,7 +181,7 @@ interface IRaffleV2 {
 
     event CurrenciesStatusUpdated(address[] currencies, bool isAllowed);
     event EntryRefunded(uint256 raffleId, address buyer, uint208 amount);
-    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
+    event EntrySold(uint256 raffleId, address buyer, address recipient, uint40 entriesCount, uint208 price);
     event FeesClaimed(uint256 raffleId, uint256 amount);
     event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndex);

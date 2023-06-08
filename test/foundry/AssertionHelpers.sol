@@ -12,7 +12,7 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 abstract contract AssertionHelpers is Test {
-    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
+    event EntrySold(uint256 raffleId, address buyer, address recipient, uint40 entriesCount, uint208 price);
     event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndices);
     event RaffleStatusUpdated(uint256 raffleId, IRaffleV2.RaffleStatus status);
