@@ -95,7 +95,7 @@ contract CreateRaffle is Script, SimulationBase {
                 isMinimumEntriesFixed: true,
                 minimumEntries: 15,
                 maximumEntriesPerParticipant: 15,
-                protocolFeeBp: 500,
+                protocolFeeBp: 0,
                 feeTokenAddress: address(0),
                 prizes: prizes,
                 pricingOptions: pricingOptions
