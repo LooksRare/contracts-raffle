@@ -28,7 +28,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1, recipient: address(0)});
 
         expectEmitCheckAll();
-        emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 1, price: price});
+        emit EntrySold({raffleId: 1, buyer: user2, recipient: user2, entriesCount: 1, price: price});
 
         looksRareRaffle.enterRaffles{value: price}(entries);
 
@@ -58,10 +58,10 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1, recipient: address(0)});
 
         expectEmitCheckAll();
-        emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 20, price: 0.44 ether});
+        emit EntrySold({raffleId: 1, buyer: user2, recipient: user2, entriesCount: 20, price: 0.44 ether});
 
         expectEmitCheckAll();
-        emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 100, price: 0.95 ether});
+        emit EntrySold({raffleId: 1, buyer: user2, recipient: user2, entriesCount: 100, price: 0.95 ether});
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Drawing);
 
@@ -94,10 +94,10 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         entries[1] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 4, count: 1, recipient: user3});
 
         expectEmitCheckAll();
-        emit EntrySold({raffleId: 1, buyer: user3, entriesCount: 20, price: 0.44 ether});
+        emit EntrySold({raffleId: 1, buyer: user2, recipient: user3, entriesCount: 20, price: 0.44 ether});
 
         expectEmitCheckAll();
-        emit EntrySold({raffleId: 1, buyer: user3, entriesCount: 100, price: 0.95 ether});
+        emit EntrySold({raffleId: 1, buyer: user2, recipient: user3, entriesCount: 100, price: 0.95 ether});
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Drawing);
 
@@ -134,7 +134,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
         entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1, recipient: address(0)});
 
         expectEmitCheckAll();
-        emit EntrySold({raffleId: 1, buyer: user2, entriesCount: 1, price: price});
+        emit EntrySold({raffleId: 1, buyer: user2, recipient: user2, entriesCount: 1, price: price});
 
         looksRareRaffle.enterRaffles{value: price + extra}(entries);
 

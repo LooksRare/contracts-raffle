@@ -43,7 +43,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             uint208 price = pricingOptions[pricingOptionIndex].price;
 
             expectEmitCheckAll();
-            emit EntrySold(1, participant, pricingOptions[pricingOptionIndex].entriesCount, price);
+            emit EntrySold(1, participant, participant, pricingOptions[pricingOptionIndex].entriesCount, price);
 
             // 1 + 10 + 25 + 50 = 86, adding another 100 will trigger the draw
             if (pricingOptionIndex == 4) {

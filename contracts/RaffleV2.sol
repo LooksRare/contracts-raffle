@@ -1112,7 +1112,7 @@ contract RaffleV2 is
 
             rafflesParticipantsStats[raffleId][msg.sender].amountPaid += price;
 
-            emit EntrySold(raffleId, recipient, entriesCount, price);
+            emit EntrySold(raffleId, msg.sender, recipient, entriesCount, price);
 
             if (currentEntryIndex >= _unsafeSubtract(raffle.minimumEntries, 1)) {
                 _drawWinners(raffleId, raffle);
