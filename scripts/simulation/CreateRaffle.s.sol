@@ -31,7 +31,7 @@ contract CreateRaffle is Script, SimulationBase {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = getRaffle(chainId);
+        IRaffleV2 raffle = getRaffle(chainId);
 
         IRaffleV2.PricingOption[] memory pricingOptions = new IRaffleV2.PricingOption[](5);
         pricingOptions[0] = IRaffleV2.PricingOption({entriesCount: 1, price: 0.0000025 ether});
