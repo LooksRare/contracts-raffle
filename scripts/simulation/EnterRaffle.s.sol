@@ -17,20 +17,18 @@ contract EnterRaffle is Script, SimulationBase {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = getRaffle(block.chainid);
+        IRaffleV2 raffle = getRaffle(block.chainid);
 
-        uint256 count = 0;
-        uint256 raffleId = 0;
-        uint256 price = 0;
-        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](count);
-        for (uint256 i; i < count; i++) {
-            entries[i] = IRaffleV2.EntryCalldata({
-                raffleId: raffleId,
-                pricingOptionIndex: 0,
-                count: 1,
-                recipient: address(0)
-            });
-        }
+        uint256 count = 15;
+        uint256 raffleId = 2;
+        uint256 price = 0.0000025 ether;
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({
+            raffleId: raffleId,
+            pricingOptionIndex: 0,
+            count: count,
+            recipient: address(0)
+        });
 
         raffle.enterRaffles{value: price * count}(entries);
 
