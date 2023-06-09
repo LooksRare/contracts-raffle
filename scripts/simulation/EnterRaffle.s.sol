@@ -26,7 +26,7 @@ contract EnterRaffle is Script, SimulationBase {
         entries[0] = IRaffleV2.EntryCalldata({
             raffleId: raffleId,
             pricingOptionIndex: 0,
-            count: count,
+            count: uint40(count),
             recipient: address(0)
         });
 
