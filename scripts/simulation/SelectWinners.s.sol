@@ -11,7 +11,6 @@ import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract SelectWinners is Script, SimulationBase {
     function run() external {
-        uint256 chainId = block.chainid;
         uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
