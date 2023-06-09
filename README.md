@@ -55,7 +55,7 @@ The contract owner can set a protocol fee recipient and a protocol fee basis poi
 
 ### Pricing options
 
-Each raffle can have between 1 to5 pricing options. The rules are as follows:
+Each raffle can have between 1 to 5 pricing options. The rules are as follows:
 
 1. The raffle's minimum entries must be divisible by the first pricing option's entries count.
 2. The first pricing option must not have a price of 0.
