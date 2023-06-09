@@ -16,7 +16,7 @@ contract SelectWinners is Script, SimulationBase {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = getRaffle(block.chainid);
+        IRaffleV2 raffle = getRaffle(block.chainid);
 
         uint256 requestId = 63782518079213451294665608781594247048257182247985383962686159275093895347290;
 

@@ -12,7 +12,7 @@ import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract CreateRaffleMainnet is Script, SimulationBase {
     function run() external view {
-        IRaffle raffle = getRaffle(1);
+        IRaffleV2 raffle = getRaffle(1);
 
         IRaffleV2.PricingOption[] memory pricingOptions = new IRaffleV2.PricingOption[](5);
         pricingOptions[0] = IRaffleV2.PricingOption({entriesCount: 1, price: 0.00098 ether});

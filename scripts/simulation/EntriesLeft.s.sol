@@ -12,7 +12,7 @@ import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract EntriesLeft is Script, SimulationBase {
     function run() external view {
-        IRaffle raffle = getRaffle(block.chainid);
+        IRaffleV2 raffle = getRaffle(block.chainid);
         IRaffleV2.Entry[] memory entries = raffle.getEntries(0);
         IRaffleV2.Entry memory lastEntry = entries[entries.length - 1];
         console2.logUint(lastEntry.currentEntryIndex);

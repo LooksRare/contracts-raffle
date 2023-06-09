@@ -15,7 +15,7 @@ contract ClaimPrizes is Script, SimulationBase {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = getRaffle(block.chainid);
+        IRaffleV2 raffle = getRaffle(block.chainid);
 
         // IRaffleV2.Winner[] memory winners = raffle.getWinners(1);
         // for (uint256 i; i < winners.length; i++) {

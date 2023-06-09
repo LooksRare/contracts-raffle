@@ -15,7 +15,7 @@ contract CancelRaffle is Script, SimulationBase {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = getRaffle(block.chainid);
+        IRaffleV2 raffle = getRaffle(block.chainid);
 
         raffle.cancel(2);
 

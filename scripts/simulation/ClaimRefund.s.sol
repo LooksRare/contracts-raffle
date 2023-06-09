@@ -17,7 +17,7 @@ contract ClaimRefund is Script, SimulationBase {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        IRaffle raffle = getRaffle(block.chainid);
+        IRaffleV2 raffle = getRaffle(block.chainid);
 
         uint256[] memory raffleIds = new uint256[](2);
         raffleIds[0] = 2;
