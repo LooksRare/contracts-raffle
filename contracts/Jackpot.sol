@@ -17,6 +17,11 @@ contract Jackpot is IJackpot, OwnableTwoSteps {
     uint256 public roundDuration;
 
     /**
+     * @notice The minimum ticket size in ETH.
+     */
+    uint256 public minimumTicketSize;
+
+    /**
      * @notice It checks whether the currency is allowed.
      * @dev 0 is not allowed, 1 is allowed.
      */
@@ -27,6 +32,7 @@ contract Jackpot is IJackpot, OwnableTwoSteps {
      */
     constructor(address _owner) OwnableTwoSteps(_owner) {
         _updateRoundDuration(10 minutes);
+        _updateMinimumTicketSize(0.01 ether);
     }
 
     /**
@@ -46,8 +52,23 @@ contract Jackpot is IJackpot, OwnableTwoSteps {
     /**
      * @inheritdoc IJackpot
      */
+    function updateMinimumTicketSize(uint256 _minimumTicketSize) external onlyOwner {
+        _updateMinimumTicketSize(_minimumTicketSize);
+    }
+
+    /**
+     * @inheritdoc IJackpot
+     */
     function updateRoundDuration(uint256 _roundDuration) external onlyOwner {
         _updateRoundDuration(_roundDuration);
+    }
+
+    /**
+     * @param _minimumTicketSize The minimum ticket size in ETH.
+     */
+    function _updateMinimumTicketSize(uint256 _minimumTicketSize) private {
+        minimumTicketSize = _minimumTicketSize;
+        emit MinimumTicketSizeUpdated(_minimumTicketSize);
     }
 
     /**

@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 interface IJackpot {
     event CurrenciesStatusUpdated(address[] currencies, bool isAllowed);
+    event MinimumTicketSizeUpdated(uint256 minimumTicketSize);
     event RoundDurationUpdated(uint256 roundDuration);
 
     /**
@@ -12,6 +13,11 @@ interface IJackpot {
      * @dev Only callable by owner.
      */
     function updateCurrenciesStatus(address[] calldata currencies, bool isAllowed) external;
+
+    /**
+     * @param _minimumTicketSize The minimum ticket size in ETH.
+     */
+    function updateMinimumTicketSize(uint256 _minimumTicketSize) external;
 
     /**
      * @notice This function allows the owner to update the duration of each round.
