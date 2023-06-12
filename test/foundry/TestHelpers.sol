@@ -10,6 +10,9 @@ import {TestParameters} from "./TestParameters.sol";
 import {RaffleV2} from "../../contracts/RaffleV2.sol";
 import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
+import {Jackpot} from "../../contracts/Jackpot.sol";
+import {IJackpot} from "../../contracts/interfaces/IJackpot.sol";
+
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 import {MockWETH} from "./mock/MockWETH.sol";
@@ -17,6 +20,7 @@ import {ProtocolFeeRecipient} from "./mock/ProtocolFeeRecipient.sol";
 
 abstract contract TestHelpers is AssertionHelpers, TestParameters {
     RaffleV2 internal looksRareRaffle;
+    Jackpot internal jackpot;
     ProtocolFeeRecipient internal protocolFeeRecipient;
     MockERC20 internal mockERC20;
     MockERC721 internal mockERC721;
@@ -59,6 +63,20 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
         vm.prank(owner);
         looksRareRaffle.updateCurrenciesStatus(currencies, true);
+    }
+
+    function _deployJackpot() internal {
+        jackpot = new Jackpot(owner);
+
+        mockERC20 = new MockERC20();
+        mockERC721 = new MockERC721();
+
+        address[] memory currencies = new address[](2);
+        currencies[0] = address(mockERC20);
+        currencies[1] = address(mockERC721);
+
+        vm.prank(owner);
+        jackpot.updateCurrenciesStatus(currencies, true);
     }
 
     function _baseCreateRaffleParams(address erc20, address erc721)
