@@ -9,9 +9,14 @@ import {TestHelpers} from "./TestHelpers.sol";
 
 contract Jackpot_SetUpState_Test is TestHelpers {
     event CurrenciesStatusUpdated(address[] currencies, bool isAllowed);
+    event RoundDurationUpdated(uint256 roundDuration);
 
     function setUp() public {
         _deployJackpot();
+    }
+
+    function test_setUpState() public {
+        assertEq(jackpot.roundDuration(), 10 minutes);
     }
 
     function test_updateCurrenciesStatus() public asPrankedUser(owner) {
@@ -31,5 +36,18 @@ contract Jackpot_SetUpState_Test is TestHelpers {
 
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
         jackpot.updateCurrenciesStatus(currencies, false);
+    }
+
+    function test_updateRoundDuration() public asPrankedUser(owner) {
+        expectEmitCheckAll();
+        emit RoundDurationUpdated(1);
+
+        jackpot.updateRoundDuration(1);
+        assertEq(jackpot.roundDuration(), 1);
+    }
+
+    function test_updateRoundDuration_RevertIf_NotOwner() public {
+        vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
+        jackpot.updateRoundDuration(1);
     }
 }

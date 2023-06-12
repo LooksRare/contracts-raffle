@@ -12,16 +12,22 @@ import {IJackpot} from "./interfaces/IJackpot.sol";
  */
 contract Jackpot is IJackpot, OwnableTwoSteps {
     /**
+     * @notice The duration of each round.
+     */
+    uint256 public roundDuration;
+
+    /**
      * @notice It checks whether the currency is allowed.
      * @dev 0 is not allowed, 1 is allowed.
      */
     mapping(address => uint256) public isCurrencyAllowed;
 
     /**
-     *
      * @param _owner The owner of the contract.
      */
-    constructor(address _owner) OwnableTwoSteps(_owner) {}
+    constructor(address _owner) OwnableTwoSteps(_owner) {
+        _updateRoundDuration(10 minutes);
+    }
 
     /**
      * @inheritdoc IJackpot
@@ -35,5 +41,20 @@ contract Jackpot is IJackpot, OwnableTwoSteps {
             }
         }
         emit CurrenciesStatusUpdated(currencies, isAllowed);
+    }
+
+    /**
+     * @inheritdoc IJackpot
+     */
+    function updateRoundDuration(uint256 _roundDuration) external onlyOwner {
+        _updateRoundDuration(_roundDuration);
+    }
+
+    /**
+     * @param _roundDuration The duration of each round.
+     */
+    function _updateRoundDuration(uint256 _roundDuration) private {
+        roundDuration = _roundDuration;
+        emit RoundDurationUpdated(_roundDuration);
     }
 }
