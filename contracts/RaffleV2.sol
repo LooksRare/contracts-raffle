@@ -314,13 +314,11 @@ contract RaffleV2 is
                 } else if (prizeType == TokenType.ETH) {
                     expectedEthValue += (prizeAmount * winnersCount);
                 } else {
-                    _executeERC1155SafeTransferFrom(
-                        prizeAddress,
-                        msg.sender,
-                        address(this),
-                        prizeId,
-                        prizeAmount * winnersCount
-                    );
+                    uint256[] memory itemIds = new uint256[](1);
+                    itemIds[0] = prizeId;
+                    uint256[] memory amounts = new uint256[](1);
+                    amounts[0] = prizeAmount * winnersCount;
+                    transferManager.transferItemsERC1155(prizeAddress, msg.sender, address(this), itemIds, amounts);
                 }
 
                 cumulativeWinnersCount += winnersCount;

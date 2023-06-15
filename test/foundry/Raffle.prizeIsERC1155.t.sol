@@ -183,7 +183,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         }
 
         vm.startPrank(user1);
-        mockERC1155.setApprovalForAll(address(looksRareRaffle), true);
+        mockERC1155.setApprovalForAll(address(transferManager), true);
         mockERC721.setApprovalForAll(address(transferManager), true);
         if (!transferManager.hasUserApprovedOperator(user1, address(looksRareRaffle))) {
             address[] memory approved = new address[](1);
