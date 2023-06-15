@@ -191,7 +191,10 @@ contract RaffleV2 is
      */
     uint256 public constant MAXIMUM_PRICING_OPTIONS_PER_RAFFLE = 5;
 
-    ITransferManager public immutable transferManager;
+    /**
+     * @notice Transfer manager faciliates token transfers.
+     */
+    ITransferManager private immutable transferManager;
 
     /**
      * @param _weth The WETH address
