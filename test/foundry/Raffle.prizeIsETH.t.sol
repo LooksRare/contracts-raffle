@@ -170,8 +170,19 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         vm.deal(user1, 5 ether);
         mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
-        vm.prank(user1);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        if (!transferManager.isOperatorAllowed(address(looksRareRaffle))) {
+            vm.prank(owner);
+            transferManager.allowOperator(address(looksRareRaffle));
+        }
+
+        vm.startPrank(user1);
+        mockERC721.setApprovalForAll(address(transferManager), true);
+        if (!transferManager.hasUserApprovedOperator(user1, address(looksRareRaffle))) {
+            address[] memory approved = new address[](1);
+            approved[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(approved);
+        }
+        vm.stopPrank();
     }
 
     function _createRaffleParamsWithETHAsPrize() private view returns (IRaffleV2.CreateRaffleCalldata memory params) {

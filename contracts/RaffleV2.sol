@@ -304,7 +304,11 @@ contract RaffleV2 is
                 uint256 prizeId = prize.prizeId;
                 uint256 prizeAmount = prize.prizeAmount;
                 if (prizeType == TokenType.ERC721) {
-                    _executeERC721TransferFrom(prizeAddress, msg.sender, address(this), prizeId);
+                    uint256[] memory itemIds = new uint256[](1);
+                    itemIds[0] = prizeId;
+                    uint256[] memory amounts = new uint256[](1);
+                    amounts[0] = 1;
+                    transferManager.transferItemsERC721(prizeAddress, msg.sender, address(this), itemIds, amounts);
                 } else if (prizeType == TokenType.ERC20) {
                     transferManager.transferERC20(prizeAddress, msg.sender, address(this), prizeAmount * winnersCount);
                 } else if (prizeType == TokenType.ETH) {

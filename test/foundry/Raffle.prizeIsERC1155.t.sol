@@ -177,9 +177,19 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         mockERC1155.mint(user1, 69, 10);
         mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
+        if (!transferManager.isOperatorAllowed(address(looksRareRaffle))) {
+            vm.prank(owner);
+            transferManager.allowOperator(address(looksRareRaffle));
+        }
+
         vm.startPrank(user1);
         mockERC1155.setApprovalForAll(address(looksRareRaffle), true);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        mockERC721.setApprovalForAll(address(transferManager), true);
+        if (!transferManager.hasUserApprovedOperator(user1, address(looksRareRaffle))) {
+            address[] memory approved = new address[](1);
+            approved[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(approved);
+        }
         vm.stopPrank();
     }
 

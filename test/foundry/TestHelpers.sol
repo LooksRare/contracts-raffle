@@ -159,7 +159,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             approved[0] = address(looksRareRaffle);
             transferManager.grantApprovals(approved);
         }
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        mockERC721.setApprovalForAll(address(transferManager), true);
         vm.stopPrank();
     }
 
