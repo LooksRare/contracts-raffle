@@ -306,7 +306,6 @@ contract RaffleV2 is
                 if (prizeType == TokenType.ERC721) {
                     _executeERC721TransferFrom(prizeAddress, msg.sender, address(this), prizeId);
                 } else if (prizeType == TokenType.ERC20) {
-                    // _executeERC20TransferFrom(prizeAddress, msg.sender, address(this), prizeAmount * winnersCount);
                     transferManager.transferERC20(prizeAddress, msg.sender, address(this), prizeAmount * winnersCount);
                 } else if (prizeType == TokenType.ETH) {
                     expectedEthValue += (prizeAmount * winnersCount);
@@ -1140,7 +1139,6 @@ contract RaffleV2 is
             _validateExpectedEthValueOrRefund(expectedValue);
         } else {
             transferManager.transferERC20(feeTokenAddress, msg.sender, address(this), expectedValue);
-            // _executeERC20TransferFrom(feeTokenAddress, msg.sender, address(this), expectedValue);
         }
     }
 
