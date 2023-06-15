@@ -289,7 +289,7 @@ contract Raffle_EnterRaffles_Test is TestHelpers {
 
         vm.startPrank(user2);
 
-        mockERC20.approve(address(looksRareRaffle), price);
+        mockERC20.approve(address(transferManager), price);
 
         vm.expectRevert(IRaffleV2.InvalidCurrency.selector);
         looksRareRaffle.enterRaffles{value: price}(entries);

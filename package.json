@@ -68,6 +68,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.6.1",
-    "@looksrare/contracts-libs": "^3.1.0"
+    "@looksrare/contracts-libs": "^3.1.0",
+    "@looksrare/contracts-transfer-manager": "^0.0.3"
   }
 }

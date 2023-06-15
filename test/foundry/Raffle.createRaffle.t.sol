@@ -275,7 +275,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         params.prizes[6].winnersCount = 105; // 1 + 5 + 105 = 111 > 110
 
         mockERC20.mint(user1, 5_000e18);
-        mockERC20.approve(address(looksRareRaffle), 105_000e18);
+        mockERC20.approve(address(transferManager), 105_000e18);
 
         vm.expectRevert(IRaffleV2.InvalidWinnersCount.selector);
         looksRareRaffle.createRaffle(params);
