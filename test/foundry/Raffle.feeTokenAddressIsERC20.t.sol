@@ -48,7 +48,12 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
             entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1, recipient: address(0)});
 
             vm.startPrank(participant);
-            feeToken.approve(address(looksRareRaffle), price);
+            feeToken.approve(address(transferManager), price);
+            if (!transferManager.hasUserApprovedOperator(participant, address(looksRareRaffle))) {
+                address[] memory approved = new address[](1);
+                approved[0] = address(looksRareRaffle);
+                transferManager.grantApprovals(approved);
+            }
             looksRareRaffle.enterRaffles(entries);
             vm.stopPrank();
         }

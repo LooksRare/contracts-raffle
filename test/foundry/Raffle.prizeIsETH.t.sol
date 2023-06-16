@@ -115,7 +115,7 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         _fulfillCurrentTestRandomWords();
         looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        uint256 requestIdTwo = 85515638196678878690676495157441001314050408446307572596225226339745087437433;
+        uint256 requestIdTwo = 18934148148609645230271836839001909245593485063453286323904418922198480196034;
         uint256[] memory randomWords = _generateRandomWordForRaffle();
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(requestIdTwo, randomWords);
@@ -170,8 +170,19 @@ contract Raffle_PrizeIsETH_Test is TestHelpers {
         vm.deal(user1, 5 ether);
         mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
-        vm.prank(user1);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        if (!transferManager.isOperatorAllowed(address(looksRareRaffle))) {
+            vm.prank(owner);
+            transferManager.allowOperator(address(looksRareRaffle));
+        }
+
+        vm.startPrank(user1);
+        mockERC721.setApprovalForAll(address(transferManager), true);
+        if (!transferManager.hasUserApprovedOperator(user1, address(looksRareRaffle))) {
+            address[] memory approved = new address[](1);
+            approved[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(approved);
+        }
+        vm.stopPrank();
     }
 
     function _createRaffleParamsWithETHAsPrize() private view returns (IRaffleV2.CreateRaffleCalldata memory params) {

@@ -8,6 +8,7 @@ import {LowLevelERC1155Transfer} from "@looksrare/contracts-libs/contracts/lowLe
 import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol";
 import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
 import {Pausable} from "@looksrare/contracts-libs/contracts/Pausable.sol";
+import {ITransferManager} from "@looksrare/contracts-transfer-manager/contracts/interfaces/ITransferManager.sol";
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
@@ -16,7 +17,7 @@ import {Arrays} from "./libraries/Arrays.sol";
 
 import {WinningEntrySearchLogicV2} from "./WinningEntrySearchLogicV2.sol";
 
-import "./interfaces/IRaffleV2.sol";
+import {IRaffleV2} from "./interfaces/IRaffleV2.sol";
 
 // ....................................................................................................
 // .......................................,,,,,,.......................................................
@@ -191,6 +192,11 @@ contract RaffleV2 is
     uint256 public constant MAXIMUM_PRICING_OPTIONS_PER_RAFFLE = 5;
 
     /**
+     * @notice Transfer manager faciliates token transfers.
+     */
+    ITransferManager private immutable transferManager;
+
+    /**
      * @param _weth The WETH address
      * @param _keyHash Chainlink VRF key hash
      * @param _subscriptionId Chainlink VRF subscription ID
@@ -198,6 +204,7 @@ contract RaffleV2 is
      * @param _owner The owner of the contract
      * @param _protocolFeeRecipient The recipient of the protocol fees
      * @param _protocolFeeBp The protocol fee in basis points
+     * @param _transferManager The transfer manager address
      */
     constructor(
         address _weth,
@@ -206,7 +213,8 @@ contract RaffleV2 is
         address _vrfCoordinator,
         address _owner,
         address _protocolFeeRecipient,
-        uint16 _protocolFeeBp
+        uint16 _protocolFeeBp,
+        address _transferManager
     ) VRFConsumerBaseV2(_vrfCoordinator) OwnableTwoSteps(_owner) {
         _setProtocolFeeBp(_protocolFeeBp);
         _setProtocolFeeRecipient(_protocolFeeRecipient);
@@ -215,6 +223,7 @@ contract RaffleV2 is
         KEY_HASH = _keyHash;
         VRF_COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
         SUBSCRIPTION_ID = _subscriptionId;
+        transferManager = ITransferManager(_transferManager);
     }
 
     /**
@@ -298,13 +307,13 @@ contract RaffleV2 is
                 uint256 prizeId = prize.prizeId;
                 uint256 prizeAmount = prize.prizeAmount;
                 if (prizeType == TokenType.ERC721) {
-                    _executeERC721TransferFrom(prizeAddress, msg.sender, address(this), prizeId);
+                    transferManager.transferItemERC721(prizeAddress, msg.sender, address(this), prizeId);
                 } else if (prizeType == TokenType.ERC20) {
-                    _executeERC20TransferFrom(prizeAddress, msg.sender, address(this), prizeAmount * winnersCount);
+                    transferManager.transferERC20(prizeAddress, msg.sender, address(this), prizeAmount * winnersCount);
                 } else if (prizeType == TokenType.ETH) {
                     expectedEthValue += (prizeAmount * winnersCount);
                 } else {
-                    _executeERC1155SafeTransferFrom(
+                    transferManager.transferItemERC1155(
                         prizeAddress,
                         msg.sender,
                         address(this),
@@ -1132,7 +1141,7 @@ contract RaffleV2 is
         if (feeTokenAddress == address(0)) {
             _validateExpectedEthValueOrRefund(expectedValue);
         } else {
-            _executeERC20TransferFrom(feeTokenAddress, msg.sender, address(this), expectedValue);
+            transferManager.transferERC20(feeTokenAddress, msg.sender, address(this), expectedValue);
         }
     }
 

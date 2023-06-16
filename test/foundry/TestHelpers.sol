@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
+import {TransferManager} from "@looksrare/contracts-transfer-manager/contracts/TransferManager.sol";
+
 import {AssertionHelpers} from "./AssertionHelpers.sol";
 import {TestParameters} from "./TestParameters.sol";
 
@@ -18,6 +20,7 @@ import {ProtocolFeeRecipient} from "./mock/ProtocolFeeRecipient.sol";
 abstract contract TestHelpers is AssertionHelpers, TestParameters {
     RaffleV2 internal looksRareRaffle;
     ProtocolFeeRecipient internal protocolFeeRecipient;
+    TransferManager internal transferManager;
     MockERC20 internal mockERC20;
     MockERC721 internal mockERC721;
 
@@ -38,8 +41,8 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _deployRaffle() internal {
         MockWETH weth = new MockWETH();
-
         protocolFeeRecipient = new ProtocolFeeRecipient(address(weth), address(69_420));
+        transferManager = new TransferManager(owner);
 
         looksRareRaffle = new RaffleV2(
             address(weth),
@@ -48,7 +51,8 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             VRF_COORDINATOR,
             owner,
             address(protocolFeeRecipient),
-            500
+            500,
+            address(transferManager)
         );
 
         mockERC20 = new MockERC20();
@@ -143,9 +147,19 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         mockERC20.mint(user1, 100_000 ether);
         mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
+        if (!transferManager.isOperatorAllowed(address(looksRareRaffle))) {
+            vm.prank(owner);
+            transferManager.allowOperator(address(looksRareRaffle));
+        }
+
         vm.startPrank(user1);
-        mockERC20.approve(address(looksRareRaffle), 100_000 ether);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        mockERC20.approve(address(transferManager), 100_000 ether);
+        if (!transferManager.hasUserApprovedOperator(user1, address(looksRareRaffle))) {
+            address[] memory approved = new address[](1);
+            approved[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(approved);
+        }
+        mockERC721.setApprovalForAll(address(transferManager), true);
         vm.stopPrank();
     }
 
@@ -188,7 +202,12 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
             if (feeTokenAddress == address(0)) {
                 looksRareRaffle.enterRaffles{value: price}(entries);
             } else {
-                mockERC20.approve(address(looksRareRaffle), price);
+                mockERC20.approve(address(transferManager), price);
+                if (!transferManager.hasUserApprovedOperator(participant, address(looksRareRaffle))) {
+                    address[] memory approved = new address[](1);
+                    approved[0] = address(looksRareRaffle);
+                    transferManager.grantApprovals(approved);
+                }
                 looksRareRaffle.enterRaffles(entries);
             }
             vm.stopPrank();

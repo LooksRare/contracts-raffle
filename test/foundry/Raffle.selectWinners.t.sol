@@ -60,8 +60,8 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
         vm.startPrank(user1);
-        mockERC20.approve(address(looksRareRaffle), 194_000 ether);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        mockERC20.approve(address(transferManager), 194_000 ether);
+        mockERC721.setApprovalForAll(address(transferManager), true);
         vm.stopPrank();
 
         IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));

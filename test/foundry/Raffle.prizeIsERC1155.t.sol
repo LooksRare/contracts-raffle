@@ -14,7 +14,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
     MockERC1155 private mockERC1155;
 
     uint256 private constant CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID =
-        22312676670263361250730028184513909939120948083819476558283140717547656761522;
+        114295696500057895146066780468621505199627946028383186588619698007716514178613;
 
     function setUp() public {
         _forkSepolia();
@@ -122,7 +122,7 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         _fulfillCurrentTestRandomWords();
         looksRareRaffle.selectWinners(CURRENT_TEST_FULFILL_RANDOM_WORDS_REQUEST_ID);
 
-        uint256 requestIdTwo = 18934148148609645230271836839001909245593485063453286323904418922198480196034;
+        uint256 requestIdTwo = 109128348339867564873758663355846771227048793792855059434373110511772087906314;
         uint256[] memory randomWords = _generateRandomWordForRaffle();
         vm.prank(VRF_COORDINATOR);
         VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(requestIdTwo, randomWords);
@@ -177,9 +177,19 @@ contract Raffle_PrizeIsERC1155_Test is TestHelpers {
         mockERC1155.mint(user1, 69, 10);
         mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
+        if (!transferManager.isOperatorAllowed(address(looksRareRaffle))) {
+            vm.prank(owner);
+            transferManager.allowOperator(address(looksRareRaffle));
+        }
+
         vm.startPrank(user1);
-        mockERC1155.setApprovalForAll(address(looksRareRaffle), true);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        mockERC1155.setApprovalForAll(address(transferManager), true);
+        mockERC721.setApprovalForAll(address(transferManager), true);
+        if (!transferManager.hasUserApprovedOperator(user1, address(looksRareRaffle))) {
+            address[] memory approved = new address[](1);
+            approved[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(approved);
+        }
         vm.stopPrank();
     }
 

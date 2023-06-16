@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {TransferManager} from "@looksrare/contracts-transfer-manager/contracts/TransferManager.sol";
+
 import {RaffleV2} from "../../contracts/RaffleV2.sol";
 import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
@@ -620,6 +622,7 @@ contract Raffle_Invariants is TestHelpers {
         MockWETH weth = new MockWETH();
 
         protocolFeeRecipient = new ProtocolFeeRecipient(address(weth), address(69_420));
+        transferManager = new TransferManager(owner);
 
         looksRareRaffle = new RaffleV2(
             address(weth),
@@ -628,7 +631,8 @@ contract Raffle_Invariants is TestHelpers {
             address(vrfCoordinatorV2),
             owner,
             address(protocolFeeRecipient),
-            500
+            500,
+            address(transferManager)
         );
 
         mockERC721 = new MockERC721();
