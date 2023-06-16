@@ -1115,10 +1115,10 @@
   resolved "https://registry.yarnpkg.com/@looksrare/contracts-libs/-/contracts-libs-3.1.0.tgz#b416e6828b790987a8dfa8e0f389b8a31375129a"
   integrity sha512-RasCskpllxC2a6o3nFByPnuDGuW6v4EbLITiNoD14QpTiwySEORCTg7gMU59pFclwFBqROJ7apUtGWnCWAyM7Q==
 
-"@looksrare/contracts-transfer-manager@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@looksrare/contracts-transfer-manager/-/contracts-transfer-manager-0.0.3.tgz#088f8c67a80799941e77eb755d30743477bdce00"
-  integrity sha512-9v+l3FhVoMtH1rUsmJz0kqkk5OiC7NCb82+tzQ4ve3AyYMPHQl+v1v+UomDzZa6pmehd5bmu0IM+vkWePevEHA==
+"@looksrare/contracts-transfer-manager@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@looksrare/contracts-transfer-manager/-/contracts-transfer-manager-0.0.4.tgz#a5dfd117ed73f6def91d2455bcff1c94edb1a95d"
+  integrity sha512-23Z+ebXFrtX4UZ+23OBnFILRkcF9A43/tb31wW6LizMP3sttzbXCeeNHaIu5++YOomoDCj837FxrOptPC6mC8w==
   dependencies:
     "@looksrare/contracts-libs" "^3.1.0"
 
