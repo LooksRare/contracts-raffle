@@ -21,8 +21,8 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 500, price: 0.49 ether});
         pricingOptions[4] = IRaffleV2.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
-        address bayc = 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D;
-        address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
+        address punks = 0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6;
+        address kubz = 0xEb2dFC54EbaFcA8F50eFcc1e21A9D100b5AEb349;
 
         IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](4);
 
@@ -61,8 +61,8 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                     IRaffleV2.CreateRaffleCalldata({
                         cutoffTime: uint40(block.timestamp + 5 days + 6 hours + 2 minutes),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 169_000,
-                        maximumEntriesPerParticipant: 33_000,
+                        minimumEntries: 69_000,
+                        maximumEntriesPerParticipant: 14_000,
                         protocolFeeBp: 0,
                         feeTokenAddress: address(0),
                         prizes: prizes,
