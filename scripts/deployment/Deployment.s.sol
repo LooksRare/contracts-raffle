@@ -29,6 +29,7 @@ contract Deployment is Script {
         address owner;
         address protocolFeeRecipient;
         uint16 protocolFeeBp = 0;
+        address transferManager;
 
         if (chainId == 1) {
             weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
@@ -38,6 +39,7 @@ contract Deployment is Script {
             vrfCoordinator = 0x271682DEB8C4E0901D1a1550aD2e64D568E69909;
             owner = 0xB5a9e5a319c7fDa551a30BE592c77394bF935c6f;
             protocolFeeRecipient = 0x1838De7d4e4e42c8eB7b204A91e28E9fad14F536;
+            // transferManager = ;
         } else if (chainId == 5) {
             weth = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
             deployerPrivateKey = vm.envUint("TESTNET_KEY");
@@ -46,6 +48,7 @@ contract Deployment is Script {
             vrfCoordinator = 0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
             owner = 0xF332533bF5d0aC462DC8511067A8122b4DcE2B57;
             protocolFeeRecipient = 0xdbBE0859791E44B52B98FcCA341DFb7577C0B077;
+            transferManager = 0xb737687983D6CcB4003A727318B5454864Ecba9d;
         } else if (chainId == 11155111) {
             weth = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
             deployerPrivateKey = vm.envUint("TESTNET_KEY");
@@ -54,6 +57,7 @@ contract Deployment is Script {
             vrfCoordinator = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
             owner = 0xF332533bF5d0aC462DC8511067A8122b4DcE2B57;
             protocolFeeRecipient = 0x50F0787Ed7C9091aBCa1D667fDBCcd85EA68C38C;
+            // transferManager = ;
         } else {
             revert ChainIdInvalid(chainId);
         }
@@ -72,7 +76,8 @@ contract Deployment is Script {
                         vrfCoordinator,
                         owner,
                         protocolFeeRecipient,
-                        protocolFeeBp
+                        protocolFeeBp,
+                        transferManager
                     )
                 )
             });
@@ -84,7 +89,8 @@ contract Deployment is Script {
                 vrfCoordinator,
                 owner,
                 protocolFeeRecipient,
-                protocolFeeBp
+                protocolFeeBp,
+                transferManager
             );
             VRFCoordinatorV2Interface(vrfCoordinator).addConsumer(subscriptionId, address(raffle));
         }
