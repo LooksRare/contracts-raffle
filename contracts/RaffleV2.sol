@@ -19,7 +19,6 @@ import {Arrays} from "./libraries/Arrays.sol";
 import {WinningEntrySearchLogicV2} from "./WinningEntrySearchLogicV2.sol";
 
 import {IRaffleV2} from "./interfaces/IRaffleV2.sol";
-import {console2} from "forge-std/console2.sol";
 
 // ....................................................................................................
 // .......................................,,,,,,.......................................................
