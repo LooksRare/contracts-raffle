@@ -275,9 +275,19 @@ contract RaffleV2 is
         uint256 expectedEthValue;
         uint40 cumulativeWinnersCount;
         uint256 batchTransferCount;
+        uint8 currentPrizeTier;
         uint256 prizesCount = params.prizes.length;
         for (uint256 i; i < prizesCount; ) {
             Prize memory prize = params.prizes[i];
+
+            uint8 prizeTier = prize.prizeTier;
+            if (prizeTier < currentPrizeTier) {
+                revert InvalidPrize();
+            }
+            _validatePrize(prize);
+
+            currentPrizeTier = prizeTier;
+
             if (prize.prizeType != TokenType.ETH) {
                 batchTransferCount++;
             } else {
@@ -292,17 +302,10 @@ contract RaffleV2 is
                 batchTransferCount
             );
             batchTransferCount = 0;
-            uint8 currentPrizeTier;
             for (uint256 i; i < prizesCount; ) {
                 Prize memory prize = params.prizes[i];
-                uint8 prizeTier = prize.prizeTier;
-                if (prizeTier < currentPrizeTier) {
-                    revert InvalidPrize();
-                }
-                _validatePrize(prize);
 
                 cumulativeWinnersCount += prize.winnersCount;
-                currentPrizeTier = prizeTier;
 
                 batchTransferItems[batchTransferCount] = _getBatchTransferItem(
                     prize,
@@ -355,6 +358,19 @@ contract RaffleV2 is
         bytes calldata
     ) external pure returns (bytes4) {
         return this.onERC1155Received.selector;
+    }
+
+    /**
+     * @dev This function is required in order for the contract to receive ERC-1155 tokens in batch.
+     */
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] calldata,
+        uint256[] calldata,
+        bytes calldata
+    ) external pure returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 
     /**
@@ -1002,7 +1018,7 @@ contract RaffleV2 is
             batchTransferItem.itemIds = new uint256[](0);
             amounts[0] = prizeAmount * winnersCount;
             batchTransferItem.amounts = amounts;
-        } else {
+        } else if (prizeType == TokenType.ERC1155) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC1155;
             itemIds[0] = prize.prizeId;
