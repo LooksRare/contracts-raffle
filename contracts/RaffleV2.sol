@@ -289,10 +289,10 @@ contract RaffleV2 is
 
             currentPrizeTier = prizeTier;
 
-            if (prize.prizeType != TokenType.ETH) {
-                batchTransferCount++;
-            } else {
+            if (prize.prizeType == TokenType.ETH) {
                 expectedEthValue += (prize.prizeAmount * prize.winnersCount);
+            } else {
+                batchTransferCount++;
             }
             unchecked {
                 ++i;
