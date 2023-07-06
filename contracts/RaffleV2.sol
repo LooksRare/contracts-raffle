@@ -9,6 +9,7 @@ import {OwnableTwoSteps} from "@looksrare/contracts-libs/contracts/OwnableTwoSte
 import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
 import {Pausable} from "@looksrare/contracts-libs/contracts/Pausable.sol";
 import {ITransferManager} from "@looksrare/contracts-transfer-manager/contracts/interfaces/ITransferManager.sol";
+import {TokenType as TransferManagerTokenType} from "@looksrare/contracts-transfer-manager/contracts/enums/TokenType.sol";
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
@@ -236,25 +237,7 @@ contract RaffleV2 is
         whenNotPaused
         returns (uint256 raffleId)
     {
-        uint40 cutoffTime = params.cutoffTime;
-        if (_unsafeAdd(block.timestamp, ONE_DAY) > cutoffTime || cutoffTime > _unsafeAdd(block.timestamp, ONE_WEEK)) {
-            revert InvalidCutoffTime();
-        }
-
-        uint16 agreedProtocolFeeBp = params.protocolFeeBp;
-        if (agreedProtocolFeeBp != protocolFeeBp) {
-            revert InvalidProtocolFeeBp();
-        }
-
-        address feeTokenAddress = params.feeTokenAddress;
-        if (feeTokenAddress != address(0)) {
-            _validateCurrency(feeTokenAddress);
-        }
-
-        uint256 prizesCount = params.prizes.length;
-        if (prizesCount == 0 || prizesCount > MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE) {
-            revert InvalidPrizesCount();
-        }
+        _validateCreateRaffle(params);
 
         unchecked {
             raffleId = ++rafflesCount;
@@ -291,7 +274,24 @@ contract RaffleV2 is
 
         uint256 expectedEthValue;
         uint40 cumulativeWinnersCount;
-        {
+        uint256 batchTransferCount;
+        uint256 prizesCount = params.prizes.length;
+        for (uint256 i; i < prizesCount; ) {
+            Prize memory prize = params.prizes[i];
+            if (prize.prizeType != TokenType.ETH) {
+                batchTransferCount++;
+            } else {
+                expectedEthValue += (prize.prizeAmount * prize.winnersCount);
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        if (batchTransferCount > 0) {
+            ITransferManager.BatchTransferItem[] memory batchTransferItems = new ITransferManager.BatchTransferItem[](
+                batchTransferCount
+            );
+            batchTransferCount = 0;
             uint8 currentPrizeTier;
             for (uint256 i; i < prizesCount; ) {
                 Prize memory prize = params.prizes[i];
@@ -301,52 +301,35 @@ contract RaffleV2 is
                 }
                 _validatePrize(prize);
 
-                TokenType prizeType = prize.prizeType;
-                uint40 winnersCount = prize.winnersCount;
-                address prizeAddress = prize.prizeAddress;
-                uint256 prizeId = prize.prizeId;
-                uint256 prizeAmount = prize.prizeAmount;
-                if (prizeType == TokenType.ERC721) {
-                    transferManager.transferItemERC721(prizeAddress, msg.sender, address(this), prizeId);
-                } else if (prizeType == TokenType.ERC20) {
-                    transferManager.transferERC20(prizeAddress, msg.sender, address(this), prizeAmount * winnersCount);
-                } else if (prizeType == TokenType.ETH) {
-                    expectedEthValue += (prizeAmount * winnersCount);
-                } else {
-                    transferManager.transferItemERC1155(
-                        prizeAddress,
-                        msg.sender,
-                        address(this),
-                        prizeId,
-                        prizeAmount * winnersCount
-                    );
-                }
-
-                cumulativeWinnersCount += winnersCount;
+                cumulativeWinnersCount += prize.winnersCount;
                 currentPrizeTier = prizeTier;
 
-                assembly {
-                    let prizeSlotOne := winnersCount
-                    prizeSlotOne := or(prizeSlotOne, shl(40, cumulativeWinnersCount))
-                    prizeSlotOne := or(prizeSlotOne, shl(80, prizeType))
-                    prizeSlotOne := or(prizeSlotOne, shl(88, prizeTier))
-                    prizeSlotOne := or(prizeSlotOne, shl(96, prizeAddress))
+                batchTransferItems[batchTransferCount] = _getBatchTransferItem(
+                    prize,
+                    i,
+                    individualPrizeSlotOffset,
+                    cumulativeWinnersCount
+                );
 
-                    let currentPrizeSlotOffset := add(individualPrizeSlotOffset, mul(i, 3))
-                    sstore(currentPrizeSlotOffset, prizeSlotOne)
-                    sstore(add(currentPrizeSlotOffset, 1), prizeId)
-                    sstore(add(currentPrizeSlotOffset, 2), prizeAmount)
+                if (prize.prizeType != TokenType.ETH) {
+                    unchecked {
+                        ++batchTransferCount;
+                    }
                 }
-
                 unchecked {
                     ++i;
                 }
             }
-
-            assembly {
-                sstore(prizesLengthSlot, prizesCount)
-            }
+            ITransferManager(transferManager).transferBatchItemsAcrossCollections(
+                batchTransferItems,
+                msg.sender,
+                address(this)
+            );
         }
+        assembly {
+            sstore(prizesLengthSlot, prizesCount)
+        }
+
         _validateExpectedEthValueOrRefund(expectedEthValue);
 
         uint40 minimumEntries = params.minimumEntries;
@@ -356,42 +339,7 @@ contract RaffleV2 is
 
         _validateAndSetPricingOptions(raffleId, minimumEntries, params.pricingOptions);
 
-        bool isMinimumEntriesFixed = params.isMinimumEntriesFixed;
-        uint40 maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
-        // The storage layout of a raffle's first 2 slots is as follows:
-        // ---------------------------------------------------------------------------------------------------------------------------------|
-        // | drawnAt (40 bits) | cutoffTime (40 bits) | isMinimumEntriesFixed (8 bits) | status (8 bits) | owner (160 bits)                 |
-        // ---------------------------------------------------------------------------------------------------------------------------------|
-        // | agreedProtocolFeeBp (16 bits) | feeTokenAddress (160 bits) | maximumEntriesPerParticipant (40 bits) | minimumEntries (40 bits) |
-        // ---------------------------------------------------------------------------------------------------------------------------------|
-        //
-        // And the slots for these values are calculated by the following formulas:
-        // slot 1 = keccak256(raffleId, rafflesSlot)
-        // slot 2 = keccak256(raffleId, rafflesSlot) + 1
-        //
-        // This assembly block is equivalent to
-        // raffle.owner = msg.sender;
-        // raffle.status = RaffleStatus.Open;
-        // raffle.isMinimumEntriesFixed = isMinimumEntriesFixed;
-        // raffle.cutoffTime = cutoffTime;
-        // raffle.minimumEntries = minimumEntries;
-        // raffle.maximumEntriesPerParticipant = maximumEntriesPerParticipant;
-        // raffle.protocolFeeBp = agreedProtocolFeeBp;
-        // raffle.feeTokenAddress = feeTokenAddress;
-        assembly {
-            let raffleSlotOneValue := caller()
-            raffleSlotOneValue := or(raffleSlotOneValue, shl(160, 1))
-            raffleSlotOneValue := or(raffleSlotOneValue, shl(168, isMinimumEntriesFixed))
-            raffleSlotOneValue := or(raffleSlotOneValue, shl(176, cutoffTime))
-
-            let raffleSlotTwoValue := minimumEntries
-            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(40, maximumEntriesPerParticipant))
-            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(80, feeTokenAddress))
-            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(240, agreedProtocolFeeBp))
-
-            sstore(raffleSlot, raffleSlotOneValue)
-            sstore(add(raffleSlot, 1), raffleSlotTwoValue)
-        }
+        _setRaffleValues(params, raffleSlot, minimumEntries);
 
         emit RaffleStatusUpdated(raffleId, RaffleStatus.Open);
     }
@@ -938,6 +886,75 @@ contract RaffleV2 is
         }
     }
 
+    function _setRaffleValues(
+        CreateRaffleCalldata calldata params,
+        uint256 raffleSlot,
+        uint40 minimumEntries
+    ) private {
+        bool isMinimumEntriesFixed = params.isMinimumEntriesFixed;
+        uint40 maximumEntriesPerParticipant = params.maximumEntriesPerParticipant;
+        // The storage layout of a raffle's first 2 slots is as follows:
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        // | drawnAt (40 bits) | cutoffTime (40 bits) | isMinimumEntriesFixed (8 bits) | status (8 bits) | owner (160 bits)                 |
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        // | agreedProtocolFeeBp (16 bits) | feeTokenAddress (160 bits) | maximumEntriesPerParticipant (40 bits) | minimumEntries (40 bits) |
+        // ---------------------------------------------------------------------------------------------------------------------------------|
+        //
+        // And the slots for these values are calculated by the following formulas:
+        // slot 1 = keccak256(raffleId, rafflesSlot)
+        // slot 2 = keccak256(raffleId, rafflesSlot) + 1
+        //
+        // This assembly block is equivalent to
+        // raffle.owner = msg.sender;
+        // raffle.status = RaffleStatus.Open;
+        // raffle.isMinimumEntriesFixed = isMinimumEntriesFixed;
+        // raffle.cutoffTime = cutoffTime;
+        // raffle.minimumEntries = minimumEntries;
+        // raffle.maximumEntriesPerParticipant = maximumEntriesPerParticipant;
+        // raffle.protocolFeeBp = agreedProtocolFeeBp;
+        // raffle.feeTokenAddress = feeTokenAddress;
+
+        uint40 cutoffTime = params.cutoffTime;
+        uint16 agreedProtocolFeeBp = params.protocolFeeBp;
+        address feeTokenAddress = params.feeTokenAddress;
+        assembly {
+            let raffleSlotOneValue := caller()
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(160, 1))
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(168, isMinimumEntriesFixed))
+            raffleSlotOneValue := or(raffleSlotOneValue, shl(176, cutoffTime))
+
+            let raffleSlotTwoValue := minimumEntries
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(40, maximumEntriesPerParticipant))
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(80, feeTokenAddress))
+            raffleSlotTwoValue := or(raffleSlotTwoValue, shl(240, agreedProtocolFeeBp))
+
+            sstore(raffleSlot, raffleSlotOneValue)
+            sstore(add(raffleSlot, 1), raffleSlotTwoValue)
+        }
+    }
+
+    function _validateCreateRaffle(CreateRaffleCalldata calldata params) private view {
+        uint40 cutoffTime = params.cutoffTime;
+        if (_unsafeAdd(block.timestamp, ONE_DAY) > cutoffTime || cutoffTime > _unsafeAdd(block.timestamp, ONE_WEEK)) {
+            revert InvalidCutoffTime();
+        }
+
+        uint16 agreedProtocolFeeBp = params.protocolFeeBp;
+        if (agreedProtocolFeeBp != protocolFeeBp) {
+            revert InvalidProtocolFeeBp();
+        }
+
+        address feeTokenAddress = params.feeTokenAddress;
+        if (feeTokenAddress != address(0)) {
+            _validateCurrency(feeTokenAddress);
+        }
+
+        uint256 prizesCount = params.prizes.length;
+        if (prizesCount == 0 || prizesCount > MAXIMUM_NUMBER_OF_PRIZES_PER_RAFFLE) {
+            revert InvalidPrizesCount();
+        }
+    }
+
     /**
      * @param prize The prize.
      */
@@ -955,6 +972,56 @@ contract RaffleV2 is
             if (prize.prizeAmount == 0 || prize.winnersCount == 0) {
                 revert InvalidPrize();
             }
+        }
+    }
+
+    function _getBatchTransferItem(
+        Prize memory prize,
+        uint256 index,
+        uint256 individualPrizeSlotOffset,
+        uint40 cumulativeWinnersCount
+    ) private returns (ITransferManager.BatchTransferItem memory batchTransferItem) {
+        TokenType prizeType = prize.prizeType;
+        uint8 prizeTier = prize.prizeTier;
+        uint40 winnersCount = prize.winnersCount;
+        address prizeAddress = prize.prizeAddress;
+        uint256 prizeId = prize.prizeId;
+        uint256 prizeAmount = prize.prizeAmount;
+        uint256[] memory itemIds = new uint256[](1);
+        uint256[] memory amounts = new uint256[](1);
+        if (prizeType == TokenType.ERC721) {
+            batchTransferItem.tokenAddress = prizeAddress;
+            batchTransferItem.tokenType = TransferManagerTokenType.ERC721;
+            itemIds[0] = prize.prizeId;
+            batchTransferItem.itemIds = itemIds;
+            amounts[0] = 1;
+            batchTransferItem.amounts = amounts;
+        } else if (prizeType == TokenType.ERC20) {
+            batchTransferItem.tokenAddress = prizeAddress;
+            batchTransferItem.tokenType = TransferManagerTokenType.ERC20;
+            batchTransferItem.itemIds = new uint256[](0);
+            amounts[0] = prizeAmount * winnersCount;
+            batchTransferItem.amounts = amounts;
+        } else {
+            batchTransferItem.tokenAddress = prizeAddress;
+            batchTransferItem.tokenType = TransferManagerTokenType.ERC1155;
+            itemIds[0] = prize.prizeId;
+            batchTransferItem.itemIds = itemIds;
+            amounts[0] = prizeAmount * winnersCount;
+            batchTransferItem.amounts = amounts;
+        }
+
+        assembly {
+            let prizeSlotOne := winnersCount
+            prizeSlotOne := or(prizeSlotOne, shl(40, cumulativeWinnersCount))
+            prizeSlotOne := or(prizeSlotOne, shl(80, prizeType))
+            prizeSlotOne := or(prizeSlotOne, shl(88, prizeTier))
+            prizeSlotOne := or(prizeSlotOne, shl(96, prizeAddress))
+
+            let currentPrizeSlotOffset := add(individualPrizeSlotOffset, mul(index, 3))
+            sstore(currentPrizeSlotOffset, prizeSlotOne)
+            sstore(add(currentPrizeSlotOffset, 1), prizeId)
+            sstore(add(currentPrizeSlotOffset, 2), prizeAmount)
         }
     }
 
