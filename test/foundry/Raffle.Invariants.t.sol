@@ -28,6 +28,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     MockERC20 public erc20;
     MockERC1155 public erc1155;
     MockVRFCoordinatorV2 public vrfCoordinatorV2;
+    TransferManager public transferManager;
 
     address private constant VRF_COORDINATOR_V2 = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
     address private constant ETH = address(0);
@@ -117,12 +118,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     constructor(
         RaffleV2 _looksRareRaffle,
         MockVRFCoordinatorV2 _vrfCoordinatorV2,
+        TransferManager _transferManager,
         MockERC721 _erc721,
         MockERC20 _erc20,
         MockERC1155 _erc1155
     ) {
         looksRareRaffle = _looksRareRaffle;
         vrfCoordinatorV2 = _vrfCoordinatorV2;
+        transferManager = _transferManager;
 
         erc721 = _erc721;
         erc20 = _erc20;
@@ -218,6 +221,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             prizes: prizes,
             pricingOptions: pricingOptions
         });
+
+        _grantApprovalsToTransferManager();
 
         looksRareRaffle.createRaffle{value: ethValue}(params);
 
@@ -611,6 +616,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             }
         }
     }
+
+    function _grantApprovalsToTransferManager() private {
+        if (!transferManager.hasUserApprovedOperator(currentActor, address(looksRareRaffle))) {
+            address[] memory operators = new address[](1);
+            operators[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(operators);
+        }
+    }
 }
 
 contract Raffle_Invariants is TestHelpers {
@@ -641,7 +654,7 @@ contract Raffle_Invariants is TestHelpers {
 
         vrfCoordinatorV2.setRaffle(address(looksRareRaffle));
 
-        handler = new Handler(looksRareRaffle, vrfCoordinatorV2, mockERC721, mockERC20, mockERC1155);
+        handler = new Handler(looksRareRaffle, vrfCoordinatorV2, transferManager, mockERC721, mockERC20, mockERC1155);
         targetContract(address(handler));
         excludeContract(looksRareRaffle.protocolFeeRecipient());
     }
