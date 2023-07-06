@@ -19,6 +19,7 @@ import {Arrays} from "./libraries/Arrays.sol";
 import {WinningEntrySearchLogicV2} from "./WinningEntrySearchLogicV2.sol";
 
 import {IRaffleV2} from "./interfaces/IRaffleV2.sol";
+import {console2} from "forge-std/console2.sol";
 
 // ....................................................................................................
 // .......................................,,,,,,.......................................................
@@ -301,13 +302,11 @@ contract RaffleV2 is
             ITransferManager.BatchTransferItem[] memory batchTransferItems = new ITransferManager.BatchTransferItem[](
                 batchTransferCount
             );
-            batchTransferCount = 0;
+
             for (uint256 i; i < prizesCount; ) {
                 Prize memory prize = params.prizes[i];
-
                 cumulativeWinnersCount += prize.winnersCount;
-
-                batchTransferItems[batchTransferCount] = _getBatchTransferItem(
+                ITransferManager.BatchTransferItem memory batchTransferItem = _getBatchTransferItem(
                     prize,
                     i,
                     individualPrizeSlotOffset,
@@ -316,9 +315,11 @@ contract RaffleV2 is
 
                 if (prize.prizeType != TokenType.ETH) {
                     unchecked {
-                        ++batchTransferCount;
+                        --batchTransferCount;
                     }
+                    batchTransferItems[batchTransferCount] = batchTransferItem;
                 }
+
                 unchecked {
                     ++i;
                 }
