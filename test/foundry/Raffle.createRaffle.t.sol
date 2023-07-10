@@ -141,9 +141,7 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Open);
 
         vm.prank(user1);
-        uint256 raffleId = looksRareRaffle.createRaffle(params);
-
-        // assertEq(raffleId, 1);
+        looksRareRaffle.createRaffle(params);
 
         prizes = looksRareRaffle.getPrizes(1);
         assertEq(prizes.length, 4);
