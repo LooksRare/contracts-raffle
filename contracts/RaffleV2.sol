@@ -308,7 +308,7 @@ contract RaffleV2 is
             for (uint256 i; i < prizesCount; ) {
                 Prize memory prize = params.prizes[i];
                 cumulativeWinnersCount += prize.winnersCount;
-                ITransferManager.BatchTransferItem memory batchTransferItem = _getBatchTransferItem(
+                ITransferManager.BatchTransferItem memory batchTransferItem = _setPrizeAndGetBatchTransferItem(
                     prize,
                     i,
                     individualPrizeSlotOffset,
@@ -994,7 +994,7 @@ contract RaffleV2 is
         }
     }
 
-    function _setPrizeAndgetBatchTransferItem(
+    function _setPrizeAndGetBatchTransferItem(
         Prize memory prize,
         uint256 index,
         uint256 individualPrizeSlotOffset,
@@ -1006,24 +1006,22 @@ contract RaffleV2 is
         address prizeAddress = prize.prizeAddress;
         uint256 prizeId = prize.prizeId;
         uint256 prizeAmount = prize.prizeAmount;
+        batchTransferItem.amounts = new uint256[](1);
         if (prizeType == TokenType.ERC721) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC721;
             batchTransferItem.itemIds = new uint256[](1);
             batchTransferItem.itemIds[0] = prizeId;
-            batchTransferItem.amounts = new uint256[](1);
             batchTransferItem.amounts[0] = 1;
         } else if (prizeType == TokenType.ERC20) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC20;
-            batchTransferItem.amounts = new uint256[](1);
             batchTransferItem.amounts[0] = prizeAmount * winnersCount;
         } else if (prizeType == TokenType.ERC1155) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC1155;
             batchTransferItem.itemIds = new uint256[](1);
             batchTransferItem.itemIds[0] = prizeId;
-            batchTransferItem.amounts = new uint256[](1);
             batchTransferItem.amounts[0] = prizeAmount * winnersCount;
         }
 
