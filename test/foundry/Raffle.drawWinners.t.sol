@@ -59,7 +59,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
             looksRareRaffle.enterRaffles{value: price}(entries);
         }
 
-        (bool exists, uint248 randomWord, uint256 raffleId) = looksRareRaffle.randomnessRequests(
+        (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(
             FULFILL_RANDOM_WORDS_REQUEST_ID
         );
 
