@@ -1015,7 +1015,6 @@ contract RaffleV2 is
         } else if (prizeType == TokenType.ERC20) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC20;
-            batchTransferItem.itemIds = new uint256[](0);
             amounts[0] = prizeAmount * winnersCount;
             batchTransferItem.amounts = amounts;
         } else if (prizeType == TokenType.ERC1155) {
