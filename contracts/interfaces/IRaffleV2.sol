@@ -159,14 +159,14 @@ interface IRaffleV2 {
 
     /**
      * @param exists Whether the request exists.
-     * @param raffleId The id of the raffle.
      * @param randomWord The random words returned by Chainlink VRF.
      *                   If randomWord == 0, then the request is still pending.
+     * @param raffleId The id of the raffle.
      */
     struct RandomnessRequest {
         bool exists;
-        uint248 randomWord;
-        uint256 raffleId;
+        uint80 raffleId;
+        uint256 randomWord;
     }
 
     /**

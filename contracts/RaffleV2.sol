@@ -430,8 +430,7 @@ contract RaffleV2 is
 
             if (raffle.status == RaffleStatus.Drawing) {
                 _setRaffleStatus(raffle, raffleId, RaffleStatus.RandomnessFulfilled);
-                // We ignore the most significant byte to pack the random word with `exists`
-                randomnessRequests[_requestId].randomWord = uint248(_randomWords[0]);
+                randomnessRequests[_requestId].randomWord = _randomWords[0];
             }
         }
     }
@@ -1030,7 +1029,7 @@ contract RaffleV2 is
         }
 
         randomnessRequests[requestId].exists = true;
-        randomnessRequests[requestId].raffleId = raffleId;
+        randomnessRequests[requestId].raffleId = uint80(raffleId);
 
         emit RandomnessRequested(raffleId, requestId);
     }
