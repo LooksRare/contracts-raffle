@@ -97,19 +97,8 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
     function test_createRaffle_PrizesAreETH() public asPrankedUser(user1) {
         vm.deal(user1, 1.5 ether);
-        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](2);
-        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
-        prizes[0].prizeAddress = address(0);
-        prizes[0].prizeId = 0;
-        prizes[0].prizeAmount = 1 ether;
-        prizes[0].winnersCount = 1;
-        prizes[1].prizeType = IRaffleV2.TokenType.ETH;
-        prizes[1].prizeAddress = address(0);
-        prizes[1].prizeId = 0;
-        prizes[1].prizeAmount = 0.5 ether;
-        prizes[1].winnersCount = 1;
         IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.prizes = prizes;
+        params.prizes = _ethPrizes();
         looksRareRaffle.createRaffle{value: 1.5 ether}(params);
 
         assertEq(user1.balance, 0);
@@ -121,19 +110,8 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         uint256 prizesValue = 1.5 ether;
         vm.assume(extra != 0 && extra < type(uint256).max - prizesValue);
         vm.deal(user1, prizesValue + extra);
-        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](2);
-        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
-        prizes[0].prizeAddress = address(0);
-        prizes[0].prizeId = 0;
-        prizes[0].prizeAmount = 1 ether;
-        prizes[0].winnersCount = 1;
-        prizes[1].prizeType = IRaffleV2.TokenType.ETH;
-        prizes[1].prizeAddress = address(0);
-        prizes[1].prizeId = 0;
-        prizes[1].prizeAmount = 0.5 ether;
-        prizes[1].winnersCount = 1;
         IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.prizes = prizes;
+        params.prizes = _ethPrizes();
         looksRareRaffle.createRaffle{value: prizesValue + extra}(params);
 
         assertEq(user1.balance, extra);
@@ -143,19 +121,8 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
 
     function test_createRaffle_RevertIf_InsufficientNativeTokensSupplied() public asPrankedUser(user1) {
         vm.deal(user1, 1.49 ether);
-        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](2);
-        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
-        prizes[0].prizeAddress = address(0);
-        prizes[0].prizeId = 0;
-        prizes[0].prizeAmount = 1 ether;
-        prizes[0].winnersCount = 1;
-        prizes[1].prizeType = IRaffleV2.TokenType.ETH;
-        prizes[1].prizeAddress = address(0);
-        prizes[1].prizeId = 0;
-        prizes[1].prizeAmount = 0.5 ether;
-        prizes[1].winnersCount = 1;
         IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
-        params.prizes = prizes;
+        params.prizes = _ethPrizes();
 
         vm.expectRevert(IRaffleV2.InsufficientNativeTokensSupplied.selector);
         looksRareRaffle.createRaffle{value: 1.49 ether}(params);
@@ -396,5 +363,20 @@ contract Raffle_CreateRaffle_Test is TestHelpers {
         vm.prank(user1);
         vm.expectRevert(IRaffleV2.InvalidCurrency.selector);
         looksRareRaffle.createRaffle(_baseCreateRaffleParams(address(mockERC20), address(mockERC721)));
+    }
+
+    function _ethPrizes() internal pure returns (IRaffleV2.Prize[] memory prizes) {
+        prizes = new IRaffleV2.Prize[](2);
+        prizes[0].prizeType = IRaffleV2.TokenType.ETH;
+        prizes[0].prizeAddress = address(0);
+        prizes[0].prizeId = 0;
+        prizes[0].prizeAmount = 1 ether;
+        prizes[0].winnersCount = 1;
+
+        prizes[1].prizeType = IRaffleV2.TokenType.ETH;
+        prizes[1].prizeAddress = address(0);
+        prizes[1].prizeId = 0;
+        prizes[1].prizeAmount = 0.5 ether;
+        prizes[1].winnersCount = 1;
     }
 }
