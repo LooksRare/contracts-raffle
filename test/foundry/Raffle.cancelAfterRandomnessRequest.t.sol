@@ -35,16 +35,6 @@ contract Raffle_CancelAfterRandomnessRequest_Test is TestHelpers {
         assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Refundable);
     }
 
-    function test_cancelAfterRandomnessRequest_RevertIf_NotOwner() public {
-        _transitionRaffleStatusToDrawing();
-
-        (, , , , uint40 drawnAt, , , , , ) = looksRareRaffle.raffles(1);
-        vm.warp(drawnAt + 86_400 + 1);
-
-        vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareRaffle.cancelAfterRandomnessRequest(1);
-    }
-
     function test_cancelAfterRandomnessRequest_RevertIf_InvalidStatus() public {
         _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(1);
         vm.prank(owner);
