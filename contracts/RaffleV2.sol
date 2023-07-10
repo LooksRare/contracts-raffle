@@ -705,7 +705,7 @@ contract RaffleV2 is
     /**
      * @inheritdoc IRaffleV2
      */
-    function cancelAfterRandomnessRequest(uint256 raffleId) external onlyOwner nonReentrant {
+    function cancelAfterRandomnessRequest(uint256 raffleId) external nonReentrant whenNotPaused {
         Raffle storage raffle = raffles[raffleId];
 
         _validateRaffleStatus(raffle, RaffleStatus.Drawing);

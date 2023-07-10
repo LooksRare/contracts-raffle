@@ -578,7 +578,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         vm.warp(drawnAt + 1 days + 1 seconds);
 
-        vm.prank(looksRareRaffle.owner());
         looksRareRaffle.cancelAfterRandomnessRequest(raffleId);
     }
 
