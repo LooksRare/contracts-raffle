@@ -291,13 +291,16 @@ contract RaffleV2 is
             if (prize.prizeType == TokenType.ETH) {
                 expectedEthValue += (prize.prizeAmount * prize.winnersCount);
             } else {
-                batchTransferCount++;
+                unchecked {
+                    ++batchTransferCount;
+                }
             }
+
             unchecked {
                 ++i;
             }
         }
-        if (batchTransferCount > 0) {
+        if (batchTransferCount != 0) {
             ITransferManager.BatchTransferItem[] memory batchTransferItems = new ITransferManager.BatchTransferItem[](
                 batchTransferCount
             );
@@ -991,7 +994,7 @@ contract RaffleV2 is
         }
     }
 
-    function _getBatchTransferItem(
+    function _setPrizeAndgetBatchTransferItem(
         Prize memory prize,
         uint256 index,
         uint256 individualPrizeSlotOffset,
@@ -1003,27 +1006,25 @@ contract RaffleV2 is
         address prizeAddress = prize.prizeAddress;
         uint256 prizeId = prize.prizeId;
         uint256 prizeAmount = prize.prizeAmount;
-        uint256[] memory itemIds = new uint256[](1);
-        uint256[] memory amounts = new uint256[](1);
         if (prizeType == TokenType.ERC721) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC721;
-            itemIds[0] = prize.prizeId;
-            batchTransferItem.itemIds = itemIds;
-            amounts[0] = 1;
-            batchTransferItem.amounts = amounts;
+            batchTransferItem.itemIds = new uint256[](1);
+            batchTransferItem.itemIds[0] = prizeId;
+            batchTransferItem.amounts = new uint256[](1);
+            batchTransferItem.amounts[0] = 1;
         } else if (prizeType == TokenType.ERC20) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC20;
-            amounts[0] = prizeAmount * winnersCount;
-            batchTransferItem.amounts = amounts;
+            batchTransferItem.amounts = new uint256[](1);
+            batchTransferItem.amounts[0] = prizeAmount * winnersCount;
         } else if (prizeType == TokenType.ERC1155) {
             batchTransferItem.tokenAddress = prizeAddress;
             batchTransferItem.tokenType = TransferManagerTokenType.ERC1155;
-            itemIds[0] = prize.prizeId;
-            batchTransferItem.itemIds = itemIds;
-            amounts[0] = prizeAmount * winnersCount;
-            batchTransferItem.amounts = amounts;
+            batchTransferItem.itemIds = new uint256[](1);
+            batchTransferItem.itemIds[0] = prizeId;
+            batchTransferItem.amounts = new uint256[](1);
+            batchTransferItem.amounts[0] = prizeAmount * winnersCount;
         }
 
         assembly {
