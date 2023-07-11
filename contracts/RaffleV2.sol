@@ -326,11 +326,7 @@ contract RaffleV2 is
                     ++i;
                 }
             }
-            ITransferManager(transferManager).transferBatchItemsAcrossCollections(
-                batchTransferItems,
-                msg.sender,
-                address(this)
-            );
+            transferManager.transferBatchItemsAcrossCollections(batchTransferItems, msg.sender, address(this));
         }
         assembly {
             sstore(prizesLengthSlot, prizesCount)
