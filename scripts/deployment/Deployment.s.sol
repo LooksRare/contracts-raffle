@@ -37,7 +37,7 @@ contract Deployment is Script {
             subscriptionId = 734;
             vrfCoordinator = 0x271682DEB8C4E0901D1a1550aD2e64D568E69909;
             owner = 0xB5a9e5a319c7fDa551a30BE592c77394bF935c6f;
-            protocolFeeRecipient = 0x1838De7d4e4e42c8eB7b204A91e28E9fad14F536;
+            protocolFeeRecipient = 0xB5a9e5a319c7fDa551a30BE592c77394bF935c6f;
         } else if (chainId == 5) {
             weth = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
             deployerPrivateKey = vm.envUint("TESTNET_KEY");
