@@ -39,7 +39,7 @@ contract Deployment is Script {
             vrfCoordinator = 0x271682DEB8C4E0901D1a1550aD2e64D568E69909;
             owner = 0xB5a9e5a319c7fDa551a30BE592c77394bF935c6f;
             protocolFeeRecipient = 0xB5a9e5a319c7fDa551a30BE592c77394bF935c6f;
-            // transferManager = ;
+            transferManager = 0x00000000000ea4af05656C17b90f4d64AdD29e1d;
         } else if (chainId == 5) {
             weth = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
             deployerPrivateKey = vm.envUint("TESTNET_KEY");
@@ -66,7 +66,7 @@ contract Deployment is Script {
 
         if (chainId == 1) {
             IMMUTABLE_CREATE2_FACTORY.safeCreate2({
-                salt: vm.envBytes32("RAFFLE_SALT"),
+                salt: vm.envBytes32("RAFFLE_V2_SALT"),
                 initializationCode: abi.encodePacked(
                     type(RaffleV2).creationCode,
                     abi.encode(
