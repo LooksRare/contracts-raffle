@@ -24,6 +24,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     bool public callsMustBeValid;
 
     RaffleV2 public looksRareRaffle;
+    TransferManager public transferManager;
     MockERC721 public erc721;
     MockERC20 public erc20;
     MockERC1155 public erc1155;
@@ -119,9 +120,11 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         MockVRFCoordinatorV2 _vrfCoordinatorV2,
         MockERC721 _erc721,
         MockERC20 _erc20,
-        MockERC1155 _erc1155
+        MockERC1155 _erc1155,
+        TransferManager _transferManager
     ) {
         looksRareRaffle = _looksRareRaffle;
+        transferManager = _transferManager;
         vrfCoordinatorV2 = _vrfCoordinatorV2;
 
         erc721 = _erc721;
@@ -204,9 +207,15 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             minimumEntries = pricingOptions[4].entriesCount;
         }
 
-        erc721.setApprovalForAll(address(looksRareRaffle), true);
-        erc20.approve(address(looksRareRaffle), erc20Value);
-        erc1155.setApprovalForAll(address(looksRareRaffle), true);
+        erc721.setApprovalForAll(address(transferManager), true);
+        erc20.approve(address(transferManager), erc20Value);
+        erc1155.setApprovalForAll(address(transferManager), true);
+
+        if (!transferManager.hasUserApprovedOperator(currentActor, address(looksRareRaffle))) {
+            address[] memory operators = new address[](1);
+            operators[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(operators);
+        }
 
         IRaffleV2.CreateRaffleCalldata memory params = IRaffleV2.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
@@ -283,7 +292,14 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             ghost_ETH_feesCollectedSum += price;
         } else if (feeTokenAddress == address(erc20)) {
             erc20.mint(currentActor, price);
-            erc20.approve(address(looksRareRaffle), price);
+            erc20.approve(address(transferManager), price);
+
+            if (!transferManager.hasUserApprovedOperator(currentActor, address(looksRareRaffle))) {
+                address[] memory operators = new address[](1);
+                operators[0] = address(looksRareRaffle);
+                transferManager.grantApprovals(operators);
+            }
+
             looksRareRaffle.enterRaffles(entries);
             ghost_ERC20_feesCollectedSum += price;
         }
@@ -634,13 +650,16 @@ contract Raffle_Invariants is TestHelpers {
             address(transferManager)
         );
 
+        vm.prank(owner);
+        transferManager.allowOperator(address(looksRareRaffle));
+
         mockERC721 = new MockERC721();
         mockERC20 = new MockERC20();
         MockERC1155 mockERC1155 = new MockERC1155();
 
         vrfCoordinatorV2.setRaffle(address(looksRareRaffle));
 
-        handler = new Handler(looksRareRaffle, vrfCoordinatorV2, mockERC721, mockERC20, mockERC1155);
+        handler = new Handler(looksRareRaffle, vrfCoordinatorV2, mockERC721, mockERC20, mockERC1155, transferManager);
         targetContract(address(handler));
         excludeContract(looksRareRaffle.protocolFeeRecipient());
     }
