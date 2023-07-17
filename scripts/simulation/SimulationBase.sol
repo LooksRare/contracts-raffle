@@ -8,7 +8,7 @@ contract SimulationBase {
     address public constant MAINNET_ERC_721 = 0xee726929543222D755145B1063c38eFba87bE601;
     address public constant MAINNET_ERC_721_B = 0xa589d2bb4FE9B371291C7Ef177A6076Ed1Fb2de8;
     address public constant MAINNET_ERC_20 = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
-    address public constant MAINNET_RAFFLE = 0x0000000000009703EcD0fFEa3143fc9096DE91B0;
+    address public constant MAINNET_RAFFLE = 0x0000000000aDEaD599C11A0C9a7475B67852c1D0;
 
     address public constant SEPOLIA_ERC_721 = 0x61AAEcdbe9C2502a72fec63F2Ff510bE1b95DD97;
     address public constant SEPOLIA_ERC_20 = 0xa68c2CaA3D45fa6EBB95aA706c70f49D3356824E;
