@@ -43,3 +43,5 @@ jobs:
         run: yarn test
       - name: Run Solidity/Forge tests
         run: forge test
+        env:
+          FOUNDRY_PROFILE: local

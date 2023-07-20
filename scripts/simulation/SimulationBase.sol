@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity 0.8.20;
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract SimulationBase {
     address public constant MAINNET_ERC_721 = 0xee726929543222D755145B1063c38eFba87bE601;
@@ -19,17 +19,17 @@ contract SimulationBase {
     address public constant GOERLI_ERC_721_B = 0x6019EaF9d6004582248b8F6C5b668675Ce6D22fe;
     address public constant GOERLI_ERC_20 = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
     address public constant GOERLI_ERC_1155 = 0x58c3c2547084CC1C94130D6fd750A3877c7Ca5D2;
-    address public constant GOERLI_RAFFLE = 0xC5F7FCde87e30Aa339d3d61B4fe3c1C261f6EEe2;
+    address public constant GOERLI_RAFFLE = 0x5A6451Eb148054a17262e56EF4e55203C36f095a;
 
     address public constant RAFFLE_OWNER = 0xF332533bF5d0aC462DC8511067A8122b4DcE2B57;
 
-    function getRaffle(uint256 chainId) internal pure returns (IRaffle raffle) {
+    function getRaffle(uint256 chainId) internal pure returns (IRaffleV2 raffle) {
         if (chainId == 1) {
-            raffle = IRaffle(MAINNET_RAFFLE);
+            raffle = IRaffleV2(MAINNET_RAFFLE);
         } else if (chainId == 5) {
-            raffle = IRaffle(GOERLI_RAFFLE);
+            raffle = IRaffleV2(GOERLI_RAFFLE);
         } else if (chainId == 11155111) {
-            raffle = IRaffle(SEPOLIA_RAFFLE);
+            raffle = IRaffleV2(SEPOLIA_RAFFLE);
         } else {
             revert("Invalid chainId");
         }
