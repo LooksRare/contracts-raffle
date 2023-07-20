@@ -4,21 +4,23 @@ pragma solidity ^0.8.0;
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
-import {ProtocolFeeRecipient} from "@looksrare/contracts-exchange-v2/contracts/ProtocolFeeRecipient.sol";
+import {TransferManager} from "@looksrare/contracts-transfer-manager/contracts/TransferManager.sol";
 
 import {AssertionHelpers} from "./AssertionHelpers.sol";
 import {TestParameters} from "./TestParameters.sol";
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 import {MockWETH} from "./mock/MockWETH.sol";
+import {ProtocolFeeRecipient} from "./mock/ProtocolFeeRecipient.sol";
 
 abstract contract TestHelpers is AssertionHelpers, TestParameters {
-    Raffle internal looksRareRaffle;
+    RaffleV2 internal looksRareRaffle;
     ProtocolFeeRecipient internal protocolFeeRecipient;
+    TransferManager internal transferManager;
     MockERC20 internal mockERC20;
     MockERC721 internal mockERC721;
 
@@ -39,17 +41,18 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _deployRaffle() internal {
         MockWETH weth = new MockWETH();
-
         protocolFeeRecipient = new ProtocolFeeRecipient(address(weth), address(69_420));
+        transferManager = new TransferManager(owner);
 
-        looksRareRaffle = new Raffle(
+        looksRareRaffle = new RaffleV2(
             address(weth),
             KEY_HASH,
             SUBSCRIPTION_ID,
             VRF_COORDINATOR,
             owner,
             address(protocolFeeRecipient),
-            500
+            500,
+            address(transferManager)
         );
 
         mockERC20 = new MockERC20();
@@ -65,12 +68,12 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     function _baseCreateRaffleParams(address erc20, address erc721)
         internal
         view
-        returns (IRaffle.CreateRaffleCalldata memory params)
+        returns (IRaffleV2.CreateRaffleCalldata memory params)
     {
-        IRaffle.Prize[] memory prizes = _generateStandardRafflePrizes(erc20, erc721);
-        IRaffle.PricingOption[5] memory pricingOptions = _generateStandardPricings();
+        IRaffleV2.Prize[] memory prizes = _generateStandardRafflePrizes(erc20, erc721);
+        IRaffleV2.PricingOption[] memory pricingOptions = _generateStandardPricings();
 
-        params = IRaffle.CreateRaffleCalldata({
+        params = IRaffleV2.CreateRaffleCalldata({
             cutoffTime: uint40(block.timestamp + 86_400),
             isMinimumEntriesFixed: false,
             minimumEntries: 107,
@@ -82,12 +85,13 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         });
     }
 
-    function _generateStandardPricings() internal pure returns (IRaffle.PricingOption[5] memory pricingOptions) {
-        pricingOptions[0] = IRaffle.PricingOption({entriesCount: 1, price: 0.025 ether});
-        pricingOptions[1] = IRaffle.PricingOption({entriesCount: 10, price: 0.22 ether});
-        pricingOptions[2] = IRaffle.PricingOption({entriesCount: 25, price: 0.5 ether});
-        pricingOptions[3] = IRaffle.PricingOption({entriesCount: 50, price: 0.75 ether});
-        pricingOptions[4] = IRaffle.PricingOption({entriesCount: 100, price: 0.95 ether});
+    function _generateStandardPricings() internal pure returns (IRaffleV2.PricingOption[] memory pricingOptions) {
+        pricingOptions = new IRaffleV2.PricingOption[](5);
+        pricingOptions[0] = IRaffleV2.PricingOption({entriesCount: 1, price: 0.025 ether});
+        pricingOptions[1] = IRaffleV2.PricingOption({entriesCount: 10, price: 0.22 ether});
+        pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 25, price: 0.5 ether});
+        pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 50, price: 0.75 ether});
+        pricingOptions[4] = IRaffleV2.PricingOption({entriesCount: 100, price: 0.95 ether});
     }
 
     /**
@@ -98,11 +102,11 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     function _generateStandardRafflePrizes(address erc20, address erc721)
         internal
         pure
-        returns (IRaffle.Prize[] memory prizes)
+        returns (IRaffleV2.Prize[] memory prizes)
     {
-        prizes = new IRaffle.Prize[](7);
+        prizes = new IRaffleV2.Prize[](7);
         for (uint256 i; i < 6; i++) {
-            prizes[i].prizeType = IRaffle.TokenType.ERC721;
+            prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
             prizes[i].prizeAddress = erc721;
             prizes[i].prizeId = i;
             prizes[i].prizeAmount = 1;
@@ -112,7 +116,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
                 prizes[i].prizeTier = 1;
             }
         }
-        prizes[6].prizeType = IRaffle.TokenType.ERC20;
+        prizes[6].prizeType = IRaffleV2.TokenType.ERC20;
         prizes[6].prizeTier = 2;
         prizes[6].prizeAddress = erc20;
         prizes[6].prizeAmount = 1_000e18;
@@ -126,26 +130,36 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _expected11Winners() internal pure returns (address[] memory winners) {
         winners = new address[](11);
-        winners[0] = address(8);
-        winners[1] = address(64);
-        winners[2] = address(67);
-        winners[3] = address(57);
-        winners[4] = address(48);
-        winners[5] = address(61);
-        winners[6] = address(103);
-        winners[7] = address(98);
-        winners[8] = address(4);
-        winners[9] = address(72);
-        winners[10] = address(27);
+        winners[0] = address(18);
+        winners[1] = address(74);
+        winners[2] = address(77);
+        winners[3] = address(67);
+        winners[4] = address(58);
+        winners[5] = address(71);
+        winners[6] = address(113);
+        winners[7] = address(108);
+        winners[8] = address(14);
+        winners[9] = address(82);
+        winners[10] = address(37);
     }
 
     function _mintStandardRafflePrizesToRaffleOwnerAndApprove() internal {
         mockERC20.mint(user1, 100_000 ether);
         mockERC721.batchMint(user1, mockERC721.totalSupply(), 6);
 
+        if (!transferManager.isOperatorAllowed(address(looksRareRaffle))) {
+            vm.prank(owner);
+            transferManager.allowOperator(address(looksRareRaffle));
+        }
+
         vm.startPrank(user1);
-        mockERC20.approve(address(looksRareRaffle), 100_000 ether);
-        mockERC721.setApprovalForAll(address(looksRareRaffle), true);
+        mockERC20.approve(address(transferManager), 100_000 ether);
+        if (!transferManager.hasUserApprovedOperator(user1, address(looksRareRaffle))) {
+            address[] memory approved = new address[](1);
+            approved[0] = address(looksRareRaffle);
+            transferManager.grantApprovals(approved);
+        }
+        mockERC721.setApprovalForAll(address(transferManager), true);
         vm.stopPrank();
     }
 
@@ -154,32 +168,49 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntries() internal {
-        for (uint256 i; i < 107; i++) {
-            address participant = address(uint160(i + 1));
-
-            vm.deal(participant, 0.025 ether);
-
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
-
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: 0.025 ether}(entries);
-        }
+        _enterRafflesWithSingleEntry(1, 107);
     }
 
     function _enterRafflesWithSingleEntryUpToMinimumEntriesMinusOne(uint256 raffleId) internal {
+        _enterRafflesWithSingleEntry(raffleId, 106);
+    }
+
+    function _enterRafflesWithSingleEntry(uint256 raffleId, uint256 count) internal {
+        (, , , , , , , address feeTokenAddress, , ) = looksRareRaffle.raffles(raffleId);
+
         // 1 entry short of the minimum, starting with 10 to skip the precompile contracts
-        for (uint256 i = 10; i < 116; i++) {
+        uint256 end = 10 + count;
+        for (uint256 i = 10; i < end; i++) {
             address participant = address(uint160(i + 1));
 
             uint256 price = 0.025 ether;
-            vm.deal(participant, price);
+            if (feeTokenAddress == address(0)) {
+                vm.deal(participant, price);
+            } else {
+                deal(feeTokenAddress, participant, price);
+            }
 
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: raffleId, pricingOptionIndex: 0});
+            IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+            entries[0] = IRaffleV2.EntryCalldata({
+                raffleId: raffleId,
+                pricingOptionIndex: 0,
+                count: 1,
+                recipient: address(0)
+            });
 
-            vm.prank(participant);
-            looksRareRaffle.enterRaffles{value: price}(entries);
+            vm.startPrank(participant);
+            if (feeTokenAddress == address(0)) {
+                looksRareRaffle.enterRaffles{value: price}(entries);
+            } else {
+                mockERC20.approve(address(transferManager), price);
+                if (!transferManager.hasUserApprovedOperator(participant, address(looksRareRaffle))) {
+                    address[] memory approved = new address[](1);
+                    approved[0] = address(looksRareRaffle);
+                    transferManager.grantApprovals(approved);
+                }
+                looksRareRaffle.enterRaffles(entries);
+            }
+            vm.stopPrank();
         }
     }
 
@@ -202,7 +233,7 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _stubRaffleStatus(uint256 raffleId, uint8 status) internal {
         address raffle = address(looksRareRaffle);
-        bytes32 slot = bytes32(keccak256(abi.encode(raffleId, uint256(3))));
+        bytes32 slot = bytes32(keccak256(abi.encode(raffleId, uint256(2))));
         uint256 value = uint256(vm.load(raffle, slot));
         uint256 mask = 0xff << 160;
         uint256 statusBits = uint256(status) << 160;
@@ -212,21 +243,34 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
 
     function _stubRandomnessRequestExistence(uint256 requestId, bool exists) internal {
         address raffle = address(looksRareRaffle);
-        bytes32 slot = bytes32(keccak256(abi.encode(requestId, uint256(6))));
+        bytes32 slot = bytes32(keccak256(abi.encode(requestId, uint256(5))));
         uint256 value = exists ? 1 : 0;
 
         vm.store(raffle, slot, bytes32(value));
     }
 
+    function _claimPrize(uint256 raffleId) internal {
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
+        for (uint256 i; i < winners.length; i++) {
+            assertFalse(winners[i].claimed);
+
+            expectEmitCheckAll();
+            emit PrizeClaimed({raffleId: raffleId, winnerIndex: i});
+
+            vm.prank(winners[i].participant);
+            looksRareRaffle.claimPrize(raffleId, i);
+        }
+    }
+
     function _claimPrizes(uint256 raffleId) internal {
-        IRaffle.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
+        IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(raffleId);
         for (uint256 i; i < winners.length; i++) {
             assertFalse(winners[i].claimed);
 
             uint256[] memory winnerIndices = new uint256[](1);
             winnerIndices[0] = i;
 
-            IRaffle.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffle.ClaimPrizesCalldata[](1);
+            IRaffleV2.ClaimPrizesCalldata[] memory claimPrizesCalldata = new IRaffleV2.ClaimPrizesCalldata[](1);
             claimPrizesCalldata[0].raffleId = raffleId;
             claimPrizesCalldata[0].winnerIndices = winnerIndices;
 

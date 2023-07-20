@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity 0.8.20;
 
-import {Raffle} from "../../contracts/Raffle.sol";
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {RaffleV2} from "../../contracts/RaffleV2.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 import {TestHelpers} from "./TestHelpers.sol";
 
 import {MockERC20} from "./mock/MockERC20.sol";
@@ -27,13 +27,11 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
         vm.prank(owner);
         looksRareRaffle.updateCurrenciesStatus(currencies, true);
 
-        IRaffle.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
+        IRaffleV2.CreateRaffleCalldata memory params = _baseCreateRaffleParams(address(mockERC20), address(mockERC721));
         params.feeTokenAddress = address(feeToken);
 
-        vm.startPrank(user1);
+        vm.prank(user1);
         looksRareRaffle.createRaffle(params);
-        looksRareRaffle.depositPrizes(1);
-        vm.stopPrank();
     }
 
     function test_claimFees() public {
@@ -46,11 +44,16 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
 
             deal(address(feeToken), participant, price);
 
-            IRaffle.EntryCalldata[] memory entries = new IRaffle.EntryCalldata[](1);
-            entries[0] = IRaffle.EntryCalldata({raffleId: 1, pricingOptionIndex: 0});
+            IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+            entries[0] = IRaffleV2.EntryCalldata({raffleId: 1, pricingOptionIndex: 0, count: 1, recipient: address(0)});
 
             vm.startPrank(participant);
-            feeToken.approve(address(looksRareRaffle), price);
+            feeToken.approve(address(transferManager), price);
+            if (!transferManager.hasUserApprovedOperator(participant, address(looksRareRaffle))) {
+                address[] memory approved = new address[](1);
+                approved[0] = address(looksRareRaffle);
+                transferManager.grantApprovals(approved);
+            }
             looksRareRaffle.enterRaffles(entries);
             vm.stopPrank();
         }
@@ -65,9 +68,8 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
         uint256 raffleOwnerBalance = feeToken.balanceOf(user1);
 
         assertEq(feeToken.balanceOf(address(protocolFeeRecipient)), 0);
-        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(feeToken)), 0);
 
-        assertRaffleStatusUpdatedEventEmitted(1, IRaffle.RaffleStatus.Complete);
+        assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Complete);
 
         expectEmitCheckAll();
         emit FeesClaimed(1, 2.54125 ether);
@@ -76,18 +78,9 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
         looksRareRaffle.claimFees(1);
 
         (, , , , , , , , , claimableFees) = looksRareRaffle.raffles(1);
-        assertEq(feeToken.balanceOf(address(looksRareRaffle)), 0.13375 ether);
         assertEq(claimableFees, 0);
         assertEq(feeToken.balanceOf(user1), raffleOwnerBalance + 2.54125 ether);
-        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(feeToken)), 0.13375 ether);
-        assertRaffleStatus(looksRareRaffle, 1, IRaffle.RaffleStatus.Complete);
-
-        vm.prank(owner);
-        looksRareRaffle.claimProtocolFees(address(feeToken));
-
-        // After the raffle fees are claimed, we can receive the protocol fees.
         assertEq(feeToken.balanceOf(address(protocolFeeRecipient)), 0.13375 ether);
-        assertEq(feeToken.balanceOf(address(looksRareRaffle)), 0);
-        assertEq(looksRareRaffle.protocolFeeRecipientClaimableFees(address(feeToken)), 0);
+        assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Complete);
     }
 }

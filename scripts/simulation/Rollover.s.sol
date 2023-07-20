@@ -9,7 +9,9 @@ import {SimulationBase} from "./SimulationBase.sol";
 // Core contracts
 import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
-contract ClaimFees is Script, SimulationBase {
+contract Rollover is Script, SimulationBase {
+    error ChainIdInvalid(uint256 chainId);
+
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("TESTNET_KEY");
 
@@ -17,7 +19,18 @@ contract ClaimFees is Script, SimulationBase {
 
         IRaffleV2 raffle = getRaffle(block.chainid);
 
-        raffle.claimFees(1);
+        uint256[] memory refundableRaffleIds = new uint256[](1);
+        refundableRaffleIds[0] = 4;
+
+        IRaffleV2.EntryCalldata[] memory entries = new IRaffleV2.EntryCalldata[](1);
+        entries[0] = IRaffleV2.EntryCalldata({
+            raffleId: 6,
+            pricingOptionIndex: 0,
+            count: uint40(15),
+            recipient: address(0)
+        });
+
+        raffle.rollover(refundableRaffleIds, entries);
 
         vm.stopBroadcast();
     }

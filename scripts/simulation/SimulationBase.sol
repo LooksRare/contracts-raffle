@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity 0.8.20;
 
 // Core contracts
-import {IRaffle} from "../../contracts/interfaces/IRaffle.sol";
+import {IRaffleV2} from "../../contracts/interfaces/IRaffleV2.sol";
 
 contract SimulationBase {
     address public constant MAINNET_ERC_721 = 0xee726929543222D755145B1063c38eFba87bE601;
     address public constant MAINNET_ERC_721_B = 0xa589d2bb4FE9B371291C7Ef177A6076Ed1Fb2de8;
     address public constant MAINNET_ERC_20 = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
-    address public constant MAINNET_RAFFLE = 0x0000000000009703EcD0fFEa3143fc9096DE91B0;
+    address public constant MAINNET_RAFFLE = 0x0000000000aDEaD599C11A0C9a7475B67852c1D0;
 
     address public constant SEPOLIA_ERC_721 = 0x61AAEcdbe9C2502a72fec63F2Ff510bE1b95DD97;
     address public constant SEPOLIA_ERC_20 = 0xa68c2CaA3D45fa6EBB95aA706c70f49D3356824E;
@@ -19,17 +19,17 @@ contract SimulationBase {
     address public constant GOERLI_ERC_721_B = 0x6019EaF9d6004582248b8F6C5b668675Ce6D22fe;
     address public constant GOERLI_ERC_20 = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
     address public constant GOERLI_ERC_1155 = 0x58c3c2547084CC1C94130D6fd750A3877c7Ca5D2;
-    address public constant GOERLI_RAFFLE = 0xC5F7FCde87e30Aa339d3d61B4fe3c1C261f6EEe2;
+    address public constant GOERLI_RAFFLE = 0x5A6451Eb148054a17262e56EF4e55203C36f095a;
 
     address public constant RAFFLE_OWNER = 0xF332533bF5d0aC462DC8511067A8122b4DcE2B57;
 
-    function getRaffle(uint256 chainId) internal pure returns (IRaffle raffle) {
+    function getRaffle(uint256 chainId) internal pure returns (IRaffleV2 raffle) {
         if (chainId == 1) {
-            raffle = IRaffle(MAINNET_RAFFLE);
+            raffle = IRaffleV2(MAINNET_RAFFLE);
         } else if (chainId == 5) {
-            raffle = IRaffle(GOERLI_RAFFLE);
+            raffle = IRaffleV2(GOERLI_RAFFLE);
         } else if (chainId == 11155111) {
-            raffle = IRaffle(SEPOLIA_RAFFLE);
+            raffle = IRaffleV2(SEPOLIA_RAFFLE);
         } else {
             revert("Invalid chainId");
         }

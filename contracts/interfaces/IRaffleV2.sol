@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-interface IRaffle {
+interface IRaffleV2 {
     enum RaffleStatus {
         None,
-        Created,
         Open,
         Drawing,
         RandomnessFulfilled,
@@ -31,7 +30,7 @@ interface IRaffle {
     }
 
     /**
-     * @param currentEntryIndex The cumulative number of entries in the raffle.
+     * @param currentEntryIndex The cumulative number of entries in the raffle minus one.
      * @param participant The address of the participant.
      */
     struct Entry {
@@ -98,7 +97,7 @@ interface IRaffle {
         address feeTokenAddress;
         uint16 protocolFeeBp;
         uint208 claimableFees;
-        PricingOption[5] pricingOptions;
+        PricingOption[] pricingOptions;
         Prize[] prizes;
         Entry[] entries;
         Winner[] winners;
@@ -118,10 +117,14 @@ interface IRaffle {
     /**
      * @param raffleId The id of the raffle.
      * @param pricingOptionIndex The index of the selected pricing option.
+     * @param count The number of entries to be purchased.
+     * @param recipient The recipient of the entries.
      */
     struct EntryCalldata {
         uint256 raffleId;
         uint256 pricingOptionIndex;
+        uint40 count;
+        address recipient;
     }
 
     /**
@@ -142,9 +145,13 @@ interface IRaffle {
         uint16 protocolFeeBp;
         address feeTokenAddress;
         Prize[] prizes;
-        PricingOption[5] pricingOptions;
+        PricingOption[] pricingOptions;
     }
 
+    /**
+     * @param raffleId The id of the raffle.
+     * @param winnerIndices The indices of the winners to be claimed.
+     */
     struct ClaimPrizesCalldata {
         uint256 raffleId;
         uint256[] winnerIndices;
@@ -152,36 +159,48 @@ interface IRaffle {
 
     /**
      * @param exists Whether the request exists.
-     * @param raffleId The id of the raffle.
      * @param randomWord The random words returned by Chainlink VRF.
      *                   If randomWord == 0, then the request is still pending.
+     * @param raffleId The id of the raffle.
      */
     struct RandomnessRequest {
         bool exists;
-        uint248 randomWord;
-        uint256 raffleId;
+        uint80 raffleId;
+        uint256 randomWord;
+    }
+
+    /**
+     * @notice This is used to accumulate the amount of tokens to be transferred.
+     * @param tokenAddress The address of the token.
+     * @param amount The amount of tokens accumulated.
+     */
+    struct TransferAccumulator {
+        address tokenAddress;
+        uint256 amount;
     }
 
     event CurrenciesStatusUpdated(address[] currencies, bool isAllowed);
     event EntryRefunded(uint256 raffleId, address buyer, uint208 amount);
-    event EntrySold(uint256 raffleId, address buyer, uint40 entriesCount, uint208 price);
+    event EntrySold(uint256 raffleId, address buyer, address recipient, uint40 entriesCount, uint208 price);
     event FeesClaimed(uint256 raffleId, uint256 amount);
+    event PrizeClaimed(uint256 raffleId, uint256 winnerIndex);
     event PrizesClaimed(uint256 raffleId, uint256[] winnerIndex);
     event ProtocolFeeBpUpdated(uint16 protocolFeeBp);
     event ProtocolFeeRecipientUpdated(address protocolFeeRecipient);
     event RaffleStatusUpdated(uint256 raffleId, RaffleStatus status);
     event RandomnessRequested(uint256 raffleId, uint256 requestId);
 
-    error AlreadyRefunded();
     error CutoffTimeNotReached();
     error CutoffTimeReached();
     error DrawExpirationTimeNotReached();
     error InsufficientNativeTokensSupplied();
     error InvalidCaller();
+    error InvalidCount();
     error InvalidCurrency();
     error InvalidCutoffTime();
     error InvalidIndex();
     error InvalidPricingOption();
+    error InvalidPricingOptionsCount();
     error InvalidPrize();
     error InvalidPrizesCount();
     error InvalidProtocolFeeBp();
@@ -190,7 +209,8 @@ interface IRaffle {
     error InvalidWinnersCount();
     error MaximumEntriesPerParticipantReached();
     error MaximumEntriesReached();
-    error PrizeAlreadyClaimed();
+    error NothingToClaim();
+    error NotEnoughEntries();
     error RandomnessRequestAlreadyExists();
     error RandomnessRequestDoesNotExist();
 
@@ -199,13 +219,7 @@ interface IRaffle {
      * @param params The parameters of the raffle.
      * @return raffleId The id of the newly created raffle.
      */
-    function createRaffle(CreateRaffleCalldata calldata params) external returns (uint256 raffleId);
-
-    /**
-     * @notice Deposits prizes for a raffle.
-     * @param raffleId The id of the raffle.
-     */
-    function depositPrizes(uint256 raffleId) external payable;
+    function createRaffle(CreateRaffleCalldata calldata params) external payable returns (uint256 raffleId);
 
     /**
      * @notice Enters a raffle or multiple raffles.
@@ -218,6 +232,13 @@ interface IRaffle {
      * @param requestId The request id returned by Chainlink.
      */
     function selectWinners(uint256 requestId) external;
+
+    /**
+     * @notice Claims a single prize for a winner.
+     * @param raffleId The id of the raffle.
+     * @param winnerIndex The index of the winner.
+     */
+    function claimPrize(uint256 raffleId, uint256 winnerIndex) external;
 
     /**
      * @notice Claims the prizes for a winner. A winner can claim multiple prizes
@@ -239,6 +260,12 @@ interface IRaffle {
     function cancel(uint256 raffleId) external;
 
     /**
+     * @notice Draws winners for a raffle beyond cut-off time without meeting minimum entries.
+     * @param raffleId The id of the raffle.
+     */
+    function drawWinners(uint256 raffleId) external;
+
+    /**
      * @notice Cancels a raffle after randomness request if the randomness request
      *         does not arrive after a certain amount of time.
      *         Only callable by contract owner.
@@ -253,16 +280,17 @@ interface IRaffle {
     function withdrawPrizes(uint256 raffleId) external;
 
     /**
+     * @notice Rollover entries from cancelled raffles to open raffles.
+     * @param refundableRaffleIds The ids of the refundable raffles.
+     * @param entries The entries to be made.
+     */
+    function rollover(uint256[] calldata refundableRaffleIds, EntryCalldata[] calldata entries) external payable;
+
+    /**
      * @notice Claims the refund for a cancelled raffle.
      * @param raffleIds The ids of the raffles.
      */
     function claimRefund(uint256[] calldata raffleIds) external;
-
-    /**
-     * @notice Claims the protocol fees collected for a raffle.
-     * @param currency The currency of the fees to be claimed.
-     */
-    function claimProtocolFees(address currency) external;
 
     /**
      * @notice Sets the protocol fee in basis points. Only callable by contract owner.
@@ -301,7 +329,7 @@ interface IRaffle {
      * @param raffleId The id of the raffle.
      * @return pricingOptions The pricing options for the raffle.
      */
-    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[5] memory);
+    function getPricingOptions(uint256 raffleId) external view returns (PricingOption[] memory);
 
     /**
      * @notice Gets the prizes for a raffle.
