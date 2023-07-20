@@ -19,7 +19,8 @@ contract SimulationBase {
     address public constant GOERLI_ERC_721_B = 0x6019EaF9d6004582248b8F6C5b668675Ce6D22fe;
     address public constant GOERLI_ERC_20 = 0x20A5A36ded0E4101C3688CBC405bBAAE58fE9eeC;
     address public constant GOERLI_ERC_1155 = 0x58c3c2547084CC1C94130D6fd750A3877c7Ca5D2;
-    address public constant GOERLI_RAFFLE = 0x5A6451Eb148054a17262e56EF4e55203C36f095a;
+    address public constant GOERLI_RAFFLE = 0xda28aC345040C9abC0E19AfD6025c4f5A45C4b30;
+    address public constant GOERLI_TRANSFER_MANAGER = 0xb737687983D6CcB4003A727318B5454864Ecba9d;
 
     address public constant RAFFLE_OWNER = 0xF332533bF5d0aC462DC8511067A8122b4DcE2B57;
 
@@ -71,5 +72,9 @@ contract SimulationBase {
 
     function getERC1155(uint256 chainId) internal pure returns (address) {
         return chainId == 5 ? GOERLI_ERC_1155 : SEPOLIA_ERC_1155;
+    }
+
+    function getTransferManager(uint256 chainId) internal pure returns (address) {
+        return chainId == 5 ? GOERLI_TRANSFER_MANAGER : address(0);
     }
 }

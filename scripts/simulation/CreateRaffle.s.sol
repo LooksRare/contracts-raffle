@@ -43,12 +43,12 @@ contract CreateRaffle is Script, SimulationBase {
         ITestERC721 nft = ITestERC721(getERC721(chainId));
         uint256 totalSupply = nft.totalSupply();
         nft.mint(RAFFLE_OWNER, 1);
-        // nft.setApprovalForAll(address(raffle), true);
+        // nft.setApprovalForAll(getTransferManager(chainId), true);
 
         ITestERC721 nftB = ITestERC721(getERC721B(chainId));
         uint256 totalSupplyB = nftB.totalSupply();
         nftB.mint(RAFFLE_OWNER, 10);
-        // nftB.setApprovalForAll(address(raffle), true);
+        // nftB.setApprovalForAll(getTransferManager(chainId), true);
 
         ITestERC20 looks = ITestERC20(getERC20(chainId));
 
@@ -56,7 +56,7 @@ contract CreateRaffle is Script, SimulationBase {
         if (chainId == 11155111) {
             looks.mint(RAFFLE_OWNER, totalPrizeInLooks);
         }
-        looks.approve(address(raffle), totalPrizeInLooks);
+        looks.approve(getTransferManager(chainId), totalPrizeInLooks);
 
         // address[] memory currencies = new address[](1);
         // currencies[0] = address(looks);
