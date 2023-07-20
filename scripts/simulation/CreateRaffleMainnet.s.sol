@@ -21,38 +21,53 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 500, price: 0.49 ether});
         pricingOptions[4] = IRaffleV2.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
-        address punks = 0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6;
-        address kubz = 0xEb2dFC54EbaFcA8F50eFcc1e21A9D100b5AEb349;
+        address nftOne = 0xa589d2bb4FE9B371291C7Ef177A6076Ed1Fb2de8;
+        address nftTwo = 0xee726929543222D755145B1063c38eFba87bE601;
+        address looks = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
 
-        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](4);
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](6);
 
         prizes[0].prizeTier = 0;
         prizes[0].prizeType = IRaffleV2.TokenType.ERC721;
-        prizes[0].prizeAddress = bayc;
-        prizes[0].prizeId = 5151;
+        prizes[0].prizeAddress = nftOne;
+        prizes[0].prizeId = 4;
         prizes[0].prizeAmount = 1;
         prizes[0].winnersCount = 1;
 
         prizes[1].prizeTier = 1;
         prizes[1].prizeType = IRaffleV2.TokenType.ERC721;
-        prizes[1].prizeAddress = azuki;
-        prizes[1].prizeId = 2164;
+        prizes[1].prizeAddress = nftTwo;
+        prizes[1].prizeId = 2;
         prizes[1].prizeAmount = 1;
         prizes[1].winnersCount = 1;
 
         prizes[2].prizeTier = 1;
         prizes[2].prizeType = IRaffleV2.TokenType.ERC721;
-        prizes[2].prizeAddress = azuki;
-        prizes[2].prizeId = 6500;
+        prizes[2].prizeAddress = nftTwo;
+        prizes[2].prizeId = 4;
         prizes[2].prizeAmount = 1;
         prizes[2].winnersCount = 1;
 
-        prizes[3].prizeTier = 2;
-        prizes[3].prizeType = IRaffleV2.TokenType.ERC20;
-        prizes[3].prizeAddress = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
-        prizes[3].prizeId = 0;
-        prizes[3].prizeAmount = 5_000e18;
-        prizes[3].winnersCount = 100;
+        prizes[3].prizeTier = 1;
+        prizes[3].prizeType = IRaffleV2.TokenType.ERC721;
+        prizes[3].prizeAddress = nftTwo;
+        prizes[3].prizeId = 5;
+        prizes[3].prizeAmount = 1;
+        prizes[3].winnersCount = 1;
+
+        prizes[4].prizeTier = 1;
+        prizes[4].prizeType = IRaffleV2.TokenType.ERC721;
+        prizes[4].prizeAddress = nftTwo;
+        prizes[4].prizeId = 7;
+        prizes[4].prizeAmount = 1;
+        prizes[4].winnersCount = 1;
+
+        prizes[5].prizeTier = 2;
+        prizes[5].prizeType = IRaffleV2.TokenType.ERC20;
+        prizes[5].prizeAddress = looks;
+        prizes[5].prizeId = 0;
+        prizes[5].prizeAmount = 1 ether;
+        prizes[5].winnersCount = 100;
 
         console2.logBytes(
             abi.encodeCall(
@@ -61,10 +76,10 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                     IRaffleV2.CreateRaffleCalldata({
                         cutoffTime: uint40(block.timestamp + 5 days + 6 hours + 2 minutes),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 69_000,
-                        maximumEntriesPerParticipant: 14_000,
+                        minimumEntries: 250,
+                        maximumEntriesPerParticipant: 250,
                         protocolFeeBp: 0,
-                        feeTokenAddress: address(0),
+                        feeTokenAddress: looks,
                         prizes: prizes,
                         pricingOptions: pricingOptions
                     })
