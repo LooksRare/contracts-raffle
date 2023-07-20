@@ -14,12 +14,11 @@ contract CreateRaffleMainnet is Script, SimulationBase {
     function run() external view {
         IRaffleV2 raffle = getRaffle(1);
 
-        IRaffleV2.PricingOption[] memory pricingOptions = new IRaffleV2.PricingOption[](5);
-        pricingOptions[0] = IRaffleV2.PricingOption({entriesCount: 1, price: 0.00098 ether});
-        pricingOptions[1] = IRaffleV2.PricingOption({entriesCount: 20, price: 0.0196 ether});
-        pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 100, price: 0.098 ether});
-        pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 500, price: 0.49 ether});
-        pricingOptions[4] = IRaffleV2.PricingOption({entriesCount: 1_000, price: 0.98 ether});
+        IRaffleV2.PricingOption[] memory pricingOptions = new IRaffleV2.PricingOption[](4);
+        pricingOptions[0] = IRaffleV2.PricingOption({entriesCount: 10, price: 0.1 ether});
+        pricingOptions[1] = IRaffleV2.PricingOption({entriesCount: 100, price: 1 ether});
+        pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 500, price: 5 ether});
+        pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 1_000, price: 10 ether});
 
         address nftOne = 0xa589d2bb4FE9B371291C7Ef177A6076Ed1Fb2de8;
         address nftTwo = 0xee726929543222D755145B1063c38eFba87bE601;
