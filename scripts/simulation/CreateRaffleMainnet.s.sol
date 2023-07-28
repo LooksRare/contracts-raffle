@@ -24,7 +24,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         address beans = 0x3Af2A97414d1101E2107a70E7F33955da1346305;
         address looks = 0xf4d2888d29D722226FafA5d9B24F9164c092421E;
 
-        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](4);
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](6);
 
         prizes[0].prizeTier = 0;
         prizes[0].prizeType = IRaffleV2.TokenType.ERC721;
