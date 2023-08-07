@@ -57,7 +57,7 @@ contract Deployment is Script {
             vrfCoordinator = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
             owner = 0xF332533bF5d0aC462DC8511067A8122b4DcE2B57;
             protocolFeeRecipient = 0x50F0787Ed7C9091aBCa1D667fDBCcd85EA68C38C;
-            // transferManager = ;
+            transferManager = 0x8B43b6C4601FaCF70Fe17D057b3912Bde0206CFB;
         } else {
             revert ChainIdInvalid(chainId);
         }
