@@ -15,7 +15,7 @@ the prizes can be ERC-721, ERC-1155, ETH or ERC-20.
 | :------- | :--------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
 | Ethereum | [0x0000000000009703EcD0fFEa3143fc9096DE91B0](https://etherscan.io/address/0x0000000000009703EcD0fFEa3143fc9096DE91B0#code)         | [0x0000000000aDEaD599C11A0C9a7475B67852c1D0](https://etherscan.io/address/0x0000000000aDEaD599C11A0C9a7475B67852c1D0#code)         |
 | Goerli   | [0xC5F7FCde87e30Aa339d3d61B4fe3c1C261f6EEe2](https://goerli.etherscan.io/address/0xC5F7FCde87e30Aa339d3d61B4fe3c1C261f6EEe2#code)  | [0xda28aC345040C9abC0E19AfD6025c4f5A45C4b30](https://goerli.etherscan.io/address/0xda28aC345040C9abC0E19AfD6025c4f5A45C4b30#code)  |
-| Sepolia  | [0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9](https://sepolia.etherscan.io/address/0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9#code) | [0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9](https://sepolia.etherscan.io/address/0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9#code) |
+| Sepolia  | [0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9](https://sepolia.etherscan.io/address/0xb0C8a1a0569F7302d36e380755f1835C3e59aCB9#code) | [0xae7cf912ab5d9f6aa53126ea7aabd007f844ceec](https://sepolia.etherscan.io/address/0xae7cf912ab5d9f6aa53126ea7aabd007f844ceec#code) |
 
 ### Raffle states
 
