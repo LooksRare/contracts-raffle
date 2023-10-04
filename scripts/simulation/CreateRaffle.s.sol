@@ -91,12 +91,12 @@ contract CreateRaffle is Script, SimulationBase {
 
         raffle.createRaffle(
             IRaffleV2.CreateRaffleCalldata({
-                cutoffTime: uint40(block.timestamp + 5 days),
+                cutoffTime: uint40(block.timestamp + 1 days + 20 minutes),
                 isMinimumEntriesFixed: true,
                 minimumEntries: 15,
                 maximumEntriesPerParticipant: 15,
-                protocolFeeBp: 0,
-                feeTokenAddress: address(0),
+                protocolFeeBp: 500,
+                feeTokenAddress: address(looks),
                 prizes: prizes,
                 pricingOptions: pricingOptions
             })
