@@ -18,85 +18,52 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 500, price: 0.525 ether});
         pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
-        address bayc = 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D;
-        address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
-        address elementals = 0xB6a37b5d14D502c3Ab0Ae6f3a0E058BC9517786e;
+        address captainz = 0x769272677faB02575E84945F03Eca517ACc544Cc;
+        address potatoz = 0x39ee2c7b3cb80254225884ca001F57118C8f21B6;
 
-        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](39);
+        IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](13);
 
-        prizes[0].prizeTier = 0;
-        prizes[0].prizeType = IRaffleV2.TokenType.ERC721;
-        prizes[0].prizeAddress = bayc;
-        prizes[0].prizeId = 4_858;
-        prizes[0].prizeAmount = 1;
-        prizes[0].winnersCount = 1;
+        for (uint256 i; i < 3; i++) {
+            prizes[i].prizeTier = 0;
+            prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
+            prizes[i].prizeAddress = captainz;
+            prizes[i].prizeAmount = 1;
+            prizes[i].winnersCount = 1;
+        }
 
-        for (uint256 i = 1; i < 4; i++) {
+        prizes[0].prizeId = 9867;
+        prizes[1].prizeId = 1018;
+        prizes[2].prizeId = 1114;
+
+        for (uint256 i = 3; i < 13; i++) {
             prizes[i].prizeTier = 1;
             prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
-            prizes[i].prizeAddress = azuki;
+            prizes[i].prizeAddress = potatoz;
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
         }
 
-        prizes[1].prizeId = 5_862;
-        prizes[2].prizeId = 6_933;
-        prizes[3].prizeId = 8_644;
-
-        for (uint256 i = 4; i < 39; i++) {
-            prizes[i].prizeTier = 2;
-            prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
-            prizes[i].prizeAddress = elementals;
-            prizes[i].prizeAmount = 1;
-            prizes[i].winnersCount = 1;
-        }
-
-        prizes[4].prizeId = 16556;
-        prizes[5].prizeId = 2808;
-        prizes[6].prizeId = 12185;
-        prizes[7].prizeId = 9244;
-        prizes[8].prizeId = 4;
-        prizes[9].prizeId = 222;
-        prizes[10].prizeId = 4560;
-        prizes[11].prizeId = 9674;
-        prizes[12].prizeId = 16397;
-        prizes[13].prizeId = 4231;
-        prizes[14].prizeId = 18304;
-        prizes[15].prizeId = 2282;
-        prizes[16].prizeId = 17656;
-        prizes[17].prizeId = 10370;
-        prizes[18].prizeId = 11434;
-        prizes[19].prizeId = 17676;
-        prizes[20].prizeId = 4994;
-        prizes[21].prizeId = 6910;
-        prizes[22].prizeId = 9298;
-        prizes[23].prizeId = 10351;
-        prizes[24].prizeId = 2825;
-        prizes[25].prizeId = 12850;
-        prizes[26].prizeId = 19525;
-        prizes[27].prizeId = 15999;
-        prizes[28].prizeId = 3178;
-        prizes[29].prizeId = 7844;
-        prizes[30].prizeId = 1078;
-        prizes[31].prizeId = 3515;
-        prizes[32].prizeId = 9493;
-        prizes[33].prizeId = 10510;
-        prizes[34].prizeId = 11648;
-        prizes[35].prizeId = 7341;
-        prizes[36].prizeId = 13959;
-        prizes[37].prizeId = 3919;
-        prizes[38].prizeId = 19642;
+        prizes[3].prizeId = 823;
+        prizes[4].prizeId = 1040;
+        prizes[5].prizeId = 1963;
+        prizes[6].prizeId = 2086;
+        prizes[7].prizeId = 3602;
+        prizes[8].prizeId = 3716;
+        prizes[9].prizeId = 5781;
+        prizes[10].prizeId = 6544;
+        prizes[11].prizeId = 6662;
+        prizes[12].prizeId = 7100;
 
         console2.logBytes(
             abi.encodeCall(
                 IRaffleV2.createRaffle,
                 (
                     IRaffleV2.CreateRaffleCalldata({
-                        cutoffTime: uint40(block.timestamp + 2 days + 2 hours + 30 minutes),
+                        cutoffTime: uint40(block.timestamp + 1 days + 2 hours + 30 minutes),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 56_000,
-                        maximumEntriesPerParticipant: 15_000,
-                        protocolFeeBp: 0,
+                        minimumEntries: 39_000,
+                        maximumEntriesPerParticipant: 13_000,
+                        protocolFeeBp: 500,
                         feeTokenAddress: address(0),
                         prizes: prizes,
                         pricingOptions: pricingOptions
