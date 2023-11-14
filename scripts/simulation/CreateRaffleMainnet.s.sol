@@ -18,41 +18,43 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 500, price: 0.525 ether});
         pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
-        address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
-        address elementals = 0xB6a37b5d14D502c3Ab0Ae6f3a0E058BC9517786e;
+        // address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
+        // address elementals = 0xB6a37b5d14D502c3Ab0Ae6f3a0E058BC9517786e;
+        address captainz = 0x769272677faB02575E84945F03Eca517ACc544Cc;
+        address potatoz = 0x39ee2c7b3cb80254225884ca001F57118C8f21B6;
 
         IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](13);
 
         for (uint256 i = 0; i <= 2; i++) {
             prizes[i].prizeTier = 0;
             prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
-            prizes[i].prizeAddress = azuki;
+            prizes[i].prizeAddress = captainz;
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
         }
 
-        prizes[0].prizeId = 4519;
-        prizes[1].prizeId = 7491;
-        prizes[2].prizeId = 7428;
+        prizes[0].prizeId = 2561;
+        prizes[1].prizeId = 3383;
+        prizes[2].prizeId = 7470;
 
         for (uint256 i = 3; i <= 12; i++) {
             prizes[i].prizeTier = 1;
             prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
-            prizes[i].prizeAddress = elementals;
+            prizes[i].prizeAddress = potatoz;
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
         }
 
-        prizes[3].prizeId = 3274;
-        prizes[4].prizeId = 4628;
-        prizes[5].prizeId = 7453;
-        prizes[6].prizeId = 9060;
-        prizes[7].prizeId = 10082;
-        prizes[8].prizeId = 12298;
-        prizes[9].prizeId = 13676;
-        prizes[10].prizeId = 13845;
-        prizes[11].prizeId = 18187;
-        prizes[12].prizeId = 19124;
+        prizes[3].prizeId = 2189;
+        prizes[4].prizeId = 3178;
+        prizes[5].prizeId = 3713;
+        prizes[6].prizeId = 5804;
+        prizes[7].prizeId = 6948;
+        prizes[8].prizeId = 6991;
+        prizes[9].prizeId = 7587;
+        prizes[10].prizeId = 7622;
+        prizes[11].prizeId = 8065;
+        prizes[12].prizeId = 9714;
 
         console2.logBytes(
             abi.encodeCall(
@@ -61,7 +63,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                     IRaffleV2.CreateRaffleCalldata({
                         cutoffTime: uint40(block.timestamp + 3 days + 2 hours + 30 minutes),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 23_000,
+                        minimumEntries: 34_000,
                         maximumEntriesPerParticipant: 10_000,
                         protocolFeeBp: 500,
                         feeTokenAddress: address(0),
