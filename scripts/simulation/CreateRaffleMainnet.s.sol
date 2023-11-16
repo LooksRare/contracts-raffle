@@ -33,9 +33,9 @@ contract CreateRaffleMainnet is Script, SimulationBase {
             prizes[i].winnersCount = 1;
         }
 
-        prizes[0].prizeId = 2561;
-        prizes[1].prizeId = 3383;
-        prizes[2].prizeId = 7470;
+        prizes[0].prizeId = 5886;
+        prizes[1].prizeId = 7140;
+        prizes[2].prizeId = 7782;
 
         for (uint256 i = 3; i <= 12; i++) {
             prizes[i].prizeTier = 1;
@@ -45,16 +45,16 @@ contract CreateRaffleMainnet is Script, SimulationBase {
             prizes[i].winnersCount = 1;
         }
 
-        prizes[3].prizeId = 2189;
-        prizes[4].prizeId = 3178;
-        prizes[5].prizeId = 3713;
-        prizes[6].prizeId = 5804;
-        prizes[7].prizeId = 6948;
-        prizes[8].prizeId = 6991;
-        prizes[9].prizeId = 7587;
-        prizes[10].prizeId = 7622;
-        prizes[11].prizeId = 8065;
-        prizes[12].prizeId = 9714;
+        prizes[3].prizeId = 2546;
+        prizes[4].prizeId = 3272;
+        prizes[5].prizeId = 3483;
+        prizes[6].prizeId = 4077;
+        prizes[7].prizeId = 4217;
+        prizes[8].prizeId = 4619;
+        prizes[9].prizeId = 6236;
+        prizes[10].prizeId = 6259;
+        prizes[11].prizeId = 7828;
+        prizes[12].prizeId = 8229;
 
         console2.logBytes(
             abi.encodeCall(
@@ -63,8 +63,8 @@ contract CreateRaffleMainnet is Script, SimulationBase {
                     IRaffleV2.CreateRaffleCalldata({
                         cutoffTime: uint40(block.timestamp + 3 days + 2 hours + 30 minutes),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 34_000,
-                        maximumEntriesPerParticipant: 10_000,
+                        minimumEntries: 36_000,
+                        maximumEntriesPerParticipant: 12_000,
                         protocolFeeBp: 500,
                         feeTokenAddress: address(0),
                         prizes: prizes,
