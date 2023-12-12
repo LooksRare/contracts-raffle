@@ -27,14 +27,11 @@ contract CreateRaffleMainnet is Script, SimulationBase {
 
         IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](21);
 
-        for (uint256 i = 0; i <= 2; i++) {
-            prizes[i].prizeTier = 0;
-            prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
-            prizes[i].prizeAddress = pudgy;
-            prizes[i].prizeAmount = 1;
-            prizes[i].winnersCount = 1;
-        }
-
+        prizes[0].prizeTier = 0;
+        prizes[0].prizeType = IRaffleV2.TokenType.ERC721;
+        prizes[0].prizeAddress = pudgy;
+        prizes[0].prizeAmount = 1;
+        prizes[0].winnersCount = 1;
         prizes[0].prizeId = 8488;
 
         for (uint256 i = 1; i <= 10; i++) {
