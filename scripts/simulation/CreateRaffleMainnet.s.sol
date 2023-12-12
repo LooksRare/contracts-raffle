@@ -57,7 +57,7 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         prizes[10].prizeId = 21105;
 
         for (uint256 i = 11; i <= 20; i++) {
-            prizes[i].prizeTier = 1;
+            prizes[i].prizeTier = 2;
             prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
             prizes[i].prizeAddress = rods;
             prizes[i].prizeAmount = 1;
