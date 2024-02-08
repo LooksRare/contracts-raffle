@@ -11,7 +11,7 @@ import {MockERC721} from "./mock/MockERC721.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC1155} from "./mock/MockERC1155.sol";
 import {MockWETH} from "./mock/MockWETH.sol";
-import {MockVRFCoordinatorV2} from "./mock/MockVRFCoordinatorV2.sol";
+import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
 import {ProtocolFeeRecipient} from "./mock/ProtocolFeeRecipient.sol";
 
 import {StdInvariant} from "forge-std/StdInvariant.sol";
@@ -28,7 +28,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     MockERC721 public erc721;
     MockERC20 public erc20;
     MockERC1155 public erc1155;
-    MockVRFCoordinatorV2 public vrfCoordinatorV2;
+    VRFCoordinatorV2Mock public vrfCoordinatorV2;
 
     address private constant VRF_COORDINATOR_V2 = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
     address private constant ETH = address(0);
@@ -53,6 +53,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     uint256 public ghost_ERC1155_prizesDepositedSum;
     uint256 public ghost_ERC1155_prizesReturnedSum;
     uint256 public ghost_ERC1155_prizesClaimedSum;
+
+    uint256 public fulfillRandomWords_nextRequestId = 1;
+    uint256 public drawWinners_nextRequestId = 1;
 
     address[100] internal actors;
     address internal currentActor;
@@ -117,7 +120,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
     constructor(
         RaffleV2 _looksRareRaffle,
-        MockVRFCoordinatorV2 _vrfCoordinatorV2,
+        VRFCoordinatorV2Mock _vrfCoordinatorV2,
         MockERC721 _erc721,
         MockERC20 _erc20,
         MockERC1155 _erc1155,
@@ -305,11 +308,17 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         }
     }
 
-    function fulfillRandomWords(uint256 randomWord) public countCall("fulfillRandomWords") {
-        uint256 requestId = vrfCoordinatorV2.fulfillRandomWords(randomWord);
-        if (requestId == 0) return;
+    function fulfillRandomWords() public countCall("fulfillRandomWords") {
+        if (fulfillRandomWords_nextRequestId < drawWinners_nextRequestId) {
+            vrfCoordinatorV2.fulfillRandomWords({
+                _requestId: fulfillRandomWords_nextRequestId,
+                _consumer: address(looksRareRaffle)
+            });
 
-        requestIdsReadyForWinnersSelection.push(requestId);
+            requestIdsReadyForWinnersSelection.push(fulfillRandomWords_nextRequestId);
+
+            fulfillRandomWords_nextRequestId++;
+        }
     }
 
     function selectWinners(uint256 seed) public countCall("selectWinners") {
@@ -581,6 +590,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
 
         vm.prank(raffleOwner);
         looksRareRaffle.drawWinners(raffleId);
+
+        drawWinners_nextRequestId++;
     }
 
     function cancelAfterRandomnessRequest(uint256 raffleId) public countCall("cancelAfterRandomnessRequest") {
@@ -632,7 +643,12 @@ contract Raffle_Invariants is TestHelpers {
     Handler public handler;
 
     function setUp() public {
-        MockVRFCoordinatorV2 vrfCoordinatorV2 = new MockVRFCoordinatorV2();
+        VRFCoordinatorV2Mock vrfCoordinatorV2 = new VRFCoordinatorV2Mock({
+            _baseFee: 0,
+            _gasPriceLink: 0
+        });
+        vm.prank(owner);
+        uint64 subId = vrfCoordinatorV2.createSubscription();
 
         MockWETH weth = new MockWETH();
 
@@ -642,7 +658,7 @@ contract Raffle_Invariants is TestHelpers {
         looksRareRaffle = new RaffleV2(
             address(weth),
             KEY_HASH,
-            SUBSCRIPTION_ID,
+            subId,
             address(vrfCoordinatorV2),
             owner,
             address(protocolFeeRecipient),
@@ -650,14 +666,14 @@ contract Raffle_Invariants is TestHelpers {
             address(transferManager)
         );
 
-        vm.prank(owner);
+        vm.startPrank(owner);
+        vrfCoordinatorV2.addConsumer(subId, address(looksRareRaffle));
         transferManager.allowOperator(address(looksRareRaffle));
+        vm.stopPrank();
 
         mockERC721 = new MockERC721();
         mockERC20 = new MockERC20();
         MockERC1155 mockERC1155 = new MockERC1155();
-
-        vrfCoordinatorV2.setRaffle(address(looksRareRaffle));
 
         handler = new Handler(looksRareRaffle, vrfCoordinatorV2, mockERC721, mockERC20, mockERC1155, transferManager);
         targetContract(address(handler));
