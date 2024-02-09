@@ -8,12 +8,8 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-
 contract Raffle_SelectWinners_Test is TestHelpers {
     function setUp() public {
-        _forkSepolia();
-
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
@@ -31,14 +27,17 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256 winnersCount = 11;
-        uint256[] memory randomWords = _generateRandomWordForRaffle();
 
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        uint256[] memory randomWords = _generateRandomWordForRaffle();
+        vrfCoordinator.fulfillRandomWordsWithOverride({
+            _requestId: 1,
+            _consumer: address(looksRareRaffle),
+            _words: randomWords
+        });
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Drawn);
 
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
@@ -78,13 +77,15 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         _enterRafflesWithSingleEntry(2, params.minimumEntries);
 
         uint256[] memory randomWords = _generateRandomWordForRaffle();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        vrfCoordinator.fulfillRandomWordsWithOverride({
+            _requestId: 1,
+            _consumer: address(looksRareRaffle),
+            _words: randomWords
+        });
 
         assertRaffleStatusUpdatedEventEmitted(2, IRaffleV2.RaffleStatus.Drawn);
 
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(2);
         assertEq(winners.length, winnersCount);
@@ -123,15 +124,18 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         }
 
         uint256 winnersCount = 11;
+
         uint256[] memory randomWords = new uint256[](1);
         randomWords[0] = randomWord;
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        vrfCoordinator.fulfillRandomWordsWithOverride({
+            _requestId: 1,
+            _consumer: address(looksRareRaffle),
+            _words: randomWords
+        });
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Drawn);
 
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         IRaffleV2.Winner[] memory winners = looksRareRaffle.getWinners(1);
         assertEq(winners.length, winnersCount);
@@ -155,16 +159,18 @@ contract Raffle_SelectWinners_Test is TestHelpers {
         _enterRafflesWithSingleEntryUpToMinimumEntries();
 
         uint256[] memory randomWords = _generateRandomWordForRaffle();
+        vrfCoordinator.fulfillRandomWordsWithOverride({
+            _requestId: 1,
+            _consumer: address(looksRareRaffle),
+            _words: randomWords
+        });
 
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
-
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         assertRaffleStatus(looksRareRaffle, 1, IRaffleV2.RaffleStatus.Drawn);
 
         vm.expectRevert(IRaffleV2.InvalidStatus.selector);
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
     }
 
     function test_selectWinners_RevertIf_RandomnessRequestDoesNotExist(uint256 requestId) public {

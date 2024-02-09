@@ -8,8 +8,6 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-
 contract Raffle_DrawWinners_Test is TestHelpers {
     function setUp() public {
         vm.createSelectFork("sepolia", 3_269_915);
@@ -52,16 +50,14 @@ contract Raffle_DrawWinners_Test is TestHelpers {
                 _expectChainlinkCall();
 
                 expectEmitCheckAll();
-                emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
+                emit RandomnessRequested(1, 1);
             }
 
             vm.prank(participant);
             looksRareRaffle.enterRaffles{value: price}(entries);
         }
 
-        (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(
-            FULFILL_RANDOM_WORDS_REQUEST_ID
-        );
+        (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(1);
 
         assertTrue(exists);
         assertEq(raffleId, 1);
@@ -79,7 +75,7 @@ contract Raffle_DrawWinners_Test is TestHelpers {
 
         _expectChainlinkCall();
 
-        _stubRandomnessRequestExistence(FULFILL_RANDOM_WORDS_REQUEST_ID, true);
+        _stubRandomnessRequestExistence(1, true);
 
         vm.deal(user2, 1 ether);
         vm.deal(user3, 1 ether);

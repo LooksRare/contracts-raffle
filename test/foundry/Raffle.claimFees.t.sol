@@ -8,14 +8,10 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-
 contract Raffle_ClaimFees_Test is TestHelpers {
     event FeesClaimed(uint256 raffleId, uint256 amount);
 
     function setUp() public {
-        _forkSepolia();
-
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
@@ -29,7 +25,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         _transitionRaffleStatusToDrawing();
         _fulfillRandomWords();
 
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         (, , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
         assertEq(address(looksRareRaffle).balance, 2.675 ether);
@@ -57,7 +53,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         _transitionRaffleStatusToDrawing();
         _fulfillRandomWords();
 
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         assertRaffleStatusUpdatedEventEmitted(1, IRaffleV2.RaffleStatus.Complete);
 
@@ -78,7 +74,7 @@ contract Raffle_ClaimFees_Test is TestHelpers {
         _transitionRaffleStatusToDrawing();
         _fulfillRandomWords();
 
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         vm.expectRevert(IRaffleV2.InvalidCaller.selector);
         looksRareRaffle.claimFees(1);

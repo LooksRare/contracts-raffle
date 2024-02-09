@@ -10,8 +10,6 @@ import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_EnterRaffles_Test is TestHelpers {
     function setUp() public {
-        _forkSepolia();
-
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
