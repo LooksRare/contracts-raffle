@@ -10,8 +10,6 @@ import {MockERC721} from "./mock/MockERC721.sol";
 
 contract Raffle_DrawWinners_PostCutoffTime_Test is TestHelpers {
     function setUp() public {
-        _forkSepolia();
-
         _deployRaffle();
         _subscribeRaffleToVRF();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
@@ -29,7 +27,7 @@ contract Raffle_DrawWinners_PostCutoffTime_Test is TestHelpers {
         _expectChainlinkCall();
 
         expectEmitCheckAll();
-        emit RandomnessRequested(1, FULFILL_RANDOM_WORDS_REQUEST_ID);
+        emit RandomnessRequested(1, 1);
 
         vm.prank(user1);
         looksRareRaffle.drawWinners(1);

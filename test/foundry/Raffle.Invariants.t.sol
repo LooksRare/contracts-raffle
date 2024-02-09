@@ -30,7 +30,6 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     MockERC1155 public erc1155;
     VRFCoordinatorV2Mock public vrfCoordinatorV2;
 
-    address private constant VRF_COORDINATOR_V2 = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
     address private constant ETH = address(0);
 
     uint256 public ghost_ETH_prizesDepositedSum;
@@ -643,10 +642,7 @@ contract Raffle_Invariants is TestHelpers {
     Handler public handler;
 
     function setUp() public {
-        VRFCoordinatorV2Mock vrfCoordinatorV2 = new VRFCoordinatorV2Mock({
-            _baseFee: 0,
-            _gasPriceLink: 0
-        });
+        VRFCoordinatorV2Mock vrfCoordinatorV2 = new VRFCoordinatorV2Mock({_baseFee: 0, _gasPriceLink: 0});
         vm.prank(owner);
         uint64 subId = vrfCoordinatorV2.createSubscription();
 
@@ -657,7 +653,7 @@ contract Raffle_Invariants is TestHelpers {
 
         looksRareRaffle = new RaffleV2(
             address(weth),
-            KEY_HASH,
+            bytes32(0),
             subId,
             address(vrfCoordinatorV2),
             owner,

@@ -8,16 +8,12 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-
 contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
     MockERC20 private feeToken;
 
     event FeesClaimed(uint256 raffleId, uint256 amount);
 
     function setUp() public {
-        _forkSepolia();
-
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
         feeToken = new MockERC20();
@@ -60,7 +56,7 @@ contract Raffle_FeeTokenAddressIsERC20_Test is TestHelpers {
 
         _fulfillRandomWords();
 
-        looksRareRaffle.selectWinners(FULFILL_RANDOM_WORDS_REQUEST_ID);
+        looksRareRaffle.selectWinners(1);
 
         (, , , , , , , , , uint256 claimableFees) = looksRareRaffle.raffles(1);
         assertEq(feeToken.balanceOf(address(looksRareRaffle)), 2.675 ether);

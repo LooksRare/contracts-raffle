@@ -8,12 +8,8 @@ import {TestHelpers} from "./TestHelpers.sol";
 import {MockERC20} from "./mock/MockERC20.sol";
 import {MockERC721} from "./mock/MockERC721.sol";
 
-import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-
 contract Raffle_FulfillRandomWords_Test is TestHelpers {
     function setUp() public {
-        _forkSepolia();
-
         _deployRaffle();
         _mintStandardRafflePrizesToRaffleOwnerAndApprove();
 
@@ -34,9 +30,7 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         _fulfillRandomWords();
 
-        (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(
-            FULFILL_RANDOM_WORDS_REQUEST_ID
-        );
+        (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(1);
         assertTrue(exists);
         assertEq(raffleId, 1);
         assertEq(randomWord, 3_14159);
@@ -49,8 +43,12 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         uint256 invalidRequestId = 69_420;
 
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(invalidRequestId, _randomWords);
+        vm.expectRevert(abi.encodePacked("nonexistent request"));
+        vrfCoordinator.fulfillRandomWordsWithOverride({
+            _requestId: invalidRequestId,
+            _consumer: address(looksRareRaffle),
+            _words: _randomWords
+        });
 
         (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(invalidRequestId);
         assertFalse(exists);
@@ -67,16 +65,14 @@ contract Raffle_FulfillRandomWords_Test is TestHelpers {
 
         uint256[] memory _randomWordsTwo = new uint256[](11);
 
-        // It doesn't revert, but does not update the randomness request.
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(address(looksRareRaffle)).rawFulfillRandomWords(
-            FULFILL_RANDOM_WORDS_REQUEST_ID,
-            _randomWordsTwo
-        );
+        vm.expectRevert(abi.encodePacked("nonexistent request"));
+        vrfCoordinator.fulfillRandomWordsWithOverride({
+            _requestId: 1,
+            _consumer: address(looksRareRaffle),
+            _words: _randomWordsTwo
+        });
 
-        (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(
-            FULFILL_RANDOM_WORDS_REQUEST_ID
-        );
+        (bool exists, uint80 raffleId, uint256 randomWord) = looksRareRaffle.randomnessRequests(1);
         assertTrue(exists);
         assertEq(raffleId, 1);
         assertEq(randomWord, 3_14159);

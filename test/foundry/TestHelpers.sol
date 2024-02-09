@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
 
 import {TransferManager} from "@looksrare/contracts-transfer-manager/contracts/TransferManager.sol";
 
@@ -35,20 +36,21 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
         vm.stopPrank();
     }
 
-    function _forkSepolia() internal {
-        vm.createSelectFork("sepolia", 3_269_983);
-    }
-
     function _deployRaffle() internal {
         MockWETH weth = new MockWETH();
         protocolFeeRecipient = new ProtocolFeeRecipient(address(weth), address(69_420));
         transferManager = new TransferManager(owner);
 
+        vrfCoordinator = new VRFCoordinatorV2Mock({_baseFee: 0, _gasPriceLink: 0});
+
+        vm.prank(owner);
+        vrfSubId = vrfCoordinator.createSubscription();
+
         looksRareRaffle = new RaffleV2(
             address(weth),
-            KEY_HASH,
-            SUBSCRIPTION_ID,
-            VRF_COORDINATOR,
+            bytes32(0),
+            vrfSubId,
+            address(vrfCoordinator),
             owner,
             address(protocolFeeRecipient),
             500,
@@ -220,15 +222,17 @@ abstract contract TestHelpers is AssertionHelpers, TestParameters {
     }
 
     function _subscribeRaffleToVRF() internal {
-        vm.prank(SUBSCRIPTION_ADMIN);
-        VRFCoordinatorV2Interface(VRF_COORDINATOR).addConsumer(SUBSCRIPTION_ID, address(looksRareRaffle));
+        vm.prank(owner);
+        vrfCoordinator.addConsumer(vrfSubId, address(looksRareRaffle));
     }
 
     function _fulfillRandomWords() internal {
         uint256[] memory randomWords = _generateRandomWordForRaffle();
-
-        vm.prank(VRF_COORDINATOR);
-        VRFConsumerBaseV2(looksRareRaffle).rawFulfillRandomWords(FULFILL_RANDOM_WORDS_REQUEST_ID, randomWords);
+        vrfCoordinator.fulfillRandomWordsWithOverride({
+            _requestId: 1,
+            _consumer: address(looksRareRaffle),
+            _words: randomWords
+        });
     }
 
     function _stubRaffleStatus(uint256 raffleId, uint8 status) internal {

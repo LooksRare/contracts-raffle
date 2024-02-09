@@ -17,7 +17,7 @@ contract Raffle_SetUpState_Test is TestHelpers {
     }
 
     function test_setUpState() public {
-        assertEq(looksRareRaffle.SUBSCRIPTION_ID(), 1_122);
+        assertEq(looksRareRaffle.SUBSCRIPTION_ID(), vrfSubId);
         assertFalse(looksRareRaffle.paused());
     }
 
