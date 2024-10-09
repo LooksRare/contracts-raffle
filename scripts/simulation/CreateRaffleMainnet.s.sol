@@ -18,45 +18,43 @@ contract CreateRaffleMainnet is Script, SimulationBase {
         pricingOptions[2] = IRaffleV2.PricingOption({entriesCount: 500, price: 0.525 ether});
         pricingOptions[3] = IRaffleV2.PricingOption({entriesCount: 1_000, price: 0.98 ether});
 
-        // address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
-        // address elementals = 0xB6a37b5d14D502c3Ab0Ae6f3a0E058BC9517786e;
+        address azuki = 0xED5AF388653567Af2F388E6224dC7C4b3241C544;
+        address elementals = 0xB6a37b5d14D502c3Ab0Ae6f3a0E058BC9517786e;
         // address beanz = 0x306b1ea3ecdf94aB739F1910bbda052Ed4A9f949;
-        address pudgy = 0xBd3531dA5CF5857e7CfAA92426877b022e612cf8;
-        address lilPudgy = 0x524cAB2ec69124574082676e6F654a18df49A048;
+        // address pudgy = 0xBd3531dA5CF5857e7CfAA92426877b022e612cf8;
+        // address lilPudgy = 0x524cAB2ec69124574082676e6F654a18df49A048;
         // address rods = 0x062E691c2054dE82F28008a8CCC6d7A1c8ce060D;
 
         IRaffleV2.Prize[] memory prizes = new IRaffleV2.Prize[](6);
 
         prizes[0].prizeTier = 0;
         prizes[0].prizeType = IRaffleV2.TokenType.ERC721;
-        prizes[0].prizeAddress = pudgy;
+        prizes[0].prizeAddress = azuki;
         prizes[0].prizeAmount = 1;
         prizes[0].winnersCount = 1;
-        prizes[0].prizeId = 6530;
+        prizes[0].prizeId = 7939;
 
-        for (uint256 i = 1; i < 6; i++) {
+        for (uint256 i = 1; i < 4; i++) {
             prizes[i].prizeTier = 1;
             prizes[i].prizeType = IRaffleV2.TokenType.ERC721;
-            prizes[i].prizeAddress = lilPudgy;
+            prizes[i].prizeAddress = elementals;
             prizes[i].prizeAmount = 1;
             prizes[i].winnersCount = 1;
         }
 
-        prizes[1].prizeId = 1010;
-        prizes[2].prizeId = 11449;
-        prizes[3].prizeId = 14323;
-        prizes[4].prizeId = 21331;
-        prizes[5].prizeId = 21716;
+        prizes[1].prizeId = 14786;
+        prizes[2].prizeId = 14889;
+        prizes[3].prizeId = 7559;
 
         console2.logBytes(
             abi.encodeCall(
                 IRaffleV2.createRaffle,
                 (
                     IRaffleV2.CreateRaffleCalldata({
-                        cutoffTime: uint40(block.timestamp + 3 days + 6 hours + 30 minutes),
+                        cutoffTime: uint40(block.timestamp + 3 days + 2 hours),
                         isMinimumEntriesFixed: true,
-                        minimumEntries: 29_000,
-                        maximumEntriesPerParticipant: 9_000,
+                        minimumEntries: 8_000,
+                        maximumEntriesPerParticipant: 2_000,
                         protocolFeeBp: 500,
                         feeTokenAddress: address(0),
                         prizes: prizes,
